@@ -284,6 +284,89 @@ public class Ejercicio10 {
 
 ---
 
+---
+
+### Ejercicio 11: K Puntos más cercanos al origen
+Dado un arreglo de puntos bidimensionales (donde cada punto es `[x, y]`) y un entero `k`, devuelve los `k` puntos más cercanos al origen `(0, 0)`.
+La distancia entre un punto `(x, y)` y el origen se calcula como `x^2 + y^2`.
+
+**Pista:** Usa un Max-Heap de tamaño `k` para almacenar las distancias. Cuando encuentres una distancia menor a la mayor (peek), extrae e inserta.
+
+```java
+import java.util.*;
+
+public class Ejercicio11 {
+    public static int[][] kClosest(int[][] points, int k) {
+        // TODO: Implementar usando un PriorityQueue (Max-Heap)
+        // Comparar según (x*x + y*y)
+        return new int[0][0];
+    }
+
+    public static void main(String[] args) {
+        int[][] points = {{1, 3}, {-2, 2}, {5, -1}};
+        int[][] result = kClosest(points, 2);
+        System.out.println("Los 2 más cercanos son:");
+        for (int[] p : result) {
+            System.out.println(Arrays.toString(p));
+        }
+        // Esperado: [-2, 2], [1, 3]
+    }
+}
+```
+
+---
+
+### Ejercicio 12: Costo mínimo para conectar cuerdas
+Tienes `N` cuerdas de diferentes longitudes. Debes conectarlas todas en una sola cuerda. En cada paso puedes conectar dos cuerdas; el costo de esta operación es la suma de sus longitudes.
+Encuentra el **costo mínimo total** para conectar todas las cuerdas.
+
+**Pista:** Siempre une las dos cuerdas más cortas primero (Min-Heap).
+
+```java
+import java.util.*;
+
+public class Ejercicio12 {
+    public static int minCost(int[] ropes) {
+        // TODO: Insertar todo en Min-Heap
+        // Mientras haya > 1 cuerda:
+        // extraer 2 mínimas, sumarlas, acumular costo y reinsertar la suma
+        return 0;
+    }
+
+    public static void main(String[] args) {
+        int[] ropes = {4, 3, 2, 6};
+        System.out.println("Costo mínimo: " + minCost(ropes)); // Esperado: 29
+    }
+}
+```
+
+---
+
+### Ejercicio 13: K-ésima suma más pequeña de dos arreglos
+Dados dos arreglos de enteros ordenados `nums1` y `nums2`, y un número `k`, devuelve los `k` pares `[u, v]` (donde `u` está en `nums1` y `v` en `nums2`) con las sumas más pequeñas.
+
+**Pista:** Combina un Min-Heap y un registro de los pares ya visitados, empezando desde el par `[nums1[0], nums2[0]]`.
+
+```java
+import java.util.*;
+
+public class Ejercicio13 {
+    public static List<List<Integer>> kSmallestPairs(int[] nums1, int[] nums2, int k) {
+        // TODO: Min-Heap para pares basado en su suma
+        return new ArrayList<>();
+    }
+
+    public static void main(String[] args) {
+        int[] nums1 = {1, 7, 11};
+        int[] nums2 = {2, 4, 6};
+        System.out.println(kSmallestPairs(nums1, nums2, 3));
+        // Esperado: [[1, 2], [1, 4], [1, 6]]
+    }
+}
+```
+
+---
+
 ## 💡 Tabla de Referencia Rápida
 
 | Ejercicio | Tema | Dificultad | Concepto Clave |
@@ -298,3 +381,6 @@ public class Ejercicio10 {
 | 8 | Reorganizar string | 🔴 | Max-Heap + greedy |
 | 9 | Top K frecuentes | 🔴 | Heap + HashMap |
 | 10 | HeapSort in-place | 🔴 | Heapify + extracción |
+| 11 | K Puntos más cercanos | 🔴 | Max-Heap estructurado |
+| 12 | Conectar cuerdas | 🔴 | Min-Heap iterativo |
+| 13 | K sumas más pequeñas | 🔴 | Heap sobre grafos bidimensionales |
