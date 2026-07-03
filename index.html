@@ -829,6 +829,83 @@
         .ref-card a:hover {
             text-decoration: underline;
         }
+
+        /* ===== ANIMATION CLASSES ===== */
+        .anim-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            height: 280px;
+            position: relative;
+            margin-top: 1.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .tab-btn-anim {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 0.6rem 1.25rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        .tab-btn-anim:hover { border-color: var(--accent-purple); color: var(--text-primary); }
+        .tab-btn-anim.active { background: rgba(124, 58, 237, 0.2); border-color: var(--accent-purple); color: var(--accent-purple-light); }
+
+        /* Min Heap Animation */
+        .node-swap-min { animation: minSwap40 4s infinite; }
+        .node-new-min { animation: minNew20 4s infinite; }
+        .edge-new-min { animation: edgeNew 4s infinite; }
+
+        @keyframes minSwap40 {
+            0%, 25% { transform: translate(300px, 120px); }
+            45%, 100% { transform: translate(250px, 200px); }
+        }
+        @keyframes minNew20 {
+            0%, 5% { opacity: 0; transform: translate(250px, 200px); }
+            10%, 25% { opacity: 1; transform: translate(250px, 200px); }
+            45%, 100% { opacity: 1; transform: translate(300px, 120px); }
+        }
+        @keyframes edgeNew {
+            0%, 5% { opacity: 0; }
+            10%, 100% { opacity: 1; }
+        }
+
+        /* Max Heap Animation */
+        .node-swap-max { animation: maxSwap50 4s infinite; }
+        .node-new-max { animation: maxNew80 4s infinite; }
+
+        @keyframes maxSwap50 {
+            0%, 25% { transform: translate(300px, 120px); }
+            45%, 100% { transform: translate(250px, 200px); }
+        }
+        @keyframes maxNew80 {
+            0%, 5% { opacity: 0; transform: translate(250px, 200px); }
+            10%, 25% { opacity: 1; transform: translate(250px, 200px); }
+            45%, 100% { opacity: 1; transform: translate(300px, 120px); }
+        }
+
+        /* BST Animation */
+        .node-new-bst { animation: bstNew55 4s infinite; }
+        .edge-new-bst { animation: bstEdge 4s infinite; }
+
+        @keyframes bstNew55 {
+            0%, 5% { opacity: 0; transform: translate(200px, 0px); }
+            10%, 25% { opacity: 1; transform: translate(200px, 40px); }
+            35%, 50% { opacity: 1; transform: translate(300px, 100px); }
+            60%, 75% { opacity: 1; transform: translate(240px, 160px); }
+            85%, 100% { opacity: 1; transform: translate(280px, 220px); }
+        }
+        @keyframes bstEdge {
+            0%, 80% { opacity: 0; }
+            85%, 100% { opacity: 1; }
+        }
     </style>
 </head>
 <body>
@@ -846,6 +923,7 @@
         <a href="#array">Array</a>
         <a href="#vs-bst">vs BST</a>
         <a href="#operaciones">Ops</a>
+        <a href="#animacion">Animación</a>
         <a href="#generico">Genérico</a>
         <a href="#priority-queue">PriorityQueue</a>
         <a href="#max-heap">Max-Heap</a>
@@ -1197,11 +1275,110 @@
 </section>
 
 <!-- ═══════════════════════════════════════════════════════
-     SLIDE 7: IMPLEMENTACIÓN GENÉRICA
+     SLIDE 7: ANIMACIÓN
+     ═══════════════════════════════════════════════════════ -->
+<section id="animacion" class="animate-on-scroll">
+    <div class="section-header">
+        <div class="section-number">06 — Animación</div>
+        <h2>Inserción: <span class="gradient-text">Heaps vs BST</span></h2>
+        <p>Observa cómo se inserta un nuevo valor en cada estructura (Sift-Up en Heaps vs Descenso en BST).</p>
+    </div>
+
+    <div class="tabs">
+        <div class="tab-buttons">
+            <button class="tab-btn-anim active" onclick="switchAnimTab(event, 'anim-min')">Min-Heap (Inserta 20)</button>
+            <button class="tab-btn-anim" onclick="switchAnimTab(event, 'anim-max')">Max-Heap (Inserta 80)</button>
+            <button class="tab-btn-anim" onclick="switchAnimTab(event, 'anim-bst')">BST (Inserta 55)</button>
+        </div>
+
+        <!-- Min Heap -->
+        <div id="anim-min" class="tab-content-anim active">
+            <div class="highlight-box green">
+                <strong>Min-Heap:</strong> 20 se inserta al final. Como 20 < 40, sube (<strong>Sift-Up</strong>) y se intercambia. Luego 20 > 10, por lo que se detiene.
+            </div>
+            <div class="anim-container">
+                <svg width="400" height="260" viewBox="0 0 400 260">
+                    <line x1="200" y1="40" x2="100" y2="120" stroke="#10b981" stroke-width="2"/>
+                    <line x1="200" y1="40" x2="300" y2="120" stroke="#10b981" stroke-width="2"/>
+                    <line x1="100" y1="120" x2="50" y2="200" stroke="#10b981" stroke-width="2"/>
+                    <line x1="100" y1="120" x2="150" y2="200" stroke="#10b981" stroke-width="2"/>
+                    <line x1="300" y1="120" x2="250" y2="200" stroke="#10b981" stroke-width="2" class="edge-new-min" stroke-dasharray="4"/>
+                    
+                    <g transform="translate(200,40)"><circle r="20" fill="#10b981"/><text y="5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="14" font-weight="bold">10</text></g>
+                    <g transform="translate(100,120)"><circle r="20" fill="#10b981"/><text y="5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="14" font-weight="bold">30</text></g>
+                    <g transform="translate(50,200)"><circle r="20" fill="#10b981"/><text y="5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="14" font-weight="bold">50</text></g>
+                    <g transform="translate(150,200)"><circle r="20" fill="#10b981"/><text y="5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="14" font-weight="bold">60</text></g>
+                    
+                    <g class="node-swap-min">
+                        <circle r="20" fill="#10b981"/><text y="5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="14" font-weight="bold">40</text>
+                    </g>
+                    <g class="node-new-min">
+                        <circle r="20" fill="#f59e0b"/><text y="5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="14" font-weight="bold">20</text>
+                    </g>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Max Heap -->
+        <div id="anim-max" class="tab-content-anim" style="display: none;">
+            <div class="highlight-box red">
+                <strong>Max-Heap:</strong> 80 se inserta al final. Como 80 > 50, sube (<strong>Sift-Up</strong>) y se intercambia. Luego 80 < 90, por lo que se detiene.
+            </div>
+            <div class="anim-container">
+                <svg width="400" height="260" viewBox="0 0 400 260">
+                    <line x1="200" y1="40" x2="100" y2="120" stroke="#ef4444" stroke-width="2"/>
+                    <line x1="200" y1="40" x2="300" y2="120" stroke="#ef4444" stroke-width="2"/>
+                    <line x1="100" y1="120" x2="50" y2="200" stroke="#ef4444" stroke-width="2"/>
+                    <line x1="100" y1="120" x2="150" y2="200" stroke="#ef4444" stroke-width="2"/>
+                    <line x1="300" y1="120" x2="250" y2="200" stroke="#ef4444" stroke-width="2" class="edge-new-min" stroke-dasharray="4"/>
+                    
+                    <g transform="translate(200,40)"><circle r="20" fill="#ef4444"/><text y="5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="14" font-weight="bold">90</text></g>
+                    <g transform="translate(100,120)"><circle r="20" fill="#ef4444"/><text y="5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="14" font-weight="bold">70</text></g>
+                    <g transform="translate(50,200)"><circle r="20" fill="#ef4444"/><text y="5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="14" font-weight="bold">40</text></g>
+                    <g transform="translate(150,200)"><circle r="20" fill="#ef4444"/><text y="5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="14" font-weight="bold">20</text></g>
+                    
+                    <g class="node-swap-max">
+                        <circle r="20" fill="#ef4444"/><text y="5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="14" font-weight="bold">50</text>
+                    </g>
+                    <g class="node-new-max">
+                        <circle r="20" fill="#f59e0b"/><text y="5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="14" font-weight="bold">80</text>
+                    </g>
+                </svg>
+            </div>
+        </div>
+
+        <!-- BST -->
+        <div id="anim-bst" class="tab-content-anim" style="display: none;">
+            <div class="highlight-box purple">
+                <strong>BST:</strong> 55 baja comparando desde la raíz. >40 (Der), <60 (Izq), >50 (Der). Se inserta ahí (no sube).
+            </div>
+            <div class="anim-container">
+                <svg width="400" height="260" viewBox="0 0 400 260">
+                    <line x1="200" y1="40" x2="100" y2="100" stroke="#a78bfa" stroke-width="2"/>
+                    <line x1="200" y1="40" x2="300" y2="100" stroke="#a78bfa" stroke-width="2"/>
+                    <line x1="300" y1="100" x2="240" y2="160" stroke="#a78bfa" stroke-width="2"/>
+                    <line x1="240" y1="160" x2="280" y2="220" stroke="#a78bfa" stroke-width="2" class="edge-new-bst" stroke-dasharray="4"/>
+                    
+                    <g transform="translate(200,40)"><circle r="20" fill="#a78bfa"/><text y="5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="14" font-weight="bold">40</text></g>
+                    <g transform="translate(100,100)"><circle r="20" fill="#a78bfa"/><text y="5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="14" font-weight="bold">20</text></g>
+                    <g transform="translate(300,100)"><circle r="20" fill="#a78bfa"/><text y="5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="14" font-weight="bold">60</text></g>
+                    <g transform="translate(240,160)"><circle r="20" fill="#a78bfa"/><text y="5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="14" font-weight="bold">50</text></g>
+                    
+                    <g class="node-new-bst">
+                        <circle r="20" fill="#f59e0b"/><text y="5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="14" font-weight="bold">55</text>
+                    </g>
+                </svg>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     SLIDE 8: IMPLEMENTACIÓN GENÉRICA
      ═══════════════════════════════════════════════════════ -->
 <section id="generico" class="animate-on-scroll">
     <div class="section-header">
-        <div class="section-number">06 — Implementación</div>
+        <div class="section-number">07 — Implementación</div>
         <h2>MinHeap <span class="gradient-text">Genérico</span></h2>
         <p>Implementación desde cero usando generics y <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.1rem 0.4rem; border-radius: 4px;">Comparable&lt;T&gt;</code>.</p>
     </div>
@@ -1263,11 +1440,11 @@
 </section>
 
 <!-- ═══════════════════════════════════════════════════════
-     SLIDE 8: PRIORITY QUEUE
+     SLIDE 9: PRIORITY QUEUE
      ═══════════════════════════════════════════════════════ -->
 <section id="priority-queue" class="animate-on-scroll">
     <div class="section-header">
-        <div class="section-number">07 — PriorityQueue</div>
+        <div class="section-number">08 — PriorityQueue</div>
         <h2><span class="gradient-text">PriorityQueue</span> en Java</h2>
         <p>Java provee <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.1rem 0.4rem; border-radius: 4px;">java.util.PriorityQueue</code> — un Min-Heap listo para usar.</p>
     </div>
@@ -1325,11 +1502,11 @@ System.out.<span class="fn">println</span>(minHeap.<span class="fn">peek</span>(
 </section>
 
 <!-- ═══════════════════════════════════════════════════════
-     SLIDE 9: MAX-HEAP CON PRIORITYQUEUE
+     SLIDE 10: MAX-HEAP CON PRIORITYQUEUE
      ═══════════════════════════════════════════════════════ -->
 <section id="max-heap" class="animate-on-scroll">
     <div class="section-header">
-        <div class="section-number">08 — Max-Heap</div>
+        <div class="section-number">09 — Max-Heap</div>
         <h2>Implementar <span class="gradient-text">Max-Heap</span></h2>
         <p>3 formas de crear un Max-Heap con PriorityQueue.</p>
     </div>
@@ -1416,11 +1593,11 @@ System.out.<span class="fn">println</span>(maxHeap.<span class="fn">poll</span>(
 </section>
 
 <!-- ═══════════════════════════════════════════════════════
-     SLIDE 10: APLICACIONES
+     SLIDE 11: APLICACIONES
      ═══════════════════════════════════════════════════════ -->
 <section id="aplicaciones" class="animate-on-scroll">
     <div class="section-header">
-        <div class="section-number">09 — Aplicaciones</div>
+        <div class="section-number">10 — Aplicaciones</div>
         <h2>Aplicaciones <span class="gradient-text">Reales</span></h2>
         <p>¿Dónde se usan los Heaps en la práctica?</p>
     </div>
@@ -1466,11 +1643,11 @@ System.out.<span class="fn">println</span>(maxHeap.<span class="fn">poll</span>(
 </section>
 
 <!-- ═══════════════════════════════════════════════════════
-     SLIDE 11: COMPLEJIDAD
+     SLIDE 12: COMPLEJIDAD
      ═══════════════════════════════════════════════════════ -->
 <section id="complejidad" class="animate-on-scroll">
     <div class="section-header">
-        <div class="section-number">10 — Complejidad</div>
+        <div class="section-number">11 — Complejidad</div>
         <h2>Complejidad <span class="gradient-text">Big-O</span></h2>
     </div>
 
@@ -1508,11 +1685,11 @@ System.out.<span class="fn">println</span>(maxHeap.<span class="fn">poll</span>(
 </section>
 
 <!-- ═══════════════════════════════════════════════════════
-     SLIDE 12: REFERENCIAS
+     SLIDE 13: REFERENCIAS
      ═══════════════════════════════════════════════════════ -->
 <section id="refs" class="animate-on-scroll">
     <div class="section-header">
-        <div class="section-number">11 — Referencias</div>
+        <div class="section-number">12 — Referencias</div>
         <h2>Recursos y <span class="gradient-text">Referencias</span></h2>
     </div>
 
@@ -1561,6 +1738,14 @@ System.out.<span class="fn">println</span>(maxHeap.<span class="fn">poll</span>(
 
 <!-- ===== SCRIPTS ===== -->
 <script>
+    // Animation Tab switching
+    function switchAnimTab(event, tabId) {
+        document.querySelectorAll('.tab-content-anim').forEach(t => t.style.display = 'none');
+        document.querySelectorAll('.tab-btn-anim').forEach(b => b.classList.remove('active'));
+        document.getElementById(tabId).style.display = 'block';
+        event.target.classList.add('active');
+    }
+
     // Tab switching
     function switchTab(event, tabId) {
         document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
