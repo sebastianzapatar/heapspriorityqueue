@@ -1,0 +1,1611 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heaps en Java — Estructura de Datos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: #1a1a2e;
+            --bg-card-hover: #22223a;
+            --accent-purple: #7c3aed;
+            --accent-purple-light: #a78bfa;
+            --accent-cyan: #06b6d4;
+            --accent-cyan-light: #67e8f9;
+            --accent-green: #10b981;
+            --accent-green-light: #6ee7b7;
+            --accent-orange: #f59e0b;
+            --accent-red: #ef4444;
+            --accent-pink: #ec4899;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border-color: rgba(124, 58, 237, 0.2);
+            --code-bg: #1e1e2e;
+            --gradient-1: linear-gradient(135deg, #7c3aed 0%, #06b6d4 100%);
+            --gradient-2: linear-gradient(135deg, #ec4899 0%, #f59e0b 100%);
+            --gradient-3: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        /* ===== SLIDE NAVIGATION ===== */
+        .slide-nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(10, 10, 15, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.75rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .nav-brand .icon {
+            font-size: 1.5rem;
+        }
+
+        .nav-brand span {
+            font-weight: 700;
+            font-size: 1rem;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 0.25rem;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.75rem;
+            padding: 0.35rem 0.65rem;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--text-primary);
+            background: rgba(124, 58, 237, 0.15);
+        }
+
+        .nav-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 2px;
+            background: var(--gradient-1);
+            transition: width 0.3s ease;
+        }
+
+        /* ===== SECTIONS (SLIDES) ===== */
+        section {
+            min-height: 100vh;
+            padding: 6rem 2rem 4rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        /* ===== HERO SECTION ===== */
+        .hero {
+            text-align: center;
+            padding-top: 4rem;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(124, 58, 237, 0.1);
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            padding: 0.5rem 1.25rem;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            color: var(--accent-purple-light);
+            margin-bottom: 2rem;
+            animation: fadeInDown 0.6s ease;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            animation: fadeInUp 0.6s ease;
+        }
+
+        .hero h1 .gradient-text {
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            max-width: 650px;
+            margin: 0 auto 2.5rem;
+            animation: fadeInUp 0.6s ease 0.1s both;
+        }
+
+        .hero-visual {
+            display: flex;
+            justify-content: center;
+            margin-top: 2rem;
+            animation: fadeInUp 0.8s ease 0.2s both;
+        }
+
+        /* ===== TREE VISUALIZATION ===== */
+        .tree-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2rem 3rem;
+            display: inline-block;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tree-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-1);
+        }
+
+        .tree-svg {
+            display: block;
+            margin: 0 auto;
+        }
+
+        .tree-node {
+            transition: all 0.3s ease;
+        }
+
+        .tree-node:hover {
+            transform: scale(1.15);
+        }
+
+        /* ===== SECTION HEADERS ===== */
+        .section-header {
+            margin-bottom: 3rem;
+        }
+
+        .section-number {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--accent-purple);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 0.75rem;
+        }
+
+        .section-header h2 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 1rem;
+        }
+
+        .section-header p {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+        }
+
+        /* ===== CARDS ===== */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-1);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .card:hover {
+            background: var(--bg-card-hover);
+            border-color: rgba(124, 58, 237, 0.4);
+            transform: translateY(-4px);
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .card h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+
+        .card p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        /* ===== COMPARISON TABLE ===== */
+        .comparison-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: 16px;
+            overflow: hidden;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            margin-top: 1.5rem;
+        }
+
+        .comparison-table th {
+            background: rgba(124, 58, 237, 0.15);
+            padding: 1rem 1.5rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--accent-purple-light);
+        }
+
+        .comparison-table td {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid rgba(124, 58, 237, 0.1);
+            font-size: 0.95rem;
+        }
+
+        .comparison-table tr:hover td {
+            background: rgba(124, 58, 237, 0.05);
+        }
+
+        .comparison-table .feature-name {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .badge-heap {
+            display: inline-block;
+            background: rgba(6, 182, 212, 0.15);
+            color: var(--accent-cyan-light);
+            padding: 0.15rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .badge-bst {
+            display: inline-block;
+            background: rgba(236, 72, 153, 0.15);
+            color: var(--accent-pink);
+            padding: 0.15rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        /* ===== CODE BLOCKS ===== */
+        .code-block {
+            background: var(--code-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 1.5rem 0;
+        }
+
+        .code-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1.25rem;
+            background: rgba(124, 58, 237, 0.08);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .code-header .dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .code-header .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .code-header .dot.red { background: #ef4444; }
+        .code-header .dot.yellow { background: #f59e0b; }
+        .code-header .dot.green { background: #10b981; }
+
+        .code-header .filename {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .code-block pre {
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            line-height: 1.8;
+            color: var(--text-primary);
+        }
+
+        .code-block pre code {
+            color: inherit;
+        }
+
+        /* Syntax highlighting */
+        .kw { color: #c678dd; }     /* keyword */
+        .tp { color: #e5c07b; }     /* type */
+        .fn { color: #61afef; }     /* function */
+        .str { color: #98c379; }    /* string */
+        .num { color: #d19a66; }    /* number */
+        .cm { color: #5c6370; font-style: italic; }  /* comment */
+        .op { color: #56b6c2; }     /* operator */
+        .an { color: #e06c75; }     /* annotation */
+
+        /* ===== FORMULA BOX ===== */
+        .formula-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.25rem;
+            margin: 1.5rem 0;
+        }
+
+        .formula-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .formula-box:hover {
+            border-color: var(--accent-cyan);
+            transform: translateY(-2px);
+        }
+
+        .formula-box .formula-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .formula-box .formula {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--accent-cyan-light);
+        }
+
+        /* ===== COMPLEXITY TABLE ===== */
+        .complexity-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .complexity-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.25rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .complexity-item:hover {
+            border-color: var(--accent-green);
+            transform: translateY(-2px);
+        }
+
+        .complexity-item .op-name {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .complexity-item .complexity {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-green-light);
+        }
+
+        .complexity-item .complexity.fast { color: var(--accent-green-light); }
+        .complexity-item .complexity.medium { color: var(--accent-orange); }
+        .complexity-item .complexity.slow { color: var(--accent-red); }
+
+        /* ===== SPLIT LAYOUT ===== */
+        .split {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: start;
+        }
+
+        @media (max-width: 768px) {
+            .split {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+        }
+
+        /* ===== STEP LIST ===== */
+        .step-list {
+            list-style: none;
+            counter-reset: step-counter;
+        }
+
+        .step-list li {
+            counter-increment: step-counter;
+            padding: 1rem 1rem 1rem 3.5rem;
+            position: relative;
+            margin-bottom: 0.75rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            transition: all 0.2s ease;
+        }
+
+        .step-list li:hover {
+            border-color: rgba(124, 58, 237, 0.4);
+        }
+
+        .step-list li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 1.75rem;
+            height: 1.75rem;
+            background: var(--gradient-1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .step-list li strong {
+            color: var(--accent-purple-light);
+        }
+
+        /* ===== HIGHLIGHT BOX ===== */
+        .highlight-box {
+            background: rgba(124, 58, 237, 0.08);
+            border: 1px solid rgba(124, 58, 237, 0.25);
+            border-left: 4px solid var(--accent-purple);
+            border-radius: 8px;
+            padding: 1.25rem 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .highlight-box.green {
+            background: rgba(16, 185, 129, 0.08);
+            border-color: rgba(16, 185, 129, 0.25);
+            border-left-color: var(--accent-green);
+        }
+
+        .highlight-box.orange {
+            background: rgba(245, 158, 11, 0.08);
+            border-color: rgba(245, 158, 11, 0.25);
+            border-left-color: var(--accent-orange);
+        }
+
+        .highlight-box strong {
+            color: var(--accent-purple-light);
+        }
+
+        .highlight-box.green strong {
+            color: var(--accent-green-light);
+        }
+
+        .highlight-box.orange strong {
+            color: var(--accent-orange);
+        }
+
+        /* ===== TABS ===== */
+        .tabs {
+            margin: 1.5rem 0;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .tab-btn {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 0.6rem 1.25rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .tab-btn:hover {
+            border-color: var(--accent-purple);
+            color: var(--text-primary);
+        }
+
+        .tab-btn.active {
+            background: rgba(124, 58, 237, 0.2);
+            border-color: var(--accent-purple);
+            color: var(--accent-purple-light);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            text-align: center;
+            padding: 3rem 2rem;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        footer a {
+            color: var(--accent-purple-light);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* ===== ANIMATIONS ===== */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .animate-on-scroll.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            section {
+                padding: 5rem 1.25rem 3rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .comparison-table {
+                font-size: 0.85rem;
+            }
+
+            .comparison-table th,
+            .comparison-table td {
+                padding: 0.75rem;
+            }
+        }
+
+        /* ===== ARRAY VISUAL ===== */
+        .array-visual {
+            display: flex;
+            gap: 4px;
+            justify-content: center;
+            margin: 1.5rem 0;
+            flex-wrap: wrap;
+        }
+
+        .array-cell {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-card);
+            border: 2px solid var(--accent-purple);
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .array-cell:hover {
+            background: rgba(124, 58, 237, 0.2);
+            transform: scale(1.1);
+        }
+
+        .array-cell .idx {
+            position: absolute;
+            bottom: -20px;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+        }
+
+        .array-cell.root {
+            border-color: var(--accent-green);
+            background: rgba(16, 185, 129, 0.15);
+        }
+
+        /* ===== PILL TAGS ===== */
+        .pill {
+            display: inline-block;
+            padding: 0.2rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .pill.green {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent-green-light);
+        }
+
+        .pill.purple {
+            background: rgba(124, 58, 237, 0.15);
+            color: var(--accent-purple-light);
+        }
+
+        .pill.orange {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--accent-orange);
+        }
+
+        .pill.red {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--accent-red);
+        }
+
+        /* Separator */
+        .divider {
+            width: 80px;
+            height: 3px;
+            background: var(--gradient-1);
+            border-radius: 2px;
+            margin: 1rem 0;
+        }
+
+        /* Reference cards */
+        .ref-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.25rem;
+            margin-top: 1.5rem;
+        }
+
+        .ref-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .ref-card:hover {
+            border-color: var(--accent-cyan);
+        }
+
+        .ref-card h4 {
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            color: var(--accent-cyan-light);
+        }
+
+        .ref-card a {
+            color: var(--accent-purple-light);
+            text-decoration: none;
+            font-size: 0.85rem;
+        }
+
+        .ref-card a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ===== NAVIGATION ===== -->
+<nav class="slide-nav">
+    <div class="nav-brand">
+        <span class="icon">🏔️</span>
+        <span>Heaps en Java</span>
+    </div>
+    <div class="nav-links">
+        <a href="#hero" class="active">Inicio</a>
+        <a href="#que-es">¿Qué es?</a>
+        <a href="#tipos">Tipos</a>
+        <a href="#array">Array</a>
+        <a href="#vs-bst">vs BST</a>
+        <a href="#operaciones">Ops</a>
+        <a href="#generico">Genérico</a>
+        <a href="#priority-queue">PriorityQueue</a>
+        <a href="#max-heap">Max-Heap</a>
+        <a href="#aplicaciones">Apps</a>
+        <a href="#complejidad">Big-O</a>
+        <a href="#refs">Refs</a>
+    </div>
+    <div class="nav-progress" id="progress-bar"></div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════
+     SLIDE 1: HERO
+     ═══════════════════════════════════════════════════════ -->
+<section id="hero" class="hero">
+    <div class="hero-badge">
+        📚 Estructuras de Datos — Compiladores 2026-2
+    </div>
+    <h1>
+        <span class="gradient-text">Heaps</span><br>
+        en Java
+    </h1>
+    <p>
+        Árbol binario completo con propiedad de orden. Fundamento de las colas de prioridad,
+        HeapSort, y algoritmos eficientes de selección.
+    </p>
+
+    <div class="hero-visual">
+        <div class="tree-container">
+            <svg class="tree-svg" width="480" height="260" viewBox="0 0 480 260">
+                <!-- Edges -->
+                <line x1="240" y1="45" x2="140" y2="105" stroke="#7c3aed" stroke-width="2" opacity="0.5"/>
+                <line x1="240" y1="45" x2="340" y2="105" stroke="#7c3aed" stroke-width="2" opacity="0.5"/>
+                <line x1="140" y1="105" x2="80" y2="175" stroke="#7c3aed" stroke-width="2" opacity="0.5"/>
+                <line x1="140" y1="105" x2="200" y2="175" stroke="#7c3aed" stroke-width="2" opacity="0.5"/>
+                <line x1="340" y1="105" x2="280" y2="175" stroke="#7c3aed" stroke-width="2" opacity="0.5"/>
+                <line x1="340" y1="105" x2="400" y2="175" stroke="#7c3aed" stroke-width="2" opacity="0.5"/>
+                <line x1="80" y1="175" x2="50" y2="235" stroke="#7c3aed" stroke-width="2" opacity="0.5"/>
+
+                <!-- Nodes -->
+                <g class="tree-node">
+                    <circle cx="240" cy="40" r="28" fill="#10b981" opacity="0.9"/>
+                    <text x="240" y="46" text-anchor="middle" fill="white" font-weight="700" font-size="16" font-family="JetBrains Mono">5</text>
+                </g>
+                <g class="tree-node">
+                    <circle cx="140" cy="100" r="26" fill="#7c3aed" opacity="0.9"/>
+                    <text x="140" y="106" text-anchor="middle" fill="white" font-weight="600" font-size="15" font-family="JetBrains Mono">10</text>
+                </g>
+                <g class="tree-node">
+                    <circle cx="340" cy="100" r="26" fill="#7c3aed" opacity="0.9"/>
+                    <text x="340" y="106" text-anchor="middle" fill="white" font-weight="600" font-size="15" font-family="JetBrains Mono">15</text>
+                </g>
+                <g class="tree-node">
+                    <circle cx="80" cy="170" r="24" fill="#06b6d4" opacity="0.9"/>
+                    <text x="80" y="176" text-anchor="middle" fill="white" font-weight="600" font-size="14" font-family="JetBrains Mono">20</text>
+                </g>
+                <g class="tree-node">
+                    <circle cx="200" cy="170" r="24" fill="#06b6d4" opacity="0.9"/>
+                    <text x="200" y="176" text-anchor="middle" fill="white" font-weight="600" font-size="14" font-family="JetBrains Mono">25</text>
+                </g>
+                <g class="tree-node">
+                    <circle cx="280" cy="170" r="24" fill="#06b6d4" opacity="0.9"/>
+                    <text x="280" y="176" text-anchor="middle" fill="white" font-weight="600" font-size="14" font-family="JetBrains Mono">30</text>
+                </g>
+                <g class="tree-node">
+                    <circle cx="400" cy="170" r="24" fill="#06b6d4" opacity="0.9"/>
+                    <text x="400" y="176" text-anchor="middle" fill="white" font-weight="600" font-size="14" font-family="JetBrains Mono">35</text>
+                </g>
+                <g class="tree-node">
+                    <circle cx="50" cy="230" r="22" fill="#ec4899" opacity="0.9"/>
+                    <text x="50" y="236" text-anchor="middle" fill="white" font-weight="600" font-size="13" font-family="JetBrains Mono">40</text>
+                </g>
+
+                <!-- Label -->
+                <text x="440" y="42" fill="#10b981" font-size="11" font-family="Inter" font-weight="600">← Raíz (Min)</text>
+            </svg>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     SLIDE 2: ¿QUÉ ES UN HEAP?
+     ═══════════════════════════════════════════════════════ -->
+<section id="que-es" class="animate-on-scroll">
+    <div class="section-header">
+        <div class="section-number">01 — Definición</div>
+        <h2>¿Qué es un <span class="gradient-text">Heap</span>?</h2>
+        <p>Un árbol binario completo que mantiene una relación de orden entre padres e hijos.</p>
+    </div>
+
+    <div class="card-grid">
+        <div class="card">
+            <div class="card-icon">🌳</div>
+            <h3>Árbol Binario Completo</h3>
+            <p>Todos los niveles están llenos excepto posiblemente el último, que se llena de <strong>izquierda a derecha</strong>. Esto garantiza una representación eficiente por arreglo.</p>
+        </div>
+        <div class="card">
+            <div class="card-icon">📏</div>
+            <h3>Propiedad del Heap</h3>
+            <p>Cada nodo padre tiene una relación de orden con sus hijos. En un <strong>Min-Heap</strong>, el padre ≤ hijos. En un <strong>Max-Heap</strong>, el padre ≥ hijos.</p>
+        </div>
+        <div class="card">
+            <div class="card-icon">⚡</div>
+            <h3>Acceso O(1) al extremo</h3>
+            <p>La raíz siempre contiene el <strong>mínimo</strong> (Min-Heap) o el <strong>máximo</strong> (Max-Heap). Acceder a este valor es instantáneo.</p>
+        </div>
+    </div>
+
+    <div class="highlight-box" style="margin-top: 2rem;">
+        <strong>💡 Concepto clave:</strong> Un heap NO es un árbol de búsqueda. No mantiene un orden total, solo garantiza que el elemento más prioritario está en la raíz. Los hermanos no tienen relación de orden entre sí.
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     SLIDE 3: TIPOS DE HEAP
+     ═══════════════════════════════════════════════════════ -->
+<section id="tipos" class="animate-on-scroll">
+    <div class="section-header">
+        <div class="section-number">02 — Tipos</div>
+        <h2>Min-Heap vs Max-Heap</h2>
+    </div>
+
+    <div class="split">
+        <div>
+            <h3 style="color: var(--accent-green-light); margin-bottom: 1rem;">🔽 Min-Heap</h3>
+            <div class="tree-container" style="width: 100%;">
+                <svg class="tree-svg" width="300" height="180" viewBox="0 0 300 180">
+                    <line x1="150" y1="38" x2="80" y2="88" stroke="#10b981" stroke-width="2" opacity="0.5"/>
+                    <line x1="150" y1="38" x2="220" y2="88" stroke="#10b981" stroke-width="2" opacity="0.5"/>
+                    <line x1="80" y1="88" x2="45" y2="148" stroke="#10b981" stroke-width="2" opacity="0.5"/>
+                    <line x1="80" y1="88" x2="115" y2="148" stroke="#10b981" stroke-width="2" opacity="0.5"/>
+                    <line x1="220" y1="88" x2="185" y2="148" stroke="#10b981" stroke-width="2" opacity="0.5"/>
+
+                    <circle cx="150" cy="35" r="24" fill="#10b981"/>
+                    <text x="150" y="41" text-anchor="middle" fill="white" font-weight="700" font-size="15" font-family="JetBrains Mono">1</text>
+
+                    <circle cx="80" cy="85" r="22" fill="#10b981" opacity="0.7"/>
+                    <text x="80" y="91" text-anchor="middle" fill="white" font-weight="600" font-size="14" font-family="JetBrains Mono">3</text>
+
+                    <circle cx="220" cy="85" r="22" fill="#10b981" opacity="0.7"/>
+                    <text x="220" y="91" text-anchor="middle" fill="white" font-weight="600" font-size="14" font-family="JetBrains Mono">5</text>
+
+                    <circle cx="45" cy="145" r="20" fill="#10b981" opacity="0.5"/>
+                    <text x="45" y="151" text-anchor="middle" fill="white" font-weight="600" font-size="13" font-family="JetBrains Mono">7</text>
+
+                    <circle cx="115" cy="145" r="20" fill="#10b981" opacity="0.5"/>
+                    <text x="115" y="151" text-anchor="middle" fill="white" font-weight="600" font-size="13" font-family="JetBrains Mono">9</text>
+
+                    <circle cx="185" cy="145" r="20" fill="#10b981" opacity="0.5"/>
+                    <text x="185" y="151" text-anchor="middle" fill="white" font-weight="600" font-size="13" font-family="JetBrains Mono">8</text>
+                </svg>
+            </div>
+            <p style="color: var(--text-secondary); margin-top: 1rem; font-size: 0.95rem;">
+                Padre ≤ Hijos → La <strong style="color: var(--accent-green-light);">raíz es el mínimo</strong>.
+                <br>Ideal para encontrar el elemento más pequeño rápidamente.
+            </p>
+        </div>
+
+        <div>
+            <h3 style="color: var(--accent-red); margin-bottom: 1rem;">🔼 Max-Heap</h3>
+            <div class="tree-container" style="width: 100%;">
+                <svg class="tree-svg" width="300" height="180" viewBox="0 0 300 180">
+                    <line x1="150" y1="38" x2="80" y2="88" stroke="#ef4444" stroke-width="2" opacity="0.5"/>
+                    <line x1="150" y1="38" x2="220" y2="88" stroke="#ef4444" stroke-width="2" opacity="0.5"/>
+                    <line x1="80" y1="88" x2="45" y2="148" stroke="#ef4444" stroke-width="2" opacity="0.5"/>
+                    <line x1="80" y1="88" x2="115" y2="148" stroke="#ef4444" stroke-width="2" opacity="0.5"/>
+                    <line x1="220" y1="88" x2="185" y2="148" stroke="#ef4444" stroke-width="2" opacity="0.5"/>
+
+                    <circle cx="150" cy="35" r="24" fill="#ef4444"/>
+                    <text x="150" y="41" text-anchor="middle" fill="white" font-weight="700" font-size="15" font-family="JetBrains Mono">9</text>
+
+                    <circle cx="80" cy="85" r="22" fill="#ef4444" opacity="0.7"/>
+                    <text x="80" y="91" text-anchor="middle" fill="white" font-weight="600" font-size="14" font-family="JetBrains Mono">7</text>
+
+                    <circle cx="220" cy="85" r="22" fill="#ef4444" opacity="0.7"/>
+                    <text x="220" y="91" text-anchor="middle" fill="white" font-weight="600" font-size="14" font-family="JetBrains Mono">8</text>
+
+                    <circle cx="45" cy="145" r="20" fill="#ef4444" opacity="0.5"/>
+                    <text x="45" y="151" text-anchor="middle" fill="white" font-weight="600" font-size="13" font-family="JetBrains Mono">3</text>
+
+                    <circle cx="115" cy="145" r="20" fill="#ef4444" opacity="0.5"/>
+                    <text x="115" y="151" text-anchor="middle" fill="white" font-weight="600" font-size="13" font-family="JetBrains Mono">5</text>
+
+                    <circle cx="185" cy="145" r="20" fill="#ef4444" opacity="0.5"/>
+                    <text x="185" y="151" text-anchor="middle" fill="white" font-weight="600" font-size="13" font-family="JetBrains Mono">1</text>
+                </svg>
+            </div>
+            <p style="color: var(--text-secondary); margin-top: 1rem; font-size: 0.95rem;">
+                Padre ≥ Hijos → La <strong style="color: var(--accent-red);">raíz es el máximo</strong>.
+                <br>Ideal para encontrar el elemento más grande rápidamente.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     SLIDE 4: REPRESENTACIÓN EN ARRAY
+     ═══════════════════════════════════════════════════════ -->
+<section id="array" class="animate-on-scroll">
+    <div class="section-header">
+        <div class="section-number">03 — Representación</div>
+        <h2>Heap como <span class="gradient-text">Array</span></h2>
+        <p>Al ser un árbol binario completo, un heap se representa eficientemente con un arreglo. Sin punteros ni nodos enlazados.</p>
+    </div>
+
+    <div class="array-visual">
+        <div class="array-cell root">5<span class="idx">0</span></div>
+        <div class="array-cell">10<span class="idx">1</span></div>
+        <div class="array-cell">15<span class="idx">2</span></div>
+        <div class="array-cell">20<span class="idx">3</span></div>
+        <div class="array-cell">25<span class="idx">4</span></div>
+        <div class="array-cell">30<span class="idx">5</span></div>
+        <div class="array-cell">35<span class="idx">6</span></div>
+    </div>
+
+    <div class="formula-grid" style="margin-top: 2.5rem;">
+        <div class="formula-box">
+            <div class="formula-label">Padre de i</div>
+            <div class="formula">(i - 1) / 2</div>
+        </div>
+        <div class="formula-box">
+            <div class="formula-label">Hijo Izquierdo de i</div>
+            <div class="formula">2 * i + 1</div>
+        </div>
+        <div class="formula-box">
+            <div class="formula-label">Hijo Derecho de i</div>
+            <div class="formula">2 * i + 2</div>
+        </div>
+    </div>
+
+    <div class="highlight-box green" style="margin-top: 1.5rem;">
+        <strong>Ejemplo:</strong> Para el nodo en índice <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.1rem 0.4rem; border-radius: 4px;">2</code> (valor 15):
+        <br>• Padre: (2-1)/2 = <strong>0</strong> (valor 5) ✓
+        <br>• Hijo izq: 2×2+1 = <strong>5</strong> (valor 30) ✓
+        <br>• Hijo der: 2×2+2 = <strong>6</strong> (valor 35) ✓
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     SLIDE 5: HEAP VS BST
+     ═══════════════════════════════════════════════════════ -->
+<section id="vs-bst" class="animate-on-scroll">
+    <div class="section-header">
+        <div class="section-number">04 — Comparación</div>
+        <h2>Heap vs <span class="gradient-text">BST</span></h2>
+        <p>¿Cuándo usar cada uno? Son estructuras complementarias con propósitos diferentes.</p>
+    </div>
+
+    <table class="comparison-table">
+        <thead>
+            <tr>
+                <th>Característica</th>
+                <th><span class="badge-heap">Heap</span></th>
+                <th><span class="badge-bst">BST</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="feature-name">Propiedad de orden</td>
+                <td>Padre ≤ / ≥ hijos</td>
+                <td>Izquierdo &lt; Padre &lt; Derecho</td>
+            </tr>
+            <tr>
+                <td class="feature-name">Estructura</td>
+                <td>Árbol binario <strong>completo</strong></td>
+                <td>No necesariamente completo</td>
+            </tr>
+            <tr>
+                <td class="feature-name">Representación</td>
+                <td>Array (sin punteros)</td>
+                <td>Nodos con punteros izq/der</td>
+            </tr>
+            <tr>
+                <td class="feature-name">Acceso rápido a</td>
+                <td><span class="pill green">Min / Max → O(1)</span></td>
+                <td><span class="pill purple">Cualquier → O(log n)</span></td>
+            </tr>
+            <tr>
+                <td class="feature-name">Búsqueda arbitraria</td>
+                <td><span class="pill red">O(n)</span></td>
+                <td><span class="pill green">O(log n)</span></td>
+            </tr>
+            <tr>
+                <td class="feature-name">Inserción</td>
+                <td><span class="pill green">O(log n)</span></td>
+                <td><span class="pill orange">O(log n) promedio, O(n) peor</span></td>
+            </tr>
+            <tr>
+                <td class="feature-name">Eliminación del extremo</td>
+                <td><span class="pill green">O(log n)</span></td>
+                <td><span class="pill orange">O(log n)</span></td>
+            </tr>
+            <tr>
+                <td class="feature-name">Orden total</td>
+                <td>❌ No mantiene</td>
+                <td>✅ In-order traversal</td>
+            </tr>
+            <tr>
+                <td class="feature-name">Uso principal</td>
+                <td>Colas de prioridad, HeapSort</td>
+                <td>Búsquedas, recorridos ordenados</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="highlight-box orange" style="margin-top: 1.5rem;">
+        <strong>⚡ La diferencia clave:</strong> Un <strong>Heap</strong> optimiza el acceso al mínimo/máximo. Un <strong>BST</strong> optimiza búsquedas de cualquier valor. Si solo necesitas "¿cuál es el más prioritario?", usa un Heap.
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     SLIDE 6: OPERACIONES
+     ═══════════════════════════════════════════════════════ -->
+<section id="operaciones" class="animate-on-scroll">
+    <div class="section-header">
+        <div class="section-number">05 — Operaciones</div>
+        <h2>Operaciones del <span class="gradient-text">Heap</span></h2>
+    </div>
+
+    <div class="split">
+        <div>
+            <h3 style="margin-bottom: 1.5rem;">⬆️ Insert (Sift Up)</h3>
+            <ol class="step-list">
+                <li>Agregar el nuevo elemento al <strong>final</strong> del arreglo.</li>
+                <li>Comparar con su <strong>padre</strong>.</li>
+                <li>Si viola la propiedad del heap, <strong>intercambiar</strong> con el padre.</li>
+                <li>Repetir hasta llegar a la raíz o restaurar la propiedad.</li>
+            </ol>
+
+            <div class="highlight-box" style="margin-top: 1rem;">
+                <strong>Complejidad:</strong> O(log n) — sube como máximo la altura del árbol.
+            </div>
+        </div>
+
+        <div>
+            <h3 style="margin-bottom: 1.5rem;">⬇️ Extract (Sift Down)</h3>
+            <ol class="step-list">
+                <li>Guardar el valor de la <strong>raíz</strong> (min o max).</li>
+                <li>Reemplazar la raíz con el <strong>último</strong> elemento.</li>
+                <li>Comparar con sus <strong>hijos</strong>.</li>
+                <li>Intercambiar con el hijo menor (Min-Heap) o mayor (Max-Heap).</li>
+                <li>Repetir hasta restaurar la propiedad.</li>
+            </ol>
+
+            <div class="highlight-box" style="margin-top: 1rem;">
+                <strong>Complejidad:</strong> O(log n) — baja como máximo la altura del árbol.
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     SLIDE 7: IMPLEMENTACIÓN GENÉRICA
+     ═══════════════════════════════════════════════════════ -->
+<section id="generico" class="animate-on-scroll">
+    <div class="section-header">
+        <div class="section-number">06 — Implementación</div>
+        <h2>MinHeap <span class="gradient-text">Genérico</span></h2>
+        <p>Implementación desde cero usando generics y <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.1rem 0.4rem; border-radius: 4px;">Comparable&lt;T&gt;</code>.</p>
+    </div>
+
+    <div class="code-block">
+        <div class="code-header">
+            <div class="dots">
+                <span class="dot red"></span>
+                <span class="dot yellow"></span>
+                <span class="dot green"></span>
+            </div>
+            <span class="filename">MinHeap.java</span>
+        </div>
+        <pre><code><span class="kw">public class</span> <span class="tp">MinHeap</span>&lt;<span class="tp">T</span> <span class="kw">extends</span> <span class="tp">Comparable</span>&lt;<span class="tp">T</span>&gt;&gt; {
+
+    <span class="kw">private final</span> <span class="tp">List</span>&lt;<span class="tp">T</span>&gt; heap;
+
+    <span class="cm">// Insertar: agregar al final + sift up</span>
+    <span class="kw">public void</span> <span class="fn">insert</span>(<span class="tp">T</span> value) {
+        heap.<span class="fn">add</span>(value);
+        <span class="fn">siftUp</span>(heap.<span class="fn">size</span>() - <span class="num">1</span>);
+    }
+
+    <span class="cm">// Sift Up: subir mientras sea menor que el padre</span>
+    <span class="kw">private void</span> <span class="fn">siftUp</span>(<span class="kw">int</span> index) {
+        <span class="kw">while</span> (index &gt; <span class="num">0</span>) {
+            <span class="kw">int</span> parent = (index - <span class="num">1</span>) / <span class="num">2</span>;
+            <span class="kw">if</span> (heap.<span class="fn">get</span>(index).<span class="fn">compareTo</span>(heap.<span class="fn">get</span>(parent)) <span class="op">&lt;</span> <span class="num">0</span>) {
+                <span class="fn">swap</span>(index, parent);
+                index = parent;
+            } <span class="kw">else break</span>;
+        }
+    }
+
+    <span class="cm">// Sift Down: bajar buscando el menor de los hijos</span>
+    <span class="kw">private void</span> <span class="fn">siftDown</span>(<span class="kw">int</span> index) {
+        <span class="kw">while</span> (<span class="kw">true</span>) {
+            <span class="kw">int</span> smallest = index;
+            <span class="kw">int</span> left = <span class="num">2</span> * index + <span class="num">1</span>, right = <span class="num">2</span> * index + <span class="num">2</span>;
+
+            <span class="kw">if</span> (left &lt; size <span class="op">&amp;&amp;</span> heap.<span class="fn">get</span>(left).<span class="fn">compareTo</span>(heap.<span class="fn">get</span>(smallest)) <span class="op">&lt;</span> <span class="num">0</span>)
+                smallest = left;
+            <span class="kw">if</span> (right &lt; size <span class="op">&amp;&amp;</span> heap.<span class="fn">get</span>(right).<span class="fn">compareTo</span>(heap.<span class="fn">get</span>(smallest)) <span class="op">&lt;</span> <span class="num">0</span>)
+                smallest = right;
+
+            <span class="kw">if</span> (smallest != index) {
+                <span class="fn">swap</span>(index, smallest);
+                index = smallest;
+            } <span class="kw">else break</span>;
+        }
+    }
+}</code></pre>
+    </div>
+
+    <div class="highlight-box green">
+        <strong>🔑 Para convertir en MaxHeap:</strong> solo cambia la dirección de <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.1rem 0.4rem; border-radius: 4px;">compareTo</code>.
+        <br>Donde dice <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.1rem 0.4rem; border-radius: 4px;">&lt; 0</code> cámbialo por <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.1rem 0.4rem; border-radius: 4px;">&gt; 0</code>.
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     SLIDE 8: PRIORITY QUEUE
+     ═══════════════════════════════════════════════════════ -->
+<section id="priority-queue" class="animate-on-scroll">
+    <div class="section-header">
+        <div class="section-number">07 — PriorityQueue</div>
+        <h2><span class="gradient-text">PriorityQueue</span> en Java</h2>
+        <p>Java provee <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.1rem 0.4rem; border-radius: 4px;">java.util.PriorityQueue</code> — un Min-Heap listo para usar.</p>
+    </div>
+
+    <div class="code-block">
+        <div class="code-header">
+            <div class="dots">
+                <span class="dot red"></span>
+                <span class="dot yellow"></span>
+                <span class="dot green"></span>
+            </div>
+            <span class="filename">Min-Heap con PriorityQueue</span>
+        </div>
+        <pre><code><span class="kw">import</span> java.util.<span class="tp">PriorityQueue</span>;
+
+<span class="cm">// PriorityQueue es un MIN-HEAP por defecto</span>
+<span class="tp">PriorityQueue</span>&lt;<span class="tp">Integer</span>&gt; minHeap = <span class="kw">new</span> <span class="tp">PriorityQueue</span>&lt;&gt;();
+
+minHeap.<span class="fn">offer</span>(<span class="num">35</span>);  <span class="cm">// Insertar</span>
+minHeap.<span class="fn">offer</span>(<span class="num">10</span>);
+minHeap.<span class="fn">offer</span>(<span class="num">5</span>);
+minHeap.<span class="fn">offer</span>(<span class="num">25</span>);
+
+System.out.<span class="fn">println</span>(minHeap.<span class="fn">peek</span>());  <span class="cm">// 5 → mínimo sin extraer</span>
+System.out.<span class="fn">println</span>(minHeap.<span class="fn">poll</span>());  <span class="cm">// 5 → extraer mínimo</span>
+System.out.<span class="fn">println</span>(minHeap.<span class="fn">peek</span>());  <span class="cm">// 10 → nuevo mínimo</span></code></pre>
+    </div>
+
+    <div class="card-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-top: 1rem;">
+        <div class="card" style="text-align: center;">
+            <div class="card-icon">➕</div>
+            <h3><code>offer(e)</code></h3>
+            <p>Insertar elemento</p>
+            <span class="pill green">O(log n)</span>
+        </div>
+        <div class="card" style="text-align: center;">
+            <div class="card-icon">👀</div>
+            <h3><code>peek()</code></h3>
+            <p>Ver la raíz sin extraer</p>
+            <span class="pill green">O(1)</span>
+        </div>
+        <div class="card" style="text-align: center;">
+            <div class="card-icon">⬆️</div>
+            <h3><code>poll()</code></h3>
+            <p>Extraer la raíz</p>
+            <span class="pill green">O(log n)</span>
+        </div>
+        <div class="card" style="text-align: center;">
+            <div class="card-icon">📏</div>
+            <h3><code>size()</code></h3>
+            <p>Cantidad de elementos</p>
+            <span class="pill green">O(1)</span>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     SLIDE 9: MAX-HEAP CON PRIORITYQUEUE
+     ═══════════════════════════════════════════════════════ -->
+<section id="max-heap" class="animate-on-scroll">
+    <div class="section-header">
+        <div class="section-number">08 — Max-Heap</div>
+        <h2>Implementar <span class="gradient-text">Max-Heap</span></h2>
+        <p>3 formas de crear un Max-Heap con PriorityQueue.</p>
+    </div>
+
+    <div class="tabs">
+        <div class="tab-buttons">
+            <button class="tab-btn active" onclick="switchTab(event, 'tab1')">Collections.reverseOrder()</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab2')">Comparator.reverseOrder()</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab3')">Lambda</button>
+        </div>
+
+        <div id="tab1" class="tab-content active">
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="dots"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span></div>
+                    <span class="filename">Opción 1 — Collections.reverseOrder()</span>
+                </div>
+                <pre><code><span class="kw">import</span> java.util.<span class="tp">Collections</span>;
+
+<span class="cm">// Forma más común y legible</span>
+<span class="tp">PriorityQueue</span>&lt;<span class="tp">Integer</span>&gt; maxHeap = <span class="kw">new</span> <span class="tp">PriorityQueue</span>&lt;&gt;(
+    <span class="tp">Collections</span>.<span class="fn">reverseOrder</span>()
+);
+
+maxHeap.<span class="fn">offer</span>(<span class="num">10</span>);
+maxHeap.<span class="fn">offer</span>(<span class="num">50</span>);
+maxHeap.<span class="fn">offer</span>(<span class="num">30</span>);
+
+System.out.<span class="fn">println</span>(maxHeap.<span class="fn">poll</span>());  <span class="cm">// 50 ← máximo</span></code></pre>
+            </div>
+        </div>
+
+        <div id="tab2" class="tab-content">
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="dots"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span></div>
+                    <span class="filename">Opción 2 — Comparator.reverseOrder()</span>
+                </div>
+                <pre><code><span class="kw">import</span> java.util.<span class="tp">Comparator</span>;
+
+<span class="cm">// Equivalente, usando Comparator directamente</span>
+<span class="tp">PriorityQueue</span>&lt;<span class="tp">Integer</span>&gt; maxHeap = <span class="kw">new</span> <span class="tp">PriorityQueue</span>&lt;&gt;(
+    <span class="tp">Comparator</span>.<span class="fn">reverseOrder</span>()
+);
+
+maxHeap.<span class="fn">offer</span>(<span class="num">10</span>);
+maxHeap.<span class="fn">offer</span>(<span class="num">50</span>);
+maxHeap.<span class="fn">offer</span>(<span class="num">30</span>);
+
+System.out.<span class="fn">println</span>(maxHeap.<span class="fn">poll</span>());  <span class="cm">// 50 ← máximo</span></code></pre>
+            </div>
+        </div>
+
+        <div id="tab3" class="tab-content">
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="dots"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span></div>
+                    <span class="filename">Opción 3 — Lambda</span>
+                </div>
+                <pre><code><span class="cm">// Lambda: invertir la comparación</span>
+<span class="tp">PriorityQueue</span>&lt;<span class="tp">Integer</span>&gt; maxHeap = <span class="kw">new</span> <span class="tp">PriorityQueue</span>&lt;&gt;(
+    (a, b) <span class="op">-&gt;</span> b <span class="op">-</span> a
+);
+
+maxHeap.<span class="fn">offer</span>(<span class="num">10</span>);
+maxHeap.<span class="fn">offer</span>(<span class="num">50</span>);
+maxHeap.<span class="fn">offer</span>(<span class="num">30</span>);
+
+System.out.<span class="fn">println</span>(maxHeap.<span class="fn">poll</span>());  <span class="cm">// 50 ← máximo</span>
+
+<span class="cm">// ⚠️ Con objetos personalizados:</span>
+<span class="tp">PriorityQueue</span>&lt;<span class="tp">Tarea</span>&gt; cola = <span class="kw">new</span> <span class="tp">PriorityQueue</span>&lt;&gt;(
+    <span class="tp">Comparator</span>.<span class="fn">comparingInt</span>(<span class="tp">Tarea</span>::prioridad).<span class="fn">reversed</span>()
+);</code></pre>
+            </div>
+        </div>
+    </div>
+
+    <div class="highlight-box">
+        <strong>💡 Resumen:</strong> Las tres formas producen el mismo resultado.
+        <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.1rem 0.4rem; border-radius: 4px;">Collections.reverseOrder()</code> es la más legible.
+        Para objetos personalizados, usa <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.1rem 0.4rem; border-radius: 4px;">Comparator.comparingInt(...).reversed()</code>.
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     SLIDE 10: APLICACIONES
+     ═══════════════════════════════════════════════════════ -->
+<section id="aplicaciones" class="animate-on-scroll">
+    <div class="section-header">
+        <div class="section-number">09 — Aplicaciones</div>
+        <h2>Aplicaciones <span class="gradient-text">Reales</span></h2>
+        <p>¿Dónde se usan los Heaps en la práctica?</p>
+    </div>
+
+    <div class="card-grid">
+        <div class="card">
+            <div class="card-icon">📋</div>
+            <h3>Colas de Prioridad</h3>
+            <p>Sistemas operativos (scheduling de procesos), gestión de tareas, colas de eventos donde cada elemento tiene diferente prioridad.</p>
+            <span class="pill purple" style="margin-top: 0.75rem;">PriorityQueue</span>
+        </div>
+        <div class="card">
+            <div class="card-icon">🔀</div>
+            <h3>HeapSort</h3>
+            <p>Algoritmo de ordenamiento O(n log n) in-place. Construye un Max-Heap y extrae el máximo repetidamente para ordenar.</p>
+            <span class="pill green" style="margin-top: 0.75rem;">O(n log n)</span>
+        </div>
+        <div class="card">
+            <div class="card-icon">🔝</div>
+            <h3>Top K Elementos</h3>
+            <p>Encontrar los K elementos más grandes/pequeños en un dataset. Se usa un heap de tamaño K para resolver en O(n log k).</p>
+            <span class="pill orange" style="margin-top: 0.75rem;">Entrevistas</span>
+        </div>
+        <div class="card">
+            <div class="card-icon">📊</div>
+            <h3>Mediana en Streaming</h3>
+            <p>Calcular la mediana en un flujo de datos usando dos heaps: un Max-Heap (mitad izquierda) y un Min-Heap (mitad derecha).</p>
+            <span class="pill red" style="margin-top: 0.75rem;">Avanzado</span>
+        </div>
+        <div class="card">
+            <div class="card-icon">🗺️</div>
+            <h3>Dijkstra / A*</h3>
+            <p>Algoritmos de camino más corto en grafos usan un Min-Heap como cola de prioridad para seleccionar el siguiente nodo a explorar.</p>
+            <span class="pill purple" style="margin-top: 0.75rem;">Grafos</span>
+        </div>
+        <div class="card">
+            <div class="card-icon">🔗</div>
+            <h3>Merge K Listas</h3>
+            <p>Combinar K listas ordenadas en una sola lista ordenada usando un Min-Heap de tamaño K para extraer el mínimo global eficientemente.</p>
+            <span class="pill orange" style="margin-top: 0.75rem;">LeetCode #23</span>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     SLIDE 11: COMPLEJIDAD
+     ═══════════════════════════════════════════════════════ -->
+<section id="complejidad" class="animate-on-scroll">
+    <div class="section-header">
+        <div class="section-number">10 — Complejidad</div>
+        <h2>Complejidad <span class="gradient-text">Big-O</span></h2>
+    </div>
+
+    <div class="complexity-grid">
+        <div class="complexity-item">
+            <div class="op-name">INSERTAR</div>
+            <div class="complexity medium">O(log n)</div>
+        </div>
+        <div class="complexity-item">
+            <div class="op-name">EXTRAER RAÍZ</div>
+            <div class="complexity medium">O(log n)</div>
+        </div>
+        <div class="complexity-item">
+            <div class="op-name">CONSULTAR RAÍZ</div>
+            <div class="complexity fast">O(1)</div>
+        </div>
+        <div class="complexity-item">
+            <div class="op-name">CONSTRUIR HEAP</div>
+            <div class="complexity fast">O(n)</div>
+        </div>
+        <div class="complexity-item">
+            <div class="op-name">BUSCAR ELEMENTO</div>
+            <div class="complexity slow">O(n)</div>
+        </div>
+        <div class="complexity-item">
+            <div class="op-name">HEAP SORT</div>
+            <div class="complexity medium">O(n log n)</div>
+        </div>
+    </div>
+
+    <div class="highlight-box green" style="margin-top: 2rem;">
+        <strong>¿Por qué buildHeap es O(n) y no O(n log n)?</strong>
+        <br>Aunque insertar un elemento es O(log n), el algoritmo <em>heapify bottom-up</em> procesa los nodos desde las hojas hacia la raíz. La mayoría de los nodos están en los niveles inferiores y requieren poco trabajo. La suma total es una serie geométrica que converge a O(n).
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     SLIDE 12: REFERENCIAS
+     ═══════════════════════════════════════════════════════ -->
+<section id="refs" class="animate-on-scroll">
+    <div class="section-header">
+        <div class="section-number">11 — Referencias</div>
+        <h2>Recursos y <span class="gradient-text">Referencias</span></h2>
+    </div>
+
+    <div class="ref-grid">
+        <div class="ref-card">
+            <h4>📗 GeeksForGeeks</h4>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.5rem;">Heap implementation in Java — Código completo con ejemplos de Min y Max Heap.</p>
+            <a href="https://www.geeksforgeeks.org/java/heap-implementation-in-java/" target="_blank">Ver artículo →</a>
+        </div>
+        <div class="ref-card">
+            <h4>📘 Last9 Blog</h4>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.5rem;">A Comprehensive Guide to Heaps in Java — Memoria, conceptos y operaciones.</p>
+            <a href="https://last9.io/blog/heaps-in-java/" target="_blank">Ver artículo →</a>
+        </div>
+        <div class="ref-card">
+            <h4>📙 Oracle Docs</h4>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.5rem;">Documentación oficial de java.util.PriorityQueue — API completa.</p>
+            <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/PriorityQueue.html" target="_blank">Ver documentación →</a>
+        </div>
+    </div>
+
+    <div style="text-align: center; margin-top: 3rem;">
+        <p style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem;">
+            Archivos del proyecto:
+        </p>
+        <p style="color: var(--text-secondary);">
+            <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.2rem 0.6rem; border-radius: 6px;">src/MinHeap.java</code>
+            <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.2rem 0.6rem; border-radius: 6px;">src/MaxHeap.java</code>
+            <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.2rem 0.6rem; border-radius: 6px;">src/PriorityQueueExamples.java</code>
+            <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.2rem 0.6rem; border-radius: 6px;">src/HeapExamples.java</code>
+            <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.2rem 0.6rem; border-radius: 6px;">ejercicios.md</code>
+        </p>
+    </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+    <p>
+        Heaps en Java — Estructuras de Datos — Compiladores 2026-2
+        <br>
+        Referencias:
+        <a href="https://www.geeksforgeeks.org/java/heap-implementation-in-java/" target="_blank">GeeksForGeeks</a> ·
+        <a href="https://last9.io/blog/heaps-in-java/" target="_blank">Last9</a>
+    </p>
+</footer>
+
+<!-- ===== SCRIPTS ===== -->
+<script>
+    // Tab switching
+    function switchTab(event, tabId) {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        event.target.classList.add('active');
+    }
+
+    // Scroll animations
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+
+    // Active nav link
+    const sections = document.querySelectorAll('section');
+    const navLinks = document.querySelectorAll('.nav-links a');
+
+    window.addEventListener('scroll', () => {
+        let current = '';
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop - 120;
+            if (scrollY >= sectionTop) {
+                current = section.getAttribute('id');
+            }
+        });
+
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === '#' + current) {
+                link.classList.add('active');
+            }
+        });
+
+        // Progress bar
+        const totalScroll = document.documentElement.scrollHeight - window.innerHeight;
+        const progress = (window.scrollY / totalScroll) * 100;
+        document.getElementById('progress-bar').style.width = progress + '%';
+    });
+</script>
+
+</body>
+</html>
