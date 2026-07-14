@@ -1,25 +1,30 @@
+import java.util.Collections;
+import java.util.PriorityQueue;
+
 /**
- * Cola de urgencias que encapsula un MaxHeap de Pacientes.
- * Proporciona métodos específicos del dominio hospitalario.
+ * Cola de urgencias que usa java.util.PriorityQueue (Max-Heap).
  *
- * Los pacientes con mayor gravedad se atienden primero gracias
- * al MaxHeap, que mantiene al más grave siempre en la raíz.
+ * PriorityQueue por defecto es un Min-Heap, así que usamos
+ * Collections.reverseOrder() para invertirlo y que el paciente
+ * con MAYOR gravedad se atienda primero.
  */
 public class ColaUrgencias {
-    private final MaxHeap<Paciente> heap;
+    private final PriorityQueue<Paciente> cola;
     private int pacientesAtendidos;
 
     public ColaUrgencias() {
-        this.heap = new MaxHeap<>();
+        // Collections.reverseOrder() invierte el Comparable natural
+        // → el paciente con mayor gravedad queda al frente
+        this.cola = new PriorityQueue<>(Collections.reverseOrder());
         this.pacientesAtendidos = 0;
     }
 
     /**
      * Registra un nuevo paciente en la cola de urgencias.
-     * El MaxHeap lo ubicará según su gravedad.
+     * offer() inserta y reordena en O(log n).
      */
     public void registrarPaciente(Paciente paciente) {
-        heap.insert(paciente);
+        cola.offer(paciente);
         System.out.printf("  ✚ Registrado: %-15s | %s | Gravedad: %d/10%n",
                 paciente.getNombre(),
                 paciente.getEnfermedad(),
@@ -27,11 +32,14 @@ public class ColaUrgencias {
     }
 
     /**
-     * Atiende al paciente más grave (extractMax del heap).
+     * Atiende al paciente más grave (poll del PriorityQueue).
      * Retorna el paciente atendido.
      */
     public Paciente atenderSiguiente() {
-        Paciente paciente = heap.extractMax();
+        Paciente paciente = cola.poll();
+        if (paciente == null) {
+            throw new java.util.NoSuchElementException("No hay pacientes en espera");
+        }
         pacientesAtendidos++;
         return paciente;
     }
@@ -40,15 +48,15 @@ public class ColaUrgencias {
      * Muestra quién es el siguiente sin atenderlo (peek).
      */
     public Paciente verSiguiente() {
-        return heap.peek();
+        return cola.peek();
     }
 
     public boolean hayPacientes() {
-        return !heap.isEmpty();
+        return !cola.isEmpty();
     }
 
     public int getPacientesEnEspera() {
-        return heap.size();
+        return cola.size();
     }
 
     public int getPacientesAtendidos() {
