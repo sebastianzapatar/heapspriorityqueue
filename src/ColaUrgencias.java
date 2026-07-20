@@ -1,21 +1,35 @@
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.PriorityQueue;
 
 /**
  * Cola de urgencias que usa java.util.PriorityQueue (Max-Heap).
  *
- * PriorityQueue por defecto es un Min-Heap, así que usamos
- * Collections.reverseOrder() para invertirlo y que el paciente
- * con MAYOR gravedad se atienda primero.
+ * PriorityQueue por defecto es un Min-Heap, así que invertimos la
+ * comparación por gravedad para que el paciente MÁS GRAVE quede al frente.
+ *
+ * Desempate: PriorityQueue no es estable (con prioridades iguales no
+ * garantiza orden de llegada), por eso el comparador desempata por
+ * horaLlegada → entre dos pacientes con la misma gravedad se atiende
+ * primero al que llegó antes (FIFO).
  */
 public class ColaUrgencias {
+
+    /**
+     * Criterio de atención:
+     *   1. Mayor gravedad primero (comparingInt(...).reversed()).
+     *   2. A igual gravedad, menor hora de llegada primero.
+     * La hora en formato "HH:mm" se compara bien como String
+     * porque el orden lexicográfico coincide con el cronológico.
+     */
+    private static final Comparator<Paciente> ORDEN_ATENCION =
+            Comparator.comparingInt(Paciente::getGravedad).reversed()
+                      .thenComparing(Paciente::getHoraLlegada);
+
     private final PriorityQueue<Paciente> cola;
     private int pacientesAtendidos;
 
     public ColaUrgencias() {
-        // Collections.reverseOrder() invierte el Comparable natural
-        // → el paciente con mayor gravedad queda al frente
-        this.cola = new PriorityQueue<>(Collections.reverseOrder());
+        this.cola = new PriorityQueue<>(ORDEN_ATENCION);
         this.pacientesAtendidos = 0;
     }
 

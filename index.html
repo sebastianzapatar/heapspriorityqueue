@@ -218,6 +218,21 @@
             margin-bottom: 3rem;
         }
 
+        /* Etiqueta de la parte temática (Parte I, II, III...) */
+        .part-label {
+            display: inline-block;
+            background: rgba(6, 182, 212, 0.12);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            color: var(--accent-cyan-light);
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding: 0.25rem 0.85rem;
+            border-radius: 999px;
+            margin-bottom: 0.75rem;
+        }
+
         .section-number {
             font-size: 0.85rem;
             font-weight: 600;
@@ -225,6 +240,65 @@
             text-transform: uppercase;
             letter-spacing: 3px;
             margin-bottom: 0.75rem;
+        }
+
+        /* ===== AGENDA (TABLA DE CONTENIDO) ===== */
+        .agenda-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.25rem;
+            margin-top: 1.5rem;
+        }
+
+        .agenda-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .agenda-card:hover {
+            border-color: var(--accent-cyan);
+            transform: translateY(-3px);
+        }
+
+        .agenda-card .part-tag {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--accent-cyan-light);
+            margin-bottom: 0.5rem;
+        }
+
+        .agenda-card h3 {
+            font-size: 1.05rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .agenda-card ul {
+            list-style: none;
+        }
+
+        .agenda-card ul li {
+            padding: 0.3rem 0;
+        }
+
+        .agenda-card ul li a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s ease;
+        }
+
+        .agenda-card ul li a:hover {
+            color: var(--accent-purple-light);
+        }
+
+        .agenda-card ul li a::before {
+            content: '→ ';
+            color: var(--accent-purple);
         }
 
         .section-header h2 {
@@ -572,6 +646,20 @@
             border-left-color: var(--accent-orange);
         }
 
+        /* Variante roja: usada en la animación del Max-Heap */
+        .highlight-box.red {
+            background: rgba(239, 68, 68, 0.08);
+            border-color: rgba(239, 68, 68, 0.25);
+            border-left-color: var(--accent-red);
+        }
+
+        /* Variante púrpura: usada en la animación del BST */
+        .highlight-box.purple {
+            background: rgba(167, 139, 250, 0.08);
+            border-color: rgba(167, 139, 250, 0.25);
+            border-left-color: var(--accent-purple-light);
+        }
+
         .highlight-box strong {
             color: var(--accent-purple-light);
         }
@@ -582,6 +670,14 @@
 
         .highlight-box.orange strong {
             color: var(--accent-orange);
+        }
+
+        .highlight-box.red strong {
+            color: var(--accent-red);
+        }
+
+        .highlight-box.purple strong {
+            color: var(--accent-purple-light);
         }
 
         /* ===== TABS ===== */
@@ -916,19 +1012,23 @@
         <span class="icon">🏔️</span>
         <span>Heaps en Java</span>
     </div>
+    <!-- Enlaces ordenados según las 6 partes temáticas de la presentación -->
     <div class="nav-links">
         <a href="#hero" class="active">Inicio</a>
         <a href="#que-es">¿Qué es?</a>
         <a href="#tipos">Tipos</a>
         <a href="#array">Array</a>
-        <a href="#vs-bst">vs BST</a>
         <a href="#operaciones">Ops</a>
         <a href="#animacion">Animación</a>
+        <a href="#complejidad">Big-O</a>
+        <a href="#vs-bst">vs BST</a>
         <a href="#generico">Genérico</a>
         <a href="#priority-queue">PriorityQueue</a>
         <a href="#max-heap">Max-Heap</a>
+        <a href="#objetos">Objetos</a>
+        <a href="#heapsort">HeapSort</a>
         <a href="#aplicaciones">Apps</a>
-        <a href="#complejidad">Big-O</a>
+        <a href="#hospital">Hospital</a>
         <a href="#refs">Refs</a>
     </div>
     <div class="nav-progress" id="progress-bar"></div>
@@ -1004,10 +1104,79 @@
 </section>
 
 <!-- ═══════════════════════════════════════════════════════
-     SLIDE 2: ¿QUÉ ES UN HEAP?
+     SLIDE 2: AGENDA — CONTENIDO ORGANIZADO POR TEMAS
+     ═══════════════════════════════════════════════════════ -->
+<section id="agenda" class="animate-on-scroll">
+    <div class="section-header">
+        <div class="section-number">Agenda</div>
+        <h2>Contenido de la <span class="gradient-text">Presentación</span></h2>
+        <p>Seis bloques temáticos: de la teoría a la práctica con Java.</p>
+    </div>
+
+    <div class="agenda-grid">
+        <div class="agenda-card">
+            <div class="part-tag">Parte I</div>
+            <h3>🧱 Fundamentos</h3>
+            <ul>
+                <li><a href="#que-es">¿Qué es un Heap?</a></li>
+                <li><a href="#tipos">Min-Heap vs Max-Heap</a></li>
+                <li><a href="#array">Representación en Array</a></li>
+            </ul>
+        </div>
+        <div class="agenda-card">
+            <div class="part-tag">Parte II</div>
+            <h3>⚙️ Operaciones y Complejidad</h3>
+            <ul>
+                <li><a href="#operaciones">Insert / Extract (Sift Up & Down)</a></li>
+                <li><a href="#animacion">Animación de inserción</a></li>
+                <li><a href="#complejidad">Complejidad Big-O</a></li>
+            </ul>
+        </div>
+        <div class="agenda-card">
+            <div class="part-tag">Parte III</div>
+            <h3>🌲 Heap vs BST</h3>
+            <ul>
+                <li><a href="#vs-bst">Tabla comparativa</a></li>
+                <li><a href="#vs-bst">¿Cuándo usar cada uno?</a></li>
+            </ul>
+        </div>
+        <div class="agenda-card">
+            <div class="part-tag">Parte IV</div>
+            <h3>☕ Heaps en Java</h3>
+            <ul>
+                <li><a href="#generico">MinHeap&lt;T&gt; genérico</a></li>
+                <li><a href="#priority-queue">java.util.PriorityQueue</a></li>
+                <li><a href="#max-heap">Max-Heap: 3 formas</a></li>
+                <li><a href="#objetos">Objetos y Comparator</a></li>
+            </ul>
+        </div>
+        <div class="agenda-card">
+            <div class="part-tag">Parte V</div>
+            <h3>🚀 Algoritmos y Aplicaciones</h3>
+            <ul>
+                <li><a href="#heapsort">HeapSort paso a paso</a></li>
+                <li><a href="#aplicaciones">Aplicaciones reales</a></li>
+                <li><a href="#hospital">Caso práctico: Cola de urgencias</a></li>
+            </ul>
+        </div>
+        <div class="agenda-card">
+            <div class="part-tag">Parte VI</div>
+            <h3>📚 Cierre</h3>
+            <ul>
+                <li><a href="#refs">Referencias y recursos</a></li>
+                <li><a href="#refs">Archivos del proyecto</a></li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     PARTE I — FUNDAMENTOS
+     SLIDE 3: ¿QUÉ ES UN HEAP?
      ═══════════════════════════════════════════════════════ -->
 <section id="que-es" class="animate-on-scroll">
     <div class="section-header">
+        <div class="part-label">Parte I — Fundamentos</div>
         <div class="section-number">01 — Definición</div>
         <h2>¿Qué es un <span class="gradient-text">Heap</span>?</h2>
         <p>Un árbol binario completo que mantiene una relación de orden entre padres e hijos.</p>
@@ -1037,10 +1206,12 @@
 </section>
 
 <!-- ═══════════════════════════════════════════════════════
-     SLIDE 3: TIPOS DE HEAP
+     PARTE I — FUNDAMENTOS
+     SLIDE 4: TIPOS DE HEAP (MIN vs MAX)
      ═══════════════════════════════════════════════════════ -->
 <section id="tipos" class="animate-on-scroll">
     <div class="section-header">
+        <div class="part-label">Parte I — Fundamentos</div>
         <div class="section-number">02 — Tipos</div>
         <h2>Min-Heap vs Max-Heap</h2>
     </div>
@@ -1119,10 +1290,12 @@
 </section>
 
 <!-- ═══════════════════════════════════════════════════════
-     SLIDE 4: REPRESENTACIÓN EN ARRAY
+     PARTE I — FUNDAMENTOS
+     SLIDE 5: REPRESENTACIÓN EN ARRAY
      ═══════════════════════════════════════════════════════ -->
 <section id="array" class="animate-on-scroll">
     <div class="section-header">
+        <div class="part-label">Parte I — Fundamentos</div>
         <div class="section-number">03 — Representación</div>
         <h2>Heap como <span class="gradient-text">Array</span></h2>
         <p>Al ser un árbol binario completo, un heap se representa eficientemente con un arreglo. Sin punteros ni nodos enlazados.</p>
@@ -1162,83 +1335,13 @@
 </section>
 
 <!-- ═══════════════════════════════════════════════════════
-     SLIDE 5: HEAP VS BST
-     ═══════════════════════════════════════════════════════ -->
-<section id="vs-bst" class="animate-on-scroll">
-    <div class="section-header">
-        <div class="section-number">04 — Comparación</div>
-        <h2>Heap vs <span class="gradient-text">BST</span></h2>
-        <p>¿Cuándo usar cada uno? Son estructuras complementarias con propósitos diferentes.</p>
-    </div>
-
-    <table class="comparison-table">
-        <thead>
-            <tr>
-                <th>Característica</th>
-                <th><span class="badge-heap">Heap</span></th>
-                <th><span class="badge-bst">BST</span></th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td class="feature-name">Propiedad de orden</td>
-                <td>Padre ≤ / ≥ hijos</td>
-                <td>Izquierdo &lt; Padre &lt; Derecho</td>
-            </tr>
-            <tr>
-                <td class="feature-name">Estructura</td>
-                <td>Árbol binario <strong>completo</strong></td>
-                <td>No necesariamente completo</td>
-            </tr>
-            <tr>
-                <td class="feature-name">Representación</td>
-                <td>Array (sin punteros)</td>
-                <td>Nodos con punteros izq/der</td>
-            </tr>
-            <tr>
-                <td class="feature-name">Acceso rápido a</td>
-                <td><span class="pill green">Min / Max → O(1)</span></td>
-                <td><span class="pill purple">Cualquier → O(log n)</span></td>
-            </tr>
-            <tr>
-                <td class="feature-name">Búsqueda arbitraria</td>
-                <td><span class="pill red">O(n)</span></td>
-                <td><span class="pill green">O(log n)</span></td>
-            </tr>
-            <tr>
-                <td class="feature-name">Inserción</td>
-                <td><span class="pill green">O(log n)</span></td>
-                <td><span class="pill orange">O(log n) promedio, O(n) peor</span></td>
-            </tr>
-            <tr>
-                <td class="feature-name">Eliminación del extremo</td>
-                <td><span class="pill green">O(log n)</span></td>
-                <td><span class="pill orange">O(log n)</span></td>
-            </tr>
-            <tr>
-                <td class="feature-name">Orden total</td>
-                <td>❌ No mantiene</td>
-                <td>✅ In-order traversal</td>
-            </tr>
-            <tr>
-                <td class="feature-name">Uso principal</td>
-                <td>Colas de prioridad, HeapSort</td>
-                <td>Búsquedas, recorridos ordenados</td>
-            </tr>
-        </tbody>
-    </table>
-
-    <div class="highlight-box orange" style="margin-top: 1.5rem;">
-        <strong>⚡ La diferencia clave:</strong> Un <strong>Heap</strong> optimiza el acceso al mínimo/máximo. Un <strong>BST</strong> optimiza búsquedas de cualquier valor. Si solo necesitas "¿cuál es el más prioritario?", usa un Heap.
-    </div>
-</section>
-
-<!-- ═══════════════════════════════════════════════════════
-     SLIDE 6: OPERACIONES
+     PARTE II — OPERACIONES Y COMPLEJIDAD
+     SLIDE 6: OPERACIONES (INSERT / EXTRACT)
      ═══════════════════════════════════════════════════════ -->
 <section id="operaciones" class="animate-on-scroll">
     <div class="section-header">
-        <div class="section-number">05 — Operaciones</div>
+        <div class="part-label">Parte II — Operaciones</div>
+        <div class="section-number">04 — Operaciones</div>
         <h2>Operaciones del <span class="gradient-text">Heap</span></h2>
     </div>
 
@@ -1275,11 +1378,13 @@
 </section>
 
 <!-- ═══════════════════════════════════════════════════════
-     SLIDE 7: ANIMACIÓN
+     PARTE II — OPERACIONES Y COMPLEJIDAD
+     SLIDE 7: ANIMACIÓN DE INSERCIÓN (HEAPS vs BST)
      ═══════════════════════════════════════════════════════ -->
 <section id="animacion" class="animate-on-scroll">
     <div class="section-header">
-        <div class="section-number">06 — Animación</div>
+        <div class="part-label">Parte II — Operaciones</div>
+        <div class="section-number">05 — Animación</div>
         <h2>Inserción: <span class="gradient-text">Heaps vs BST</span></h2>
         <p>Observa cómo se inserta un nuevo valor en cada estructura (Sift-Up en Heaps vs Descenso en BST).</p>
     </div>
@@ -1374,11 +1479,133 @@
 </section>
 
 <!-- ═══════════════════════════════════════════════════════
-     SLIDE 8: IMPLEMENTACIÓN GENÉRICA
+     PARTE II — OPERACIONES Y COMPLEJIDAD
+     SLIDE 8: COMPLEJIDAD BIG-O
+     ═══════════════════════════════════════════════════════ -->
+<section id="complejidad" class="animate-on-scroll">
+    <div class="section-header">
+        <div class="part-label">Parte II — Operaciones</div>
+        <div class="section-number">06 — Complejidad</div>
+        <h2>Complejidad <span class="gradient-text">Big-O</span></h2>
+        <p>Resumen del costo de cada operación sobre un heap de n elementos.</p>
+    </div>
+
+    <!-- Tarjetas de complejidad: verde = rápido, naranja = logarítmico, rojo = lento -->
+    <div class="complexity-grid">
+        <div class="complexity-item">
+            <div class="op-name">INSERTAR</div>
+            <div class="complexity medium">O(log n)</div>
+        </div>
+        <div class="complexity-item">
+            <div class="op-name">EXTRAER RAÍZ</div>
+            <div class="complexity medium">O(log n)</div>
+        </div>
+        <div class="complexity-item">
+            <div class="op-name">CONSULTAR RAÍZ</div>
+            <div class="complexity fast">O(1)</div>
+        </div>
+        <div class="complexity-item">
+            <div class="op-name">CONSTRUIR HEAP</div>
+            <div class="complexity fast">O(n)</div>
+        </div>
+        <div class="complexity-item">
+            <div class="op-name">BUSCAR ELEMENTO</div>
+            <div class="complexity slow">O(n)</div>
+        </div>
+        <div class="complexity-item">
+            <div class="op-name">HEAP SORT</div>
+            <div class="complexity medium">O(n log n)</div>
+        </div>
+    </div>
+
+    <div class="highlight-box green" style="margin-top: 2rem;">
+        <strong>¿Por qué buildHeap es O(n) y no O(n log n)?</strong>
+        <br>Aunque insertar un elemento es O(log n), el algoritmo <em>heapify bottom-up</em> procesa los nodos desde las hojas hacia la raíz. La mayoría de los nodos están en los niveles inferiores y requieren poco trabajo. La suma total es una serie geométrica que converge a O(n).
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     PARTE III — COMPARACIÓN
+     SLIDE 9: HEAP VS BST
+     ═══════════════════════════════════════════════════════ -->
+<section id="vs-bst" class="animate-on-scroll">
+    <div class="section-header">
+        <div class="part-label">Parte III — Comparación</div>
+        <div class="section-number">07 — Comparación</div>
+        <h2>Heap vs <span class="gradient-text">BST</span></h2>
+        <p>¿Cuándo usar cada uno? Son estructuras complementarias con propósitos diferentes.</p>
+    </div>
+
+    <table class="comparison-table">
+        <thead>
+            <tr>
+                <th>Característica</th>
+                <th><span class="badge-heap">Heap</span></th>
+                <th><span class="badge-bst">BST</span></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="feature-name">Propiedad de orden</td>
+                <td>Padre ≤ / ≥ hijos</td>
+                <td>Izquierdo &lt; Padre &lt; Derecho</td>
+            </tr>
+            <tr>
+                <td class="feature-name">Estructura</td>
+                <td>Árbol binario <strong>completo</strong></td>
+                <td>No necesariamente completo</td>
+            </tr>
+            <tr>
+                <td class="feature-name">Representación</td>
+                <td>Array (sin punteros)</td>
+                <td>Nodos con punteros izq/der</td>
+            </tr>
+            <tr>
+                <td class="feature-name">Acceso rápido a</td>
+                <td><span class="pill green">Min / Max → O(1)</span></td>
+                <td><span class="pill purple">Cualquier → O(log n)</span></td>
+            </tr>
+            <tr>
+                <td class="feature-name">Búsqueda arbitraria</td>
+                <td><span class="pill red">O(n)</span></td>
+                <td><span class="pill green">O(log n)</span></td>
+            </tr>
+            <tr>
+                <td class="feature-name">Inserción</td>
+                <td><span class="pill green">O(log n)</span></td>
+                <td><span class="pill orange">O(log n) promedio, O(n) peor</span></td>
+            </tr>
+            <tr>
+                <td class="feature-name">Eliminación del extremo</td>
+                <td><span class="pill green">O(log n)</span></td>
+                <td><span class="pill orange">O(log n)</span></td>
+            </tr>
+            <tr>
+                <td class="feature-name">Orden total</td>
+                <td>❌ No mantiene</td>
+                <td>✅ In-order traversal</td>
+            </tr>
+            <tr>
+                <td class="feature-name">Uso principal</td>
+                <td>Colas de prioridad, HeapSort</td>
+                <td>Búsquedas, recorridos ordenados</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="highlight-box orange" style="margin-top: 1.5rem;">
+        <strong>⚡ La diferencia clave:</strong> Un <strong>Heap</strong> optimiza el acceso al mínimo/máximo. Un <strong>BST</strong> optimiza búsquedas de cualquier valor. Si solo necesitas "¿cuál es el más prioritario?", usa un Heap.
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     PARTE IV — HEAPS EN JAVA
+     SLIDE 10: IMPLEMENTACIÓN GENÉRICA MinHeap<T>
      ═══════════════════════════════════════════════════════ -->
 <section id="generico" class="animate-on-scroll">
     <div class="section-header">
-        <div class="section-number">07 — Implementación</div>
+        <div class="part-label">Parte IV — Heaps en Java</div>
+        <div class="section-number">08 — Implementación</div>
         <h2>MinHeap <span class="gradient-text">Genérico</span></h2>
         <p>Implementación desde cero usando generics y <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.1rem 0.4rem; border-radius: 4px;">Comparable&lt;T&gt;</code>.</p>
     </div>
@@ -1396,16 +1623,27 @@
 
     <span class="kw">private final</span> <span class="tp">List</span>&lt;<span class="tp">T</span>&gt; heap;
 
-    <span class="cm">// Insertar: agregar al final + sift up</span>
+    <span class="cm">// Insertar: agregar al final + sift up — O(log n)</span>
     <span class="kw">public void</span> <span class="fn">insert</span>(<span class="tp">T</span> value) {
         heap.<span class="fn">add</span>(value);
         <span class="fn">siftUp</span>(heap.<span class="fn">size</span>() - <span class="num">1</span>);
     }
 
+    <span class="cm">// Extraer el mínimo: raíz ← último elemento + sift down — O(log n)</span>
+    <span class="kw">public</span> <span class="tp">T</span> <span class="fn">extractMin</span>() {
+        <span class="tp">T</span> min = heap.<span class="fn">get</span>(<span class="num">0</span>);
+        <span class="tp">T</span> last = heap.<span class="fn">remove</span>(heap.<span class="fn">size</span>() - <span class="num">1</span>);
+        <span class="kw">if</span> (!heap.<span class="fn">isEmpty</span>()) {
+            heap.<span class="fn">set</span>(<span class="num">0</span>, last);
+            <span class="fn">siftDown</span>(<span class="num">0</span>);
+        }
+        <span class="kw">return</span> min;
+    }
+
     <span class="cm">// Sift Up: subir mientras sea menor que el padre</span>
     <span class="kw">private void</span> <span class="fn">siftUp</span>(<span class="kw">int</span> index) {
         <span class="kw">while</span> (index &gt; <span class="num">0</span>) {
-            <span class="kw">int</span> parent = (index - <span class="num">1</span>) / <span class="num">2</span>;
+            <span class="kw">int</span> parent = (index - <span class="num">1</span>) / <span class="num">2</span>;   <span class="cm">// fórmula del padre</span>
             <span class="kw">if</span> (heap.<span class="fn">get</span>(index).<span class="fn">compareTo</span>(heap.<span class="fn">get</span>(parent)) <span class="op">&lt;</span> <span class="num">0</span>) {
                 <span class="fn">swap</span>(index, parent);
                 index = parent;
@@ -1415,6 +1653,7 @@
 
     <span class="cm">// Sift Down: bajar buscando el menor de los hijos</span>
     <span class="kw">private void</span> <span class="fn">siftDown</span>(<span class="kw">int</span> index) {
+        <span class="kw">int</span> size = heap.<span class="fn">size</span>();
         <span class="kw">while</span> (<span class="kw">true</span>) {
             <span class="kw">int</span> smallest = index;
             <span class="kw">int</span> left = <span class="num">2</span> * index + <span class="num">1</span>, right = <span class="num">2</span> * index + <span class="num">2</span>;
@@ -1440,11 +1679,13 @@
 </section>
 
 <!-- ═══════════════════════════════════════════════════════
-     SLIDE 9: PRIORITY QUEUE
+     PARTE IV — HEAPS EN JAVA
+     SLIDE 11: java.util.PriorityQueue
      ═══════════════════════════════════════════════════════ -->
 <section id="priority-queue" class="animate-on-scroll">
     <div class="section-header">
-        <div class="section-number">08 — PriorityQueue</div>
+        <div class="part-label">Parte IV — Heaps en Java</div>
+        <div class="section-number">09 — PriorityQueue</div>
         <h2><span class="gradient-text">PriorityQueue</span> en Java</h2>
         <p>Java provee <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.1rem 0.4rem; border-radius: 4px;">java.util.PriorityQueue</code> — un Min-Heap listo para usar.</p>
     </div>
@@ -1502,11 +1743,13 @@ System.out.<span class="fn">println</span>(minHeap.<span class="fn">peek</span>(
 </section>
 
 <!-- ═══════════════════════════════════════════════════════
-     SLIDE 10: MAX-HEAP CON PRIORITYQUEUE
+     PARTE IV — HEAPS EN JAVA
+     SLIDE 12: MAX-HEAP CON PRIORITYQUEUE (3 FORMAS)
      ═══════════════════════════════════════════════════════ -->
 <section id="max-heap" class="animate-on-scroll">
     <div class="section-header">
-        <div class="section-number">09 — Max-Heap</div>
+        <div class="part-label">Parte IV — Heaps en Java</div>
+        <div class="section-number">10 — Max-Heap</div>
         <h2>Implementar <span class="gradient-text">Max-Heap</span></h2>
         <p>3 formas de crear un Max-Heap con PriorityQueue.</p>
     </div>
@@ -1567,8 +1810,10 @@ System.out.<span class="fn">println</span>(maxHeap.<span class="fn">poll</span>(
                     <span class="filename">Opción 3 — Lambda</span>
                 </div>
                 <pre><code><span class="cm">// Lambda: invertir la comparación</span>
+<span class="cm">// ⚠️ b - a puede desbordar con valores extremos;</span>
+<span class="cm">//    es más seguro usar Integer.compare(b, a)</span>
 <span class="tp">PriorityQueue</span>&lt;<span class="tp">Integer</span>&gt; maxHeap = <span class="kw">new</span> <span class="tp">PriorityQueue</span>&lt;&gt;(
-    (a, b) <span class="op">-&gt;</span> b <span class="op">-</span> a
+    (a, b) <span class="op">-&gt;</span> <span class="tp">Integer</span>.<span class="fn">compare</span>(b, a)
 );
 
 maxHeap.<span class="fn">offer</span>(<span class="num">10</span>);
@@ -1593,11 +1838,158 @@ System.out.<span class="fn">println</span>(maxHeap.<span class="fn">poll</span>(
 </section>
 
 <!-- ═══════════════════════════════════════════════════════
-     SLIDE 11: APLICACIONES
+     PARTE IV — HEAPS EN JAVA
+     SLIDE 13: HEAPS CON OBJETOS PERSONALIZADOS
+     (basada en src/PriorityQueueExamples.java y src/Paciente.java)
+     ═══════════════════════════════════════════════════════ -->
+<section id="objetos" class="animate-on-scroll">
+    <div class="section-header">
+        <div class="part-label">Parte IV — Heaps en Java</div>
+        <div class="section-number">11 — Objetos</div>
+        <h2>Heaps con <span class="gradient-text">Objetos</span></h2>
+        <p>El heap no solo ordena números: cualquier clase puede priorizarse con <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.1rem 0.4rem; border-radius: 4px;">Comparable</code> o un <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.1rem 0.4rem; border-radius: 4px;">Comparator</code>.</p>
+    </div>
+
+    <div class="split">
+        <!-- Opción A: la clase define su orden natural con Comparable -->
+        <div>
+            <h3 style="margin-bottom: 1rem;">🅰️ Con <code>Comparable</code></h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="dots"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span></div>
+                    <span class="filename">Paciente.java</span>
+                </div>
+                <pre><code><span class="cm">// La clase define su "orden natural"</span>
+<span class="kw">public class</span> <span class="tp">Paciente</span> <span class="kw">implements</span> <span class="tp">Comparable</span>&lt;<span class="tp">Paciente</span>&gt; {
+    <span class="kw">private final</span> <span class="tp">String</span> nombre;
+    <span class="kw">private final int</span> gravedad; <span class="cm">// 1 (leve) a 10 (crítico)</span>
+
+    <span class="an">@Override</span>
+    <span class="kw">public int</span> <span class="fn">compareTo</span>(<span class="tp">Paciente</span> otro) {
+        <span class="cm">// Compara por gravedad → el heap decide quién sube</span>
+        <span class="kw">return</span> <span class="tp">Integer</span>.<span class="fn">compare</span>(<span class="kw">this</span>.gravedad, otro.gravedad);
+    }
+}</code></pre>
+            </div>
+            <div class="highlight-box green">
+                <strong>Ventaja:</strong> el orden viaja con la clase. Un <code>MaxHeap&lt;Paciente&gt;</code> funciona sin configuración extra.
+            </div>
+        </div>
+
+        <!-- Opción B: el orden se define al crear la cola con Comparator -->
+        <div>
+            <h3 style="margin-bottom: 1rem;">🅱️ Con <code>Comparator</code></h3>
+            <div class="code-block">
+                <div class="code-header">
+                    <div class="dots"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span></div>
+                    <span class="filename">PriorityQueueExamples.java</span>
+                </div>
+                <pre><code><span class="cm">// record: clase inmutable en una línea</span>
+<span class="kw">record</span> <span class="tp">Tarea</span>(<span class="tp">String</span> nombre, <span class="kw">int</span> prioridad) {}
+
+<span class="cm">// Min-Heap: menor número = más urgente</span>
+<span class="tp">PriorityQueue</span>&lt;<span class="tp">Tarea</span>&gt; cola = <span class="kw">new</span> <span class="tp">PriorityQueue</span>&lt;&gt;(
+    <span class="tp">Comparator</span>.<span class="fn">comparingInt</span>(<span class="tp">Tarea</span>::prioridad)
+);
+
+cola.<span class="fn">offer</span>(<span class="kw">new</span> <span class="tp">Tarea</span>(<span class="str">"Enviar correo"</span>, <span class="num">3</span>));
+cola.<span class="fn">offer</span>(<span class="kw">new</span> <span class="tp">Tarea</span>(<span class="str">"Bug crítico"</span>, <span class="num">1</span>));
+
+cola.<span class="fn">poll</span>(); <span class="cm">// → "Bug crítico" (prioridad 1)</span>
+
+<span class="cm">// Max-Heap: basta con .reversed()</span>
+<span class="tp">PriorityQueue</span>&lt;<span class="tp">Tarea</span>&gt; inversa = <span class="kw">new</span> <span class="tp">PriorityQueue</span>&lt;&gt;(
+    <span class="tp">Comparator</span>.<span class="fn">comparingInt</span>(<span class="tp">Tarea</span>::prioridad).<span class="fn">reversed</span>()
+);</code></pre>
+            </div>
+            <div class="highlight-box">
+                <strong>Ventaja:</strong> cada cola puede tener su propio criterio sin tocar la clase.
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     PARTE V — ALGORITMOS Y APLICACIONES
+     SLIDE 14: HEAPSORT
+     (basada en src/HeapSort.java)
+     ═══════════════════════════════════════════════════════ -->
+<section id="heapsort" class="animate-on-scroll">
+    <div class="section-header">
+        <div class="part-label">Parte V — Algoritmos</div>
+        <div class="section-number">12 — HeapSort</div>
+        <h2><span class="gradient-text">HeapSort</span> paso a paso</h2>
+        <p>Ordenamiento <strong>in-place</strong> en O(n log n): construye un Max-Heap y extrae el máximo repetidamente.</p>
+    </div>
+
+    <div class="split">
+        <div>
+            <h3 style="margin-bottom: 1.5rem;">📜 Algoritmo</h3>
+            <ol class="step-list">
+                <li><strong>Construir el Max-Heap:</strong> aplicar <em>heapify</em> desde el último nodo no-hoja (n/2 − 1) hasta la raíz. Costo: O(n).</li>
+                <li><strong>Intercambiar:</strong> mover la raíz (el máximo) al final del arreglo.</li>
+                <li><strong>Reducir el heap:</strong> el último elemento ya está ordenado; se excluye del heap.</li>
+                <li><strong>Heapify de la raíz:</strong> restaurar la propiedad del Max-Heap.</li>
+                <li><strong>Repetir</strong> los pasos 2–4 hasta que el heap quede vacío.</li>
+            </ol>
+            <div class="highlight-box orange" style="margin-top: 1rem;">
+                <strong>💡 In-place:</strong> no necesita memoria extra — el mismo arreglo actúa como heap y como zona ordenada.
+            </div>
+        </div>
+
+        <div>
+            <div class="code-block" style="margin-top: 0;">
+                <div class="code-header">
+                    <div class="dots"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span></div>
+                    <span class="filename">HeapSort.java</span>
+                </div>
+                <pre><code><span class="kw">public void</span> <span class="fn">sort</span>(<span class="kw">int</span>[] arr) {
+    <span class="kw">int</span> n = arr.length;
+
+    <span class="cm">// 1. Construir Max-Heap — O(n)</span>
+    <span class="kw">for</span> (<span class="kw">int</span> i = n / <span class="num">2</span> - <span class="num">1</span>; i &gt;= <span class="num">0</span>; i--)
+        <span class="fn">heapify</span>(arr, n, i);
+
+    <span class="cm">// 2. Extraer el máximo uno por uno</span>
+    <span class="kw">for</span> (<span class="kw">int</span> i = n - <span class="num">1</span>; i &gt; <span class="num">0</span>; i--) {
+        <span class="cm">// Raíz (máximo) → al final</span>
+        <span class="kw">int</span> temp = arr[<span class="num">0</span>];
+        arr[<span class="num">0</span>] = arr[i];
+        arr[i] = temp;
+
+        <span class="cm">// Restaurar heap en la parte no ordenada</span>
+        <span class="fn">heapify</span>(arr, i, <span class="num">0</span>);
+    }
+}
+
+<span class="cm">// Hunde el nodo i hasta cumplir la propiedad Max-Heap</span>
+<span class="kw">void</span> <span class="fn">heapify</span>(<span class="kw">int</span>[] arr, <span class="kw">int</span> n, <span class="kw">int</span> i) {
+    <span class="kw">int</span> largest = i;
+    <span class="kw">int</span> left = <span class="num">2</span> * i + <span class="num">1</span>, right = <span class="num">2</span> * i + <span class="num">2</span>;
+
+    <span class="kw">if</span> (left &lt; n <span class="op">&amp;&amp;</span> arr[left] &gt; arr[largest])  largest = left;
+    <span class="kw">if</span> (right &lt; n <span class="op">&amp;&amp;</span> arr[right] &gt; arr[largest]) largest = right;
+
+    <span class="kw">if</span> (largest != i) {
+        <span class="kw">int</span> swap = arr[i];
+        arr[i] = arr[largest];
+        arr[largest] = swap;
+        <span class="fn">heapify</span>(arr, n, largest); <span class="cm">// seguir bajando</span>
+    }
+}</code></pre>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     PARTE V — ALGORITMOS Y APLICACIONES
+     SLIDE 15: APLICACIONES REALES
      ═══════════════════════════════════════════════════════ -->
 <section id="aplicaciones" class="animate-on-scroll">
     <div class="section-header">
-        <div class="section-number">10 — Aplicaciones</div>
+        <div class="part-label">Parte V — Aplicaciones</div>
+        <div class="section-number">13 — Aplicaciones</div>
         <h2>Aplicaciones <span class="gradient-text">Reales</span></h2>
         <p>¿Dónde se usan los Heaps en la práctica?</p>
     </div>
@@ -1643,53 +2035,88 @@ System.out.<span class="fn">println</span>(maxHeap.<span class="fn">poll</span>(
 </section>
 
 <!-- ═══════════════════════════════════════════════════════
-     SLIDE 12: COMPLEJIDAD
+     PARTE V — ALGORITMOS Y APLICACIONES
+     SLIDE 16: CASO PRÁCTICO — COLA DE URGENCIAS
+     (basada en src/HospitalEmergencyQueue.java, Paciente.java y ColaUrgencias.java)
      ═══════════════════════════════════════════════════════ -->
-<section id="complejidad" class="animate-on-scroll">
+<section id="hospital" class="animate-on-scroll">
     <div class="section-header">
-        <div class="section-number">11 — Complejidad</div>
-        <h2>Complejidad <span class="gradient-text">Big-O</span></h2>
+        <div class="part-label">Parte V — Caso Práctico</div>
+        <div class="section-number">14 — Caso Práctico</div>
+        <h2>🏥 Cola de <span class="gradient-text">Urgencias</span></h2>
+        <p>Sistema de triaje hospitalario: los pacientes se atienden por <strong>gravedad</strong>, no por orden de llegada. Un Max-Heap resuelve el problema de forma natural.</p>
     </div>
 
-    <div class="complexity-grid">
-        <div class="complexity-item">
-            <div class="op-name">INSERTAR</div>
-            <div class="complexity medium">O(log n)</div>
+    <!-- Arquitectura del ejemplo: 3 clases colaborando -->
+    <div class="card-grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
+        <div class="card">
+            <div class="card-icon">🧑‍⚕️</div>
+            <h3>Paciente.java</h3>
+            <p>Modelo con nombre, edad, enfermedad y <strong>gravedad (1–10)</strong>. Implementa <code>Comparable</code> comparando por gravedad, y valida el rango en el constructor.</p>
+            <span class="pill purple" style="margin-top: 0.75rem;">Comparable</span>
         </div>
-        <div class="complexity-item">
-            <div class="op-name">EXTRAER RAÍZ</div>
-            <div class="complexity medium">O(log n)</div>
+        <div class="card">
+            <div class="card-icon">📋</div>
+            <h3>ColaUrgencias.java</h3>
+            <p>Envuelve un <code>PriorityQueue&lt;Paciente&gt;</code> con <code>Collections.reverseOrder()</code>: el paciente <strong>más grave</strong> queda siempre al frente.</p>
+            <span class="pill red" style="margin-top: 0.75rem;">Max-Heap</span>
         </div>
-        <div class="complexity-item">
-            <div class="op-name">CONSULTAR RAÍZ</div>
-            <div class="complexity fast">O(1)</div>
-        </div>
-        <div class="complexity-item">
-            <div class="op-name">CONSTRUIR HEAP</div>
-            <div class="complexity fast">O(n)</div>
-        </div>
-        <div class="complexity-item">
-            <div class="op-name">BUSCAR ELEMENTO</div>
-            <div class="complexity slow">O(n)</div>
-        </div>
-        <div class="complexity-item">
-            <div class="op-name">HEAP SORT</div>
-            <div class="complexity medium">O(n log n)</div>
+        <div class="card">
+            <div class="card-icon">🖥️</div>
+            <h3>HospitalEmergencyQueue.java</h3>
+            <p>Simulación completa: registro de pacientes, atención por turnos y llegada de una <strong>emergencia</strong> que pasa al frente automáticamente.</p>
+            <span class="pill green" style="margin-top: 0.75rem;">Demo main()</span>
         </div>
     </div>
 
-    <div class="highlight-box green" style="margin-top: 2rem;">
-        <strong>¿Por qué buildHeap es O(n) y no O(n log n)?</strong>
-        <br>Aunque insertar un elemento es O(log n), el algoritmo <em>heapify bottom-up</em> procesa los nodos desde las hojas hacia la raíz. La mayoría de los nodos están en los niveles inferiores y requieren poco trabajo. La suma total es una serie geométrica que converge a O(n).
+    <div class="code-block">
+        <div class="code-header">
+            <div class="dots"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span></div>
+            <span class="filename">ColaUrgencias.java — núcleo del sistema</span>
+        </div>
+        <pre><code><span class="kw">public class</span> <span class="tp">ColaUrgencias</span> {
+
+    <span class="cm">// Criterio de atención:</span>
+    <span class="cm">//   1. Mayor gravedad primero (Max-Heap)</span>
+    <span class="cm">//   2. A igual gravedad → el que llegó primero (FIFO)</span>
+    <span class="kw">private static final</span> <span class="tp">Comparator</span>&lt;<span class="tp">Paciente</span>&gt; ORDEN_ATENCION =
+            <span class="tp">Comparator</span>.<span class="fn">comparingInt</span>(<span class="tp">Paciente</span>::getGravedad).<span class="fn">reversed</span>()
+                      .<span class="fn">thenComparing</span>(<span class="tp">Paciente</span>::getHoraLlegada);
+
+    <span class="kw">private final</span> <span class="tp">PriorityQueue</span>&lt;<span class="tp">Paciente</span>&gt; cola;
+
+    <span class="kw">public</span> <span class="fn">ColaUrgencias</span>() {
+        <span class="kw">this</span>.cola = <span class="kw">new</span> <span class="tp">PriorityQueue</span>&lt;&gt;(ORDEN_ATENCION);
+    }
+
+    <span class="cm">// Registrar paciente — O(log n)</span>
+    <span class="kw">public void</span> <span class="fn">registrarPaciente</span>(<span class="tp">Paciente</span> p) { cola.<span class="fn">offer</span>(p); }
+
+    <span class="cm">// Atender al MÁS GRAVE — O(log n)</span>
+    <span class="kw">public</span> <span class="tp">Paciente</span> <span class="fn">atenderSiguiente</span>() { <span class="kw">return</span> cola.<span class="fn">poll</span>(); }
+
+    <span class="cm">// Consultar el siguiente sin atenderlo — O(1)</span>
+    <span class="kw">public</span> <span class="tp">Paciente</span> <span class="fn">verSiguiente</span>() { <span class="kw">return</span> cola.<span class="fn">peek</span>(); }
+}</code></pre>
+    </div>
+
+    <div class="highlight-box green">
+        <strong>🚨 El momento clave de la demo:</strong> con 4 pacientes ya en espera, llega "Diego Ramírez" con paro cardiorrespiratorio (gravedad 10). Un solo <code>offer()</code> y el heap lo sube a la raíz en O(log n): será el siguiente en ser atendido, sin reordenar ninguna lista manualmente.
+    </div>
+
+    <div class="highlight-box orange">
+        <strong>⚠️ ¿Por qué el desempate?</strong> <code>PriorityQueue</code> <em>no es estable</em>: con prioridades iguales no garantiza orden de llegada. Por eso el comparador agrega <code>.thenComparing(Paciente::getHoraLlegada)</code> — en la demo, Ana (07:45) y Elena (08:50) tienen gravedad 5, y Ana se atiende primero por haber llegado antes.
     </div>
 </section>
 
 <!-- ═══════════════════════════════════════════════════════
-     SLIDE 13: REFERENCIAS
+     PARTE VI — CIERRE
+     SLIDE 17: REFERENCIAS Y ARCHIVOS DEL PROYECTO
      ═══════════════════════════════════════════════════════ -->
 <section id="refs" class="animate-on-scroll">
     <div class="section-header">
-        <div class="section-number">12 — Referencias</div>
+        <div class="part-label">Parte VI — Cierre</div>
+        <div class="section-number">15 — Referencias</div>
         <h2>Recursos y <span class="gradient-text">Referencias</span></h2>
     </div>
 
@@ -1711,15 +2138,31 @@ System.out.<span class="fn">println</span>(maxHeap.<span class="fn">poll</span>(
         </div>
     </div>
 
+    <!-- Listado de archivos del repositorio agrupados por tema -->
     <div style="text-align: center; margin-top: 3rem;">
-        <p style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem;">
+        <p style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.75rem;">
             Archivos del proyecto:
         </p>
-        <p style="color: var(--text-secondary);">
+        <p style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 0.35rem;">Estructuras</p>
+        <p style="color: var(--text-secondary); margin-bottom: 1rem;">
             <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.2rem 0.6rem; border-radius: 6px;">src/MinHeap.java</code>
             <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.2rem 0.6rem; border-radius: 6px;">src/MaxHeap.java</code>
+            <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.2rem 0.6rem; border-radius: 6px;">src/HeapSort.java</code>
+        </p>
+        <p style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 0.35rem;">Ejemplos y demos</p>
+        <p style="color: var(--text-secondary); margin-bottom: 1rem;">
             <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.2rem 0.6rem; border-radius: 6px;">src/PriorityQueueExamples.java</code>
             <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.2rem 0.6rem; border-radius: 6px;">src/HeapExamples.java</code>
+        </p>
+        <p style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 0.35rem;">Caso práctico: hospital</p>
+        <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+            <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.2rem 0.6rem; border-radius: 6px;">src/Paciente.java</code>
+            <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.2rem 0.6rem; border-radius: 6px;">src/ColaUrgencias.java</code>
+            <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.2rem 0.6rem; border-radius: 6px;">src/HospitalEmergencyQueue.java</code>
+        </p>
+        <p style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 0.35rem;">Ejercicios</p>
+        <p style="color: var(--text-secondary);">
+            <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.2rem 0.6rem; border-radius: 6px;">src/SolucionarioEstructurasDatos.java</code>
             <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.2rem 0.6rem; border-radius: 6px;">ejercicios.md</code>
         </p>
     </div>
@@ -1736,25 +2179,40 @@ System.out.<span class="fn">println</span>(maxHeap.<span class="fn">poll</span>(
     </p>
 </footer>
 
-<!-- ===== SCRIPTS ===== -->
+<!-- ═══════════════════════════════════════════════════════
+     SCRIPTS
+     1. Pestañas de la animación (Min-Heap / Max-Heap / BST)
+     2. Pestañas de código (3 formas de Max-Heap)
+     3. Animaciones al hacer scroll (IntersectionObserver)
+     4. Resaltado del enlace activo + barra de progreso
+     ═══════════════════════════════════════════════════════ -->
 <script>
-    // Animation Tab switching
+    /**
+     * Cambia la pestaña visible en la sección de animación.
+     * Estas pestañas usan display none/block (no la clase .active de CSS)
+     * para reiniciar las animaciones SVG al mostrarse.
+     */
     function switchAnimTab(event, tabId) {
         document.querySelectorAll('.tab-content-anim').forEach(t => t.style.display = 'none');
         document.querySelectorAll('.tab-btn-anim').forEach(b => b.classList.remove('active'));
         document.getElementById(tabId).style.display = 'block';
-        event.target.classList.add('active');
+        // currentTarget: siempre el <button>, aunque el clic caiga en un hijo
+        event.currentTarget.classList.add('active');
     }
 
-    // Tab switching
+    /**
+     * Cambia la pestaña visible en las secciones de código.
+     * Usa las clases .active definidas en CSS (.tab-content / .tab-btn).
+     */
     function switchTab(event, tabId) {
         document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.getElementById(tabId).classList.add('active');
-        event.target.classList.add('active');
+        event.currentTarget.classList.add('active');
     }
 
-    // Scroll animations
+    // Aparición suave de cada sección al entrar en pantalla.
+    // threshold 0.1 → se dispara cuando el 10% de la sección es visible.
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
@@ -1765,11 +2223,13 @@ System.out.<span class="fn">println</span>(maxHeap.<span class="fn">poll</span>(
 
     document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
 
-    // Active nav link
+    // Navegación: resalta el enlace de la sección visible y
+    // actualiza la barra de progreso de lectura.
     const sections = document.querySelectorAll('section');
     const navLinks = document.querySelectorAll('.nav-links a');
 
     window.addEventListener('scroll', () => {
+        // Determinar la última sección cuyo tope ya pasó (con margen de 120px por el nav fijo)
         let current = '';
         sections.forEach(section => {
             const sectionTop = section.offsetTop - 120;
@@ -1785,7 +2245,7 @@ System.out.<span class="fn">println</span>(maxHeap.<span class="fn">poll</span>(
             }
         });
 
-        // Progress bar
+        // Barra de progreso: porcentaje del documento ya desplazado
         const totalScroll = document.documentElement.scrollHeight - window.innerHeight;
         const progress = (window.scrollY / totalScroll) * 100;
         document.getElementById('progress-bar').style.width = progress + '%';

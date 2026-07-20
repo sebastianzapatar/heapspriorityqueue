@@ -4,11 +4,12 @@
  * ╠═══════════════════════════════════════════════════════════════╣
  * ║  Los pacientes se atienden según la GRAVEDAD de su          ║
  * ║  enfermedad. Mayor gravedad = se atiende primero.           ║
+ * ║  A igual gravedad, se atiende al que llegó primero (FIFO).  ║
  * ║                                                             ║
  * ║  Clases utilizadas:                                         ║
  * ║    - Paciente.java      → Modelo del paciente               ║
- * ║    - ColaUrgencias.java → Cola que usa MaxHeap<Paciente>    ║
- * ║    - MaxHeap.java       → Estructura de datos genérica      ║
+ * ║    - ColaUrgencias.java → PriorityQueue<Paciente> (MaxHeap  ║
+ * ║      por gravedad + desempate por hora de llegada)          ║
  * ╚═══════════════════════════════════════════════════════════════╝
  */
 public class HospitalEmergencyQueue {
@@ -46,6 +47,11 @@ public class HospitalEmergencyQueue {
 
         urgencias.registrarPaciente(new Paciente(
             "Rosa Díaz",       72, "Hemorragia digestiva",         8, "08:45"));
+
+        // Misma gravedad (5) que Ana Martínez, pero llegó después:
+        // el desempate por hora de llegada atenderá primero a Ana
+        urgencias.registrarPaciente(new Paciente(
+            "Elena Vargas",    51, "Fractura de cadera",           5, "08:50"));
 
         urgencias.registrarPaciente(new Paciente(
             "Miguel Torres",   19, "Gripe común",                  1, "09:00"));
@@ -112,22 +118,24 @@ public class HospitalEmergencyQueue {
         System.out.println("║  📚 ¿CÓMO FUNCIONA EL MAX-HEAP EN ESTE EJEMPLO?             ║");
         System.out.println("╠═══════════════════════════════════════════════════════════════╣");
         System.out.println("║                                                               ║");
-        System.out.println("║  1. Paciente implementa Comparable<Paciente>                  ║");
-        System.out.println("║     → compareTo() compara por GRAVEDAD                       ║");
+        System.out.println("║  1. ColaUrgencias usa un Comparator explícito:                ║");
+        System.out.println("║     → gravedad DESC + hora de llegada ASC (desempate FIFO)    ║");
         System.out.println("║                                                               ║");
-        System.out.println("║  2. MaxHeap<Paciente> usa compareTo() internamente            ║");
+        System.out.println("║  2. PriorityQueue usa ese Comparator internamente             ║");
         System.out.println("║     → El paciente con MAYOR gravedad sube a la raíz           ║");
+        System.out.println("║     → A igual gravedad, se atiende al que llegó PRIMERO       ║");
+        System.out.println("║       (ej: Ana 07:45 antes que Elena 08:50, ambas gravedad 5) ║");
         System.out.println("║                                                               ║");
-        System.out.println("║  3. extractMax() siempre retorna el más grave                 ║");
+        System.out.println("║  3. poll() siempre retorna el más grave                       ║");
         System.out.println("║     → O(log n) para reorganizar el heap                      ║");
         System.out.println("║                                                               ║");
-        System.out.println("║  4. insert() agrega y reordena automáticamente                ║");
+        System.out.println("║  4. offer() agrega y reordena automáticamente                 ║");
         System.out.println("║     → Un paciente crítico nuevo sube al tope al instante      ║");
         System.out.println("║                                                               ║");
         System.out.println("║  Complejidades:                                               ║");
-        System.out.println("║     insert()     → O(log n)                                   ║");
-        System.out.println("║     extractMax() → O(log n)                                   ║");
-        System.out.println("║     peek()       → O(1)                                       ║");
+        System.out.println("║     offer() → O(log n)                                        ║");
+        System.out.println("║     poll()  → O(log n)                                        ║");
+        System.out.println("║     peek()  → O(1)                                            ║");
         System.out.println("╚═══════════════════════════════════════════════════════════════╝");
     }
 }

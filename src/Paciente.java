@@ -35,9 +35,13 @@ public class Paciente implements Comparable<Paciente> {
     public String getHoraLlegada(){ return horaLlegada; }
 
     /**
-     * Comparación por gravedad.
+     * Orden natural: comparación por gravedad únicamente.
      * El MaxHeap usa compareTo > 0 para decidir quién sube,
      * así que el paciente con MAYOR gravedad queda en la raíz.
+     *
+     * Nota: el desempate por hora de llegada (FIFO entre pacientes
+     * con la misma gravedad) no va aquí — lo define el Comparator
+     * ORDEN_ATENCION de ColaUrgencias.
      */
     @Override
     public int compareTo(Paciente otro) {
