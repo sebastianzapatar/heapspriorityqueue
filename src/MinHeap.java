@@ -234,6 +234,7 @@ public class MinHeap<T extends Comparable<T>> {
         MinHeap<Integer> intHeap = new MinHeap<>();
         int[] values = {35, 10, 25, 5, 15, 30, 20};
 
+        // --- Insertar uno a uno (siftUp en cada insert) ---
         System.out.println("Insertando: ");
         for (int v : values) {
             System.out.print(v + " ");
@@ -242,12 +243,13 @@ public class MinHeap<T extends Comparable<T>> {
         System.out.println("\n");
         intHeap.printTree();
 
+        // --- Consultar y extraer la raíz (el mínimo) ---
         System.out.println("\nPeek (mínimo): " + intHeap.peek());
         System.out.println("ExtractMin: " + intHeap.extractMin());
         System.out.println("Nuevo mínimo: " + intHeap.peek());
         intHeap.printTree();
 
-        // --- Min-Heap con String ---
+        // --- Min-Heap con String: compareTo() usa orden alfabético ---
         System.out.println("\n--- Min-Heap con String ---");
         MinHeap<String> stringHeap = new MinHeap<>();
         String[] names = {"Carlos", "Ana", "Diana", "Bernardo", "Eva"};
@@ -256,6 +258,7 @@ public class MinHeap<T extends Comparable<T>> {
             stringHeap.insert(name);
         }
 
+        // Extraer todo produce orden ascendente (heap sort)
         System.out.println("Orden por extracción (alfabético):");
         while (!stringHeap.isEmpty()) {
             System.out.print(stringHeap.extractMin() + " ");

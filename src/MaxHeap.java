@@ -4,12 +4,20 @@ import java.util.NoSuchElementException;
 
 /**
  * Implementación genérica de un Max-Heap.
- * 
+ *
  * En un Max-Heap, el elemento más grande siempre está en la raíz.
  * Cada padre es mayor o igual que sus hijos.
- * 
- * La única diferencia con MinHeap es la dirección de las comparaciones.
- * 
+ *
+ * Se almacena internamente en un ArrayList (representación por arreglo).
+ *
+ * Fórmulas de navegación (índice base 0):
+ *   - Padre de i:       (i - 1) / 2
+ *   - Hijo izquierdo:   2 * i + 1
+ *   - Hijo derecho:     2 * i + 2
+ *
+ * La única diferencia con MinHeap es la dirección de las comparaciones:
+ * aquí un elemento "gana" y sube/queda arriba cuando es MAYOR, no menor.
+ *
  * @param <T> Tipo de dato que debe ser Comparable
  */
 public class MaxHeap<T extends Comparable<T>> {
@@ -22,7 +30,8 @@ public class MaxHeap<T extends Comparable<T>> {
 
     /**
      * Construye un Max-Heap a partir de una lista existente.
-     * Complejidad: O(n)
+     * Copia los elementos y aplica heapify bottom-up (buildHeap).
+     * Complejidad: O(n) — más eficiente que insertar uno a uno O(n log n)
      */
     public MaxHeap(List<T> items) {
         this.heap = new ArrayList<>(items);
@@ -33,6 +42,7 @@ public class MaxHeap<T extends Comparable<T>> {
 
     /**
      * Inserta un elemento en el heap.
+     * Lo agrega al final y lo sube (sift up) hasta restaurar la propiedad.
      * Complejidad: O(log n)
      */
     public void insert(T value) {
@@ -42,6 +52,7 @@ public class MaxHeap<T extends Comparable<T>> {
 
     /**
      * Extrae y retorna el elemento máximo (raíz).
+     * Reemplaza la raíz con el último elemento y lo baja (sift down).
      * Complejidad: O(log n)
      */
     public T extractMax() {
@@ -71,10 +82,16 @@ public class MaxHeap<T extends Comparable<T>> {
         return heap.get(0);
     }
 
+    /**
+     * Verifica si el heap está vacío.
+     */
     public boolean isEmpty() {
         return heap.isEmpty();
     }
 
+    /**
+     * Retorna el número de elementos en el heap.
+     */
     public int size() {
         return heap.size();
     }
@@ -82,24 +99,29 @@ public class MaxHeap<T extends Comparable<T>> {
     // ==================== OPERACIONES INTERNAS ====================
 
     /**
-     * Sube un elemento — la diferencia clave con MinHeap:
-     * Aquí subimos si el hijo es MAYOR que el padre.
+     * Sube un elemento hasta que se cumpla la propiedad del Max-Heap.
+     * Se usa después de insertar un elemento al final.
+     * Diferencia clave con MinHeap: aquí subimos si el hijo es MAYOR
+     * que el padre (compareTo > 0 en lugar de < 0).
      */
     private void siftUp(int index) {
         while (index > 0) {
             int parentIndex = (index - 1) / 2;
-            // Cambio vs MinHeap: compareTo > 0 en lugar de < 0
+            // Si el hijo es mayor que el padre, intercambiar
             if (heap.get(index).compareTo(heap.get(parentIndex)) > 0) {
                 swap(index, parentIndex);
                 index = parentIndex;
             } else {
-                break;
+                break; // Ya está en la posición correcta
             }
         }
     }
 
     /**
-     * Baja un elemento — buscamos el MAYOR de los hijos.
+     * Baja un elemento hasta que se cumpla la propiedad del Max-Heap.
+     * Se usa después de extraer la raíz.
+     * Diferencia clave con MinHeap: buscamos el MAYOR de los hijos
+     * (en vez del menor) para decidir con quién intercambiar.
      */
     private void siftDown(int index) {
         int size = heap.size();
@@ -109,40 +131,57 @@ public class MaxHeap<T extends Comparable<T>> {
             int left = 2 * index + 1;
             int right = 2 * index + 2;
 
-            // Cambio vs MinHeap: buscamos el mayor
+            // Comparar con hijo izquierdo
             if (left < size && heap.get(left).compareTo(heap.get(largest)) > 0) {
                 largest = left;
             }
+            // Comparar con hijo derecho
             if (right < size && heap.get(right).compareTo(heap.get(largest)) > 0) {
                 largest = right;
             }
 
+            // Si el mayor no es el actual, intercambiar y continuar
             if (largest != index) {
                 swap(index, largest);
                 index = largest;
             } else {
-                break;
+                break; // Propiedad del heap restaurada
             }
         }
     }
 
+    /**
+     * Construye el heap desde un arreglo desordenado.
+     * Aplica siftDown desde el último nodo no-hoja hasta la raíz.
+     * Complejidad: O(n) — más eficiente que insertar uno a uno O(n log n)
+     */
     private void buildHeap() {
+        // El último nodo no-hoja está en (n/2 - 1)
         for (int i = (heap.size() / 2) - 1; i >= 0; i--) {
             siftDown(i);
         }
     }
 
+    /**
+     * Intercambia los elementos en las posiciones i y j del arreglo.
+     */
     private void swap(int i, int j) {
         T temp = heap.get(i);
         heap.set(i, heap.get(j));
         heap.set(j, temp);
     }
 
+    /**
+     * Representación textual simple del heap (orden de arreglo, no de árbol).
+     */
     @Override
     public String toString() {
         return "MaxHeap" + heap.toString();
     }
 
+    /**
+     * Imprime el heap como un árbol por niveles.
+     */
     public void printTree() {
         if (isEmpty()) {
             System.out.println("(heap vacío)");
@@ -186,6 +225,7 @@ public class MaxHeap<T extends Comparable<T>> {
         System.out.println("║     DEMO: MaxHeap<T> Genérico       ║");
         System.out.println("╚══════════════════════════════════════╝\n");
 
+        // --- Insertar uno a uno (siftUp en cada insert) ---
         MaxHeap<Integer> maxHeap = new MaxHeap<>();
         int[] values = {10, 40, 20, 50, 30, 15, 35};
 
@@ -197,17 +237,19 @@ public class MaxHeap<T extends Comparable<T>> {
         System.out.println("\n");
         maxHeap.printTree();
 
+        // --- Consultar y extraer la raíz (el máximo) ---
         System.out.println("\nPeek (máximo): " + maxHeap.peek());
         System.out.println("ExtractMax: " + maxHeap.extractMax());
         System.out.println("Nuevo máximo: " + maxHeap.peek());
 
+        // --- Extraer todo produce orden descendente (heap sort) ---
         System.out.println("\nExtraer todos en orden descendente:");
         while (!maxHeap.isEmpty()) {
             System.out.print(maxHeap.extractMax() + " ");
         }
         System.out.println();
 
-        // --- Construir desde lista ---
+        // --- Construir desde lista (heapify O(n)) ---
         System.out.println("\n--- Construir Max-Heap desde lista ---");
         List<Integer> data = List.of(5, 15, 10, 30, 20, 25);
         System.out.println("Datos originales: " + data);

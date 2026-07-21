@@ -208,8 +208,9 @@ public class SolucionarioEstructurasDatos {
 
         // max con Comparator: encuentra el libro con más préstamos
         arbol.inorden().stream()
-                .max(Comparator.comparingInt(Libro::getPrestamos))
-                .ifPresent(libro -> System.out.println("Libro más prestado: " + libro));
+                .max(Comparator.comparingInt(e->e.getPrestamos()))
+                .ifPresent(libro ->
+                        System.out.println("Libro más prestado: " + libro));
     }
 
     // =========================================================
@@ -261,24 +262,29 @@ public class SolucionarioEstructurasDatos {
 
         // La clave es el documento → get() responde en O(1)
         Map<String, Empleado> empleados = new HashMap<>();
-        empleados.put("1001", new Empleado("1001", "Ana", "Sistemas", 4_500_000));
-        empleados.put("1002", new Empleado("1002", "Luis", "Finanzas", 5_200_000));
-        empleados.put("1003", new Empleado("1003", "Marta", "Sistemas", 6_000_000));
-        empleados.put("1004", new Empleado("1004", "Carlos", "Talento Humano", 3_800_000));
+        empleados.put("1001", new Empleado("1001",
+                "Ana", "Sistemas", 4_500_000));
+        empleados.put("1002", new Empleado("1002",
+                "Luis", "Finanzas", 5_200_000));
+        empleados.put("1003", new Empleado("1003",
+                "Marta", "Sistemas", 6_000_000));
+        empleados.put("1004", new Empleado("1004",
+                "Carlos", "Talento Humano", 3_800_000));
 
         System.out.println("Empleado por documento 1003: " + empleados.get("1003"));
 
         System.out.println("\nEmpleados de Sistemas:");
         empleados.values().stream()
-                .filter(e -> e.getDepartamento().equalsIgnoreCase("Sistemas"))
-                .forEach(System.out::println);
+                .filter(e ->
+                        e.getDepartamento().equalsIgnoreCase("Sistemas"))
+                .forEach(e->IO.println(e));
 
         // groupingBy + averagingDouble: agrupa por departamento y
         // calcula el promedio de salario de cada grupo en una sola pasada
         Map<String, Double> promedioPorDepartamento = empleados.values().stream()
                 .collect(Collectors.groupingBy(
-                        Empleado::getDepartamento,
-                        Collectors.averagingDouble(Empleado::getSalario)
+                        e->e.getDepartamento(),
+                        Collectors.averagingDouble(e->e.getSalario())
                 ));
 
         System.out.println("\nPromedio salarial por departamento:");
@@ -288,7 +294,7 @@ public class SolucionarioEstructurasDatos {
 
         empleados.values().stream()
                 .max(Comparator.comparingDouble(Empleado::getSalario))
-                .ifPresent(e -> System.out.println("\nMayor salario: " + e));
+                .ifPresent(e -> IO.println("\nMayor salario: " + e));
 
         // map + distinct + sorted: lista de departamentos sin repetir, ordenada
         System.out.println("\nDepartamentos:");
@@ -366,7 +372,7 @@ public class SolucionarioEstructurasDatos {
         System.out.println("Total vendido: $" + totalVendido);
 
         ventas.stream()
-                .max(Comparator.comparingInt(Venta::getCantidad))
+                .max(Comparator.comparingInt(e->e.getCantidad()))
                 .ifPresent(v -> System.out.println("Producto con más unidades: " + v.getProducto()));
 
         double promedio = ventas.stream()
@@ -383,7 +389,7 @@ public class SolucionarioEstructurasDatos {
 
         // groupingBy simple: Map de categoría → lista de sus ventas
         Map<String, List<Venta>> porCategoria = ventas.stream()
-                .collect(Collectors.groupingBy(Venta::getCategoria));
+                .collect(Collectors.groupingBy(e->e.getCategoria()));
 
         System.out.println("\nVentas agrupadas por categoría:");
         porCategoria.forEach((categoria, lista) ->
