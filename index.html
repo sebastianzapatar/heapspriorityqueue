@@ -852,6 +852,185 @@
             background: rgba(16, 185, 129, 0.15);
         }
 
+        /* Estados de celda para las animaciones de inserción / ordenamiento */
+        .array-cell.new {
+            border-color: var(--accent-orange);
+            background: rgba(245, 158, 11, 0.15);
+        }
+
+        .array-cell.moved {
+            border-color: var(--accent-cyan);
+            background: rgba(6, 182, 212, 0.12);
+        }
+
+        .array-cell.sorted {
+            border-color: var(--accent-green);
+            background: rgba(16, 185, 129, 0.15);
+        }
+
+        .array-cell.warn {
+            border-color: var(--accent-red);
+            background: rgba(239, 68, 68, 0.12);
+        }
+
+        /* ===== INSERCIÓN NODO A NODO ===== */
+        .insert-step {
+            background: var(--bg-card);
+            border: 1px solid rgba(124, 58, 237, 0.25);
+            border-radius: 12px;
+            padding: 1.25rem 1.5rem 2.25rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .insert-step h3 {
+            display: inline;
+            font-size: 1.05rem;
+        }
+
+        .step-pill {
+            display: inline-block;
+            padding: 0.2rem 0.75rem;
+            margin-right: 0.75rem;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: rgba(124, 58, 237, 0.2);
+            color: var(--accent-purple-light);
+        }
+
+        .calc {
+            display: inline-block;
+            margin: 0.75rem 0.5rem 0.25rem 0;
+            padding: 0.35rem 0.75rem;
+            border-radius: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--accent-cyan-light);
+            background: rgba(6, 182, 212, 0.08);
+            border: 1px solid rgba(6, 182, 212, 0.25);
+        }
+
+        .step-note {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .cell-legend {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .cell-legend .swatch {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border-radius: 4px;
+            margin-right: 0.4rem;
+            vertical-align: -2px;
+        }
+
+        /* ===== INSERCIÓN INTERACTIVA ===== */
+        .ih-controls {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+
+        .ih-input {
+            width: 110px;
+            padding: 0.6rem 0.9rem;
+            border-radius: 10px;
+            border: 2px solid var(--accent-purple);
+            background: var(--bg-card);
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            text-align: center;
+            outline: none;
+        }
+
+        .ih-input:focus {
+            border-color: var(--accent-purple-light);
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.25);
+        }
+
+        .ih-btn {
+            padding: 0.6rem 1.4rem;
+            border-radius: 10px;
+            border: 2px solid var(--accent-purple);
+            background: rgba(124, 58, 237, 0.2);
+            color: var(--accent-purple-light);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .ih-btn:hover:not(:disabled) {
+            background: rgba(124, 58, 237, 0.35);
+            color: var(--text-primary);
+            transform: translateY(-2px);
+        }
+
+        .ih-btn:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+
+        .ih-btn.secondary {
+            border-color: var(--text-muted);
+            background: transparent;
+            color: var(--text-secondary);
+        }
+
+        .ih-btn.secondary:hover:not(:disabled) {
+            border-color: var(--text-secondary);
+            background: rgba(148, 163, 184, 0.1);
+        }
+
+        .ih-log {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.4rem;
+            margin-top: 1rem;
+            min-height: 120px;
+            max-height: 260px;
+            overflow-y: auto;
+        }
+
+        .ih-log .calc {
+            margin: 0;
+        }
+
+        .ih-log .calc.swap {
+            color: var(--accent-orange);
+            background: rgba(245, 158, 11, 0.08);
+            border-color: rgba(245, 158, 11, 0.3);
+        }
+
+        .ih-log .calc.ok {
+            color: var(--accent-green-light);
+            background: rgba(16, 185, 129, 0.08);
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        .ih-log .calc.err {
+            color: var(--accent-red);
+            background: rgba(239, 68, 68, 0.08);
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
         /* ===== PILL TAGS ===== */
         .pill {
             display: inline-block;
@@ -1019,6 +1198,9 @@
         <a href="#tipos">Tipos</a>
         <a href="#array">Array</a>
         <a href="#operaciones">Ops</a>
+        <a href="#insercion">Inserción</a>
+        <a href="#interactivo">Interactivo</a>
+        <a href="#vector">Vector</a>
         <a href="#animacion">Animación</a>
         <a href="#complejidad">Big-O</a>
         <a href="#vs-bst">vs BST</a>
@@ -1128,6 +1310,9 @@
             <h3>⚙️ Operaciones y Complejidad</h3>
             <ul>
                 <li><a href="#operaciones">Insert / Extract (Sift Up & Down)</a></li>
+                <li><a href="#insercion">Construcción nodo a nodo (fórmulas)</a></li>
+                <li><a href="#interactivo">Inserción interactiva (pruébalo tú)</a></li>
+                <li><a href="#vector">El vector resultante y su orden</a></li>
                 <li><a href="#animacion">Animación de inserción</a></li>
                 <li><a href="#complejidad">Complejidad Big-O</a></li>
             </ul>
@@ -1379,12 +1564,226 @@
 
 <!-- ═══════════════════════════════════════════════════════
      PARTE II — OPERACIONES Y COMPLEJIDAD
-     SLIDE 7: ANIMACIÓN DE INSERCIÓN (HEAPS vs BST)
+     SLIDE 7: INSERCIÓN NODO A NODO (USO DE LAS FÓRMULAS)
+     ═══════════════════════════════════════════════════════ -->
+<section id="insercion" class="animate-on-scroll">
+    <div class="section-header">
+        <div class="part-label">Parte II — Operaciones</div>
+        <div class="section-number">05 — Inserción nodo a nodo</div>
+        <h2>Construcción <span class="gradient-text">nodo a nodo</span> con las fórmulas</h2>
+        <p>Insertamos la secuencia <strong>15, 10, 30, 5, 20</strong> en un Min-Heap.
+           En cada paso aplicamos la fórmula <code style="color: var(--accent-cyan-light);">padre = (i − 1) / 2</code> para decidir si el nuevo elemento sube (Sift-Up).</p>
+    </div>
+
+    <!-- Leyenda de colores de las celdas -->
+    <div class="cell-legend">
+        <span><span class="swatch" style="background: rgba(245,158,11,0.5); border: 2px solid var(--accent-orange);"></span>Elemento insertado</span>
+        <span><span class="swatch" style="background: rgba(6,182,212,0.4); border: 2px solid var(--accent-cyan);"></span>Desplazado por el intercambio</span>
+        <span><span class="swatch" style="background: var(--bg-card); border: 2px solid var(--accent-purple);"></span>Sin cambios</span>
+    </div>
+
+    <!-- Paso 1 -->
+    <div class="insert-step">
+        <span class="step-pill">Paso 1</span><h3>Insertar 15</h3>
+        <br><span class="calc">i = 0 → es la raíz, no tiene padre</span>
+        <p class="step-note">El heap está vacío: 15 ocupa la primera posición libre del arreglo y no hay nada que comparar.</p>
+        <div class="array-visual">
+            <div class="array-cell new">15<span class="idx">0</span></div>
+        </div>
+    </div>
+
+    <!-- Paso 2 -->
+    <div class="insert-step">
+        <span class="step-pill">Paso 2</span><h3>Insertar 10</h3>
+        <br><span class="calc">i = 1 → padre = (1 − 1) / 2 = 0 → arr[0] = 15</span>
+        <p class="step-note">10 &lt; 15 viola la propiedad Min-Heap → <strong>intercambio</strong> (Sift-Up). 10 queda en la raíz y 15 baja al índice 1.</p>
+        <div class="array-visual">
+            <div class="array-cell new">10<span class="idx">0</span></div>
+            <div class="array-cell moved">15<span class="idx">1</span></div>
+        </div>
+    </div>
+
+    <!-- Paso 3 -->
+    <div class="insert-step">
+        <span class="step-pill">Paso 3</span><h3>Insertar 30</h3>
+        <br><span class="calc">i = 2 → padre = (2 − 1) / 2 = 0 → arr[0] = 10</span>
+        <p class="step-note">30 ≥ 10 cumple la propiedad → <strong>se queda en su lugar</strong>. No hay intercambios.</p>
+        <div class="array-visual">
+            <div class="array-cell">10<span class="idx">0</span></div>
+            <div class="array-cell">15<span class="idx">1</span></div>
+            <div class="array-cell new">30<span class="idx">2</span></div>
+        </div>
+    </div>
+
+    <!-- Paso 4 (dos intercambios) -->
+    <div class="insert-step">
+        <span class="step-pill">Paso 4</span><h3>Insertar 5 — ¡sube dos niveles!</h3>
+        <br><span class="calc">i = 3 → padre = (3 − 1) / 2 = 1 → arr[1] = 15</span>
+        <p class="step-note">5 &lt; 15 → intercambio. 5 queda ahora en el índice 1:</p>
+        <div class="array-visual">
+            <div class="array-cell">10<span class="idx">0</span></div>
+            <div class="array-cell new">5<span class="idx">1</span></div>
+            <div class="array-cell">30<span class="idx">2</span></div>
+            <div class="array-cell moved">15<span class="idx">3</span></div>
+        </div>
+        <span class="calc">i = 1 → padre = (1 − 1) / 2 = 0 → arr[0] = 10</span>
+        <p class="step-note">5 &lt; 10 → segundo intercambio. 5 llega a la raíz y el Sift-Up termina.</p>
+        <div class="array-visual">
+            <div class="array-cell new">5<span class="idx">0</span></div>
+            <div class="array-cell moved">10<span class="idx">1</span></div>
+            <div class="array-cell">30<span class="idx">2</span></div>
+            <div class="array-cell moved">15<span class="idx">3</span></div>
+        </div>
+    </div>
+
+    <!-- Paso 5 -->
+    <div class="insert-step">
+        <span class="step-pill">Paso 5</span><h3>Insertar 20</h3>
+        <br><span class="calc">i = 4 → padre = (4 − 1) / 2 = 1 → arr[1] = 10</span>
+        <p class="step-note">20 ≥ 10 cumple la propiedad → <strong>se queda en su lugar</strong>. El heap está completo.</p>
+        <div class="array-visual">
+            <div class="array-cell root">5<span class="idx">0</span></div>
+            <div class="array-cell">10<span class="idx">1</span></div>
+            <div class="array-cell">30<span class="idx">2</span></div>
+            <div class="array-cell">15<span class="idx">3</span></div>
+            <div class="array-cell new">20<span class="idx">4</span></div>
+        </div>
+    </div>
+
+    <div class="highlight-box green" style="margin-top: 1.5rem;">
+        <strong>💡 Observa:</strong> el elemento insertado solo se compara con sus <em>ancestros</em>, calculados con
+        <code style="color: var(--accent-green-light);">(i − 1) / 2</code>. Por eso una inserción hace a lo sumo
+        <strong>log n</strong> comparaciones: la altura del árbol.
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     PARTE II — OPERACIONES Y COMPLEJIDAD
+     SLIDE 8: INSERCIÓN INTERACTIVA — ELIGE TU PROPIO NODO
+     ═══════════════════════════════════════════════════════ -->
+<section id="interactivo" class="animate-on-scroll">
+    <div class="section-header">
+        <div class="part-label">Parte II — Operaciones</div>
+        <div class="section-number">06 — Inserción interactiva</div>
+        <h2>Pruébalo tú: <span class="gradient-text">elige el nodo</span> a insertar</h2>
+        <p>Escribe un valor y observa en vivo el Sift-Up: la fórmula <code style="color: var(--accent-cyan-light);">padre = (i − 1) / 2</code>,
+           cada comparación y cómo quedan el árbol y el vector. El heap inicia como el del ejemplo anterior.</p>
+    </div>
+
+    <div class="ih-controls">
+        <input type="number" id="ih-input" class="ih-input" min="0" max="999" placeholder="Valor" aria-label="Valor a insertar">
+        <button id="ih-insert-btn" class="ih-btn" onclick="ihInsert()">⬆️ Insertar</button>
+        <button id="ih-reset-btn" class="ih-btn secondary" onclick="ihReset()">↺ Reiniciar</button>
+    </div>
+
+    <div class="split">
+        <div>
+            <h3 style="margin-bottom: 1rem;">🌳 Árbol (Min-Heap)</h3>
+            <div class="anim-container">
+                <svg id="ih-svg" width="480" height="310" viewBox="0 0 480 310"></svg>
+            </div>
+        </div>
+        <div>
+            <h3 style="margin-bottom: 1rem;">📦 Vector y cálculos</h3>
+            <div id="ih-array" class="array-visual" style="justify-content: flex-start; margin-top: 1.5rem; margin-bottom: 2rem;"></div>
+            <div id="ih-log" class="ih-log">
+                <span class="calc">Esperando inserción… escribe un valor y presiona «Insertar».</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="highlight-box" style="margin-top: 1.5rem;">
+        <strong>💡 Sugerencia:</strong> inserta un valor <strong>menor que la raíz</strong> (por ejemplo 1) para verlo subir hasta arriba,
+        uno <strong>intermedio</strong> (por ejemplo 12) para verlo subir solo un nivel, y uno <strong>grande</strong> (por ejemplo 99)
+        para comprobar que se queda donde cae. Máximo 15 nodos (4 niveles).
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     PARTE II — OPERACIONES Y COMPLEJIDAD
+     SLIDE 9: EL VECTOR RESULTANTE — ¿POR QUÉ NO QUEDA ORDENADO?
+     ═══════════════════════════════════════════════════════ -->
+<section id="vector" class="animate-on-scroll">
+    <div class="section-header">
+        <div class="part-label">Parte II — Operaciones</div>
+        <div class="section-number">07 — El vector resultante</div>
+        <h2>El vector generado: ¿por qué <span class="gradient-text">no queda en orden</span>?</h2>
+        <p>Después de las 5 inserciones, el heap guarda internamente este arreglo. Es un heap válido… pero no está ordenado.</p>
+    </div>
+
+    <div class="split">
+        <div>
+            <h3 style="margin-bottom: 1rem;">🌳 El árbol que construimos</h3>
+            <div class="anim-container">
+                <svg width="360" height="240" viewBox="0 0 360 240">
+                    <line x1="180" y1="40" x2="100" y2="120" stroke="#10b981" stroke-width="2"/>
+                    <line x1="180" y1="40" x2="260" y2="120" stroke="#10b981" stroke-width="2"/>
+                    <line x1="100" y1="120" x2="55" y2="200" stroke="#10b981" stroke-width="2"/>
+                    <line x1="100" y1="120" x2="145" y2="200" stroke="#10b981" stroke-width="2"/>
+
+                    <g transform="translate(180,40)"><circle r="20" fill="#10b981"/><text y="5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="14" font-weight="bold">5</text><text y="-28" text-anchor="middle" fill="#64748b" font-family="JetBrains Mono" font-size="10">i=0</text></g>
+                    <g transform="translate(100,120)"><circle r="20" fill="#10b981"/><text y="5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="14" font-weight="bold">10</text><text y="-28" text-anchor="middle" fill="#64748b" font-family="JetBrains Mono" font-size="10">i=1</text></g>
+                    <g transform="translate(260,120)"><circle r="20" fill="#f59e0b"/><text y="5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="14" font-weight="bold">30</text><text y="-28" text-anchor="middle" fill="#64748b" font-family="JetBrains Mono" font-size="10">i=2</text></g>
+                    <g transform="translate(55,200)"><circle r="20" fill="#f59e0b"/><text y="5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="14" font-weight="bold">15</text><text y="32" text-anchor="middle" fill="#64748b" font-family="JetBrains Mono" font-size="10">i=3</text></g>
+                    <g transform="translate(145,200)"><circle r="20" fill="#10b981"/><text y="5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="14" font-weight="bold">20</text><text y="32" text-anchor="middle" fill="#64748b" font-family="JetBrains Mono" font-size="10">i=4</text></g>
+                </svg>
+            </div>
+        </div>
+        <div>
+            <h3 style="margin-bottom: 1rem;">📦 El vector que genera (recorrido por niveles)</h3>
+            <div class="array-visual" style="margin-top: 2rem;">
+                <div class="array-cell root">5<span class="idx">0</span></div>
+                <div class="array-cell">10<span class="idx">1</span></div>
+                <div class="array-cell warn">30<span class="idx">2</span></div>
+                <div class="array-cell warn">15<span class="idx">3</span></div>
+                <div class="array-cell">20<span class="idx">4</span></div>
+            </div>
+            <div class="highlight-box red" style="margin-top: 2.5rem;">
+                <strong>⚠️ ¡30 aparece antes que 15!</strong> El arreglo <strong>no</strong> está ordenado y eso <strong>no es un error</strong>:
+                la propiedad del heap solo compara <em>padre ↔ hijo</em> (5 ≤ 30 ✓ y 10 ≤ 15 ✓).
+                Nunca compara posiciones consecutivas del arreglo ni hermanos entre sí — 30 (i=2) y 15 (i=3) están en <em>ramas distintas</em>.
+                Lo único garantizado es que <code style="color: var(--accent-red);">arr[0]</code> es el mínimo.
+            </div>
+        </div>
+    </div>
+
+    <h3 style="margin-top: 2.5rem; margin-bottom: 1rem;">🔄 Entonces, ¿cómo obtenemos el orden? Extrayendo la raíz repetidamente</h3>
+    <div class="split">
+        <div>
+            <ol class="step-list">
+                <li><code>extractMin()</code> → <strong>5</strong> · el último (20) sube a la raíz y se hunde (Sift-Down) → heap: [10, 15, 30, 20]</li>
+                <li><code>extractMin()</code> → <strong>10</strong> → heap: [15, 20, 30]</li>
+                <li><code>extractMin()</code> → <strong>15</strong> → heap: [20, 30]</li>
+                <li><code>extractMin()</code> → <strong>20</strong> → heap: [30]</li>
+                <li><code>extractMin()</code> → <strong>30</strong> → heap vacío ✓</li>
+            </ol>
+        </div>
+        <div>
+            <p style="text-align: center; color: var(--text-secondary); margin-bottom: 0.5rem;">Salida de las extracciones sucesivas:</p>
+            <div class="array-visual" style="margin-top: 1.5rem;">
+                <div class="array-cell sorted">5<span class="idx">1º</span></div>
+                <div class="array-cell sorted">10<span class="idx">2º</span></div>
+                <div class="array-cell sorted">15<span class="idx">3º</span></div>
+                <div class="array-cell sorted">20<span class="idx">4º</span></div>
+                <div class="array-cell sorted">30<span class="idx">5º</span></div>
+            </div>
+            <div class="highlight-box green" style="margin-top: 2.5rem;">
+                <strong>✅ Ahora sí está ordenado.</strong> Cada extracción entrega el mínimo actual y el heap se reorganiza en O(log n).
+                Esto es exactamente la idea de <a href="#heapsort" style="color: var(--accent-green-light);">HeapSort</a>:
+                el heap <em>no ordena al construirse — ordena al extraer</em>. Costo total: n × O(log n) = <strong>O(n log n)</strong>.
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     PARTE II — OPERACIONES Y COMPLEJIDAD
+     SLIDE 10: ANIMACIÓN DE INSERCIÓN (HEAPS vs BST)
      ═══════════════════════════════════════════════════════ -->
 <section id="animacion" class="animate-on-scroll">
     <div class="section-header">
         <div class="part-label">Parte II — Operaciones</div>
-        <div class="section-number">05 — Animación</div>
+        <div class="section-number">08 — Animación</div>
         <h2>Inserción: <span class="gradient-text">Heaps vs BST</span></h2>
         <p>Observa cómo se inserta un nuevo valor en cada estructura (Sift-Up en Heaps vs Descenso en BST).</p>
     </div>
@@ -1480,12 +1879,12 @@
 
 <!-- ═══════════════════════════════════════════════════════
      PARTE II — OPERACIONES Y COMPLEJIDAD
-     SLIDE 8: COMPLEJIDAD BIG-O
+     SLIDE 11: COMPLEJIDAD BIG-O
      ═══════════════════════════════════════════════════════ -->
 <section id="complejidad" class="animate-on-scroll">
     <div class="section-header">
         <div class="part-label">Parte II — Operaciones</div>
-        <div class="section-number">06 — Complejidad</div>
+        <div class="section-number">09 — Complejidad</div>
         <h2>Complejidad <span class="gradient-text">Big-O</span></h2>
         <p>Resumen del costo de cada operación sobre un heap de n elementos.</p>
     </div>
@@ -1526,12 +1925,12 @@
 
 <!-- ═══════════════════════════════════════════════════════
      PARTE III — COMPARACIÓN
-     SLIDE 9: HEAP VS BST
+     SLIDE 12: HEAP VS BST
      ═══════════════════════════════════════════════════════ -->
 <section id="vs-bst" class="animate-on-scroll">
     <div class="section-header">
         <div class="part-label">Parte III — Comparación</div>
-        <div class="section-number">07 — Comparación</div>
+        <div class="section-number">10 — Comparación</div>
         <h2>Heap vs <span class="gradient-text">BST</span></h2>
         <p>¿Cuándo usar cada uno? Son estructuras complementarias con propósitos diferentes.</p>
     </div>
@@ -1600,12 +1999,12 @@
 
 <!-- ═══════════════════════════════════════════════════════
      PARTE IV — HEAPS EN JAVA
-     SLIDE 10: IMPLEMENTACIÓN GENÉRICA MinHeap<T>
+     SLIDE 13: IMPLEMENTACIÓN GENÉRICA MinHeap<T>
      ═══════════════════════════════════════════════════════ -->
 <section id="generico" class="animate-on-scroll">
     <div class="section-header">
         <div class="part-label">Parte IV — Heaps en Java</div>
-        <div class="section-number">08 — Implementación</div>
+        <div class="section-number">11 — Implementación</div>
         <h2>MinHeap <span class="gradient-text">Genérico</span></h2>
         <p>Implementación desde cero usando generics y <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.1rem 0.4rem; border-radius: 4px;">Comparable&lt;T&gt;</code>.</p>
     </div>
@@ -1680,12 +2079,12 @@
 
 <!-- ═══════════════════════════════════════════════════════
      PARTE IV — HEAPS EN JAVA
-     SLIDE 11: java.util.PriorityQueue
+     SLIDE 14: java.util.PriorityQueue
      ═══════════════════════════════════════════════════════ -->
 <section id="priority-queue" class="animate-on-scroll">
     <div class="section-header">
         <div class="part-label">Parte IV — Heaps en Java</div>
-        <div class="section-number">09 — PriorityQueue</div>
+        <div class="section-number">12 — PriorityQueue</div>
         <h2><span class="gradient-text">PriorityQueue</span> en Java</h2>
         <p>Java provee <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.1rem 0.4rem; border-radius: 4px;">java.util.PriorityQueue</code> — un Min-Heap listo para usar.</p>
     </div>
@@ -1744,12 +2143,12 @@ System.out.<span class="fn">println</span>(minHeap.<span class="fn">peek</span>(
 
 <!-- ═══════════════════════════════════════════════════════
      PARTE IV — HEAPS EN JAVA
-     SLIDE 12: MAX-HEAP CON PRIORITYQUEUE (3 FORMAS)
+     SLIDE 15: MAX-HEAP CON PRIORITYQUEUE (3 FORMAS)
      ═══════════════════════════════════════════════════════ -->
 <section id="max-heap" class="animate-on-scroll">
     <div class="section-header">
         <div class="part-label">Parte IV — Heaps en Java</div>
-        <div class="section-number">10 — Max-Heap</div>
+        <div class="section-number">13 — Max-Heap</div>
         <h2>Implementar <span class="gradient-text">Max-Heap</span></h2>
         <p>3 formas de crear un Max-Heap con PriorityQueue.</p>
     </div>
@@ -1839,13 +2238,13 @@ System.out.<span class="fn">println</span>(maxHeap.<span class="fn">poll</span>(
 
 <!-- ═══════════════════════════════════════════════════════
      PARTE IV — HEAPS EN JAVA
-     SLIDE 13: HEAPS CON OBJETOS PERSONALIZADOS
+     SLIDE 16: HEAPS CON OBJETOS PERSONALIZADOS
      (basada en src/PriorityQueueExamples.java y src/Paciente.java)
      ═══════════════════════════════════════════════════════ -->
 <section id="objetos" class="animate-on-scroll">
     <div class="section-header">
         <div class="part-label">Parte IV — Heaps en Java</div>
-        <div class="section-number">11 — Objetos</div>
+        <div class="section-number">14 — Objetos</div>
         <h2>Heaps con <span class="gradient-text">Objetos</span></h2>
         <p>El heap no solo ordena números: cualquier clase puede priorizarse con <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.1rem 0.4rem; border-radius: 4px;">Comparable</code> o un <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.1rem 0.4rem; border-radius: 4px;">Comparator</code>.</p>
     </div>
@@ -1911,13 +2310,13 @@ cola.<span class="fn">poll</span>(); <span class="cm">// → "Bug crítico" (pri
 
 <!-- ═══════════════════════════════════════════════════════
      PARTE V — ALGORITMOS Y APLICACIONES
-     SLIDE 14: HEAPSORT
+     SLIDE 17: HEAPSORT
      (basada en src/HeapSort.java)
      ═══════════════════════════════════════════════════════ -->
 <section id="heapsort" class="animate-on-scroll">
     <div class="section-header">
         <div class="part-label">Parte V — Algoritmos</div>
-        <div class="section-number">12 — HeapSort</div>
+        <div class="section-number">15 — HeapSort</div>
         <h2><span class="gradient-text">HeapSort</span> paso a paso</h2>
         <p>Ordenamiento <strong>in-place</strong> en O(n log n): construye un Max-Heap y extrae el máximo repetidamente.</p>
     </div>
@@ -1984,12 +2383,12 @@ cola.<span class="fn">poll</span>(); <span class="cm">// → "Bug crítico" (pri
 
 <!-- ═══════════════════════════════════════════════════════
      PARTE V — ALGORITMOS Y APLICACIONES
-     SLIDE 15: APLICACIONES REALES
+     SLIDE 18: APLICACIONES REALES
      ═══════════════════════════════════════════════════════ -->
 <section id="aplicaciones" class="animate-on-scroll">
     <div class="section-header">
         <div class="part-label">Parte V — Aplicaciones</div>
-        <div class="section-number">13 — Aplicaciones</div>
+        <div class="section-number">16 — Aplicaciones</div>
         <h2>Aplicaciones <span class="gradient-text">Reales</span></h2>
         <p>¿Dónde se usan los Heaps en la práctica?</p>
     </div>
@@ -2036,13 +2435,13 @@ cola.<span class="fn">poll</span>(); <span class="cm">// → "Bug crítico" (pri
 
 <!-- ═══════════════════════════════════════════════════════
      PARTE V — ALGORITMOS Y APLICACIONES
-     SLIDE 16: CASO PRÁCTICO — COLA DE URGENCIAS
+     SLIDE 19: CASO PRÁCTICO — COLA DE URGENCIAS
      (basada en src/HospitalEmergencyQueue.java, Paciente.java y ColaUrgencias.java)
      ═══════════════════════════════════════════════════════ -->
 <section id="hospital" class="animate-on-scroll">
     <div class="section-header">
         <div class="part-label">Parte V — Caso Práctico</div>
-        <div class="section-number">14 — Caso Práctico</div>
+        <div class="section-number">17 — Caso Práctico</div>
         <h2>🏥 Cola de <span class="gradient-text">Urgencias</span></h2>
         <p>Sistema de triaje hospitalario: los pacientes se atienden por <strong>gravedad</strong>, no por orden de llegada. Un Max-Heap resuelve el problema de forma natural.</p>
     </div>
@@ -2111,12 +2510,12 @@ cola.<span class="fn">poll</span>(); <span class="cm">// → "Bug crítico" (pri
 
 <!-- ═══════════════════════════════════════════════════════
      PARTE VI — CIERRE
-     SLIDE 17: REFERENCIAS Y ARCHIVOS DEL PROYECTO
+     SLIDE 20: REFERENCIAS Y ARCHIVOS DEL PROYECTO
      ═══════════════════════════════════════════════════════ -->
 <section id="refs" class="animate-on-scroll">
     <div class="section-header">
         <div class="part-label">Parte VI — Cierre</div>
-        <div class="section-number">15 — Referencias</div>
+        <div class="section-number">18 — Referencias</div>
         <h2>Recursos y <span class="gradient-text">Referencias</span></h2>
     </div>
 
@@ -2250,6 +2649,128 @@ cola.<span class="fn">poll</span>(); <span class="cm">// → "Bug crítico" (pri
         const progress = (window.scrollY / totalScroll) * 100;
         document.getElementById('progress-bar').style.width = progress + '%';
     });
+
+    /* ═══════ INSERCIÓN INTERACTIVA (slide 8) ═══════
+       El usuario elige un valor, se agrega al final del vector y el
+       Sift-Up se anima paso a paso mostrando la fórmula padre = (i−1)/2. */
+    const IH_INICIAL = [5, 10, 30, 15, 20];   // mismo heap del ejemplo nodo a nodo
+    const IH_MAX = 15;                        // 4 niveles completos: el SVG no da para más
+    let ih = [...IH_INICIAL];
+    let ihBusy = false;                       // bloquea clics mientras corre la animación
+
+    const ihSleep = ms => new Promise(r => setTimeout(r, ms));
+
+    // Coordenadas del nodo i en el SVG a partir de su nivel (índice → árbol)
+    function ihPos(i) {
+        const nivel = Math.floor(Math.log2(i + 1));
+        const posEnNivel = i - (2 ** nivel - 1);
+        const nodosEnNivel = 2 ** nivel;
+        return {
+            x: 480 * (posEnNivel + 0.5) / nodosEnNivel,
+            y: 40 + nivel * 74
+        };
+    }
+
+    // Redibuja árbol y vector. hl.cur = el que sube (naranja), hl.cmp = padre comparado (cian)
+    function ihRender(hl = {}) {
+        let edges = '', nodes = '';
+        ih.forEach((v, i) => {
+            const { x, y } = ihPos(i);
+            if (i > 0) {
+                const p = ihPos(Math.floor((i - 1) / 2));
+                edges += `<line x1="${p.x}" y1="${p.y}" x2="${x}" y2="${y}" stroke="#10b981" stroke-width="2" opacity="0.6"/>`;
+            }
+            const fill = i === hl.cur ? '#f59e0b' : (i === hl.cmp ? '#06b6d4' : '#10b981');
+            nodes += `<g transform="translate(${x},${y})">` +
+                `<circle r="19" fill="${fill}"/>` +
+                `<text y="5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="13" font-weight="bold">${v}</text>` +
+                `<text y="34" text-anchor="middle" fill="#64748b" font-family="JetBrains Mono" font-size="9">i=${i}</text></g>`;
+        });
+        document.getElementById('ih-svg').innerHTML = edges + nodes;
+
+        document.getElementById('ih-array').innerHTML = ih.map((v, i) => {
+            let cls = i === 0 ? ' root' : '';
+            if (i === hl.cur) cls = ' new';
+            else if (i === hl.cmp) cls = ' moved';
+            return `<div class="array-cell${cls}">${v}<span class="idx">${i}</span></div>`;
+        }).join('');
+    }
+
+    function ihLogAdd(texto, tipo = '') {
+        const log = document.getElementById('ih-log');
+        const el = document.createElement('span');
+        el.className = 'calc' + (tipo ? ' ' + tipo : '');
+        el.textContent = texto;
+        log.appendChild(el);
+        log.scrollTop = log.scrollHeight;
+    }
+
+    async function ihInsert() {
+        if (ihBusy) return;
+        const input = document.getElementById('ih-input');
+        const v = parseInt(input.value, 10);
+        document.getElementById('ih-log').innerHTML = '';
+
+        if (isNaN(v) || v < 0 || v > 999) {
+            ihLogAdd('⚠️ Escribe un número entre 0 y 999.', 'err');
+            return;
+        }
+        if (ih.length >= IH_MAX) {
+            ihLogAdd('⚠️ Heap lleno (15 nodos): presiona «Reiniciar» para seguir probando.', 'err');
+            return;
+        }
+
+        ihBusy = true;
+        document.getElementById('ih-insert-btn').disabled = true;
+
+        ih.push(v);
+        let i = ih.length - 1;
+        ihLogAdd(`Se agrega ${v} al final del vector → i = ${i}`);
+        ihRender({ cur: i });
+        await ihSleep(1000);
+
+        while (i > 0) {
+            const p = Math.floor((i - 1) / 2);
+            ihLogAdd(`padre = (${i} − 1) / 2 = ${p} → comparar ${ih[i]} con arr[${p}] = ${ih[p]}`);
+            ihRender({ cur: i, cmp: p });
+            await ihSleep(1100);
+
+            if (ih[i] < ih[p]) {
+                ihLogAdd(`${ih[i]} < ${ih[p]} → intercambio (Sift-Up) ⬆️`, 'swap');
+                [ih[i], ih[p]] = [ih[p], ih[i]];
+                i = p;
+                ihRender({ cur: i });
+                await ihSleep(1000);
+            } else {
+                ihLogAdd(`${ih[i]} ≥ ${ih[p]} → cumple la propiedad Min-Heap, se detiene ✓`, 'ok');
+                break;
+            }
+        }
+        if (i === 0) ihLogAdd(`${ih[0]} quedó en la raíz: es el nuevo mínimo ✓`, 'ok');
+
+        ihRender();
+        ihLogAdd(`Vector final: [${ih.join(', ')}]`);
+
+        input.value = '';
+        input.focus();
+        document.getElementById('ih-insert-btn').disabled = false;
+        ihBusy = false;
+    }
+
+    function ihReset() {
+        if (ihBusy) return;
+        ih = [...IH_INICIAL];
+        document.getElementById('ih-log').innerHTML = '';
+        ihLogAdd('Heap reiniciado al ejemplo: [5, 10, 30, 15, 20]');
+        ihRender();
+    }
+
+    // Enter en el input equivale a presionar «Insertar»
+    document.getElementById('ih-input').addEventListener('keydown', e => {
+        if (e.key === 'Enter') ihInsert();
+    });
+
+    ihRender();   // primer dibujo al cargar la página
 </script>
 
 </body>
