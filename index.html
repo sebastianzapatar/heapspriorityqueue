@@ -1671,7 +1671,7 @@
         <div class="section-number">06 — Inserción interactiva</div>
         <h2>Pruébalo tú: <span class="gradient-text">elige el nodo</span> a insertar</h2>
         <p>Escribe un valor y observa en vivo el Sift-Up: la fórmula <code style="color: var(--accent-cyan-light);">padre = (i − 1) / 2</code>,
-           cada comparación y cómo quedan el árbol y el vector. El heap inicia como el del ejemplo anterior.</p>
+           cada comparación y cómo quedan el árbol y el vector. El heap inicia <strong>vacío</strong>: constrúyelo tú desde cero.</p>
     </div>
 
     <div class="ih-controls">
@@ -1697,9 +1697,9 @@
     </div>
 
     <div class="highlight-box" style="margin-top: 1.5rem;">
-        <strong>💡 Sugerencia:</strong> inserta un valor <strong>menor que la raíz</strong> (por ejemplo 1) para verlo subir hasta arriba,
-        uno <strong>intermedio</strong> (por ejemplo 12) para verlo subir solo un nivel, y uno <strong>grande</strong> (por ejemplo 99)
-        para comprobar que se queda donde cae. Máximo 15 nodos (4 niveles).
+        <strong>💡 Sugerencia:</strong> inserta la secuencia del ejemplo anterior — <strong>15, 10, 30, 5, 20</strong> — y verás
+        construirse el mismo heap paso a paso. Luego prueba tus propios valores: uno <strong>menor que la raíz</strong> sube hasta arriba
+        y uno <strong>grande</strong> se queda donde cae. Máximo 15 nodos (4 niveles).
     </div>
 </section>
 
@@ -2798,7 +2798,7 @@ cola.<span class="fn">poll</span>(); <span class="cm">// → "Bug crítico" (pri
     /* ═══════ INSERCIÓN INTERACTIVA (slide 8) ═══════
        El usuario elige un valor, se agrega al final del vector y el
        Sift-Up se anima paso a paso mostrando la fórmula padre = (i−1)/2. */
-    const IH_INICIAL = [5, 10, 30, 15, 20];   // mismo heap del ejemplo nodo a nodo
+    const IH_INICIAL = [];                    // inicia vacío: el heap se construye desde cero
     const IH_MAX = 15;                        // 4 niveles completos: el SVG no da para más
     let ih = [...IH_INICIAL];
     let ihBusy = false;                       // bloquea clics mientras corre la animación
@@ -2818,6 +2818,12 @@ cola.<span class="fn">poll</span>(); <span class="cm">// → "Bug crítico" (pri
 
     // Redibuja árbol y vector. hl.cur = el que sube (naranja), hl.cmp = padre comparado (cian)
     function ihRender(hl = {}) {
+        if (ih.length === 0) {
+            document.getElementById('ih-svg').innerHTML =
+                '<text x="240" y="155" text-anchor="middle" fill="#64748b" font-family="JetBrains Mono" font-size="14">Heap vacío — inserta el primer valor 🌱</text>';
+            document.getElementById('ih-array').innerHTML = '';
+            return;
+        }
         let edges = '', nodes = '';
         ih.forEach((v, i) => {
             const { x, y } = ihPos(i);
@@ -2906,7 +2912,7 @@ cola.<span class="fn">poll</span>(); <span class="cm">// → "Bug crítico" (pri
         if (ihBusy) return;
         ih = [...IH_INICIAL];
         document.getElementById('ih-log').innerHTML = '';
-        ihLogAdd('Heap reiniciado al ejemplo: [5, 10, 30, 15, 20]');
+        ihLogAdd('Heap reiniciado: vacío. Inserta valores para construirlo desde cero.');
         ihRender();
     }
 
