@@ -1200,6 +1200,7 @@
         <a href="#operaciones">Ops</a>
         <a href="#insercion">Inserción</a>
         <a href="#interactivo">Interactivo</a>
+        <a href="#eliminar">Eliminar</a>
         <a href="#vector">Vector</a>
         <a href="#animacion">Animación</a>
         <a href="#complejidad">Big-O</a>
@@ -1312,6 +1313,7 @@
                 <li><a href="#operaciones">Insert / Extract (Sift Up & Down)</a></li>
                 <li><a href="#insercion">Construcción nodo a nodo (fórmulas)</a></li>
                 <li><a href="#interactivo">Inserción interactiva (pruébalo tú)</a></li>
+                <li><a href="#eliminar">Eliminación interactiva (uno a uno)</a></li>
                 <li><a href="#vector">El vector resultante y su orden</a></li>
                 <li><a href="#animacion">Animación de inserción</a></li>
                 <li><a href="#complejidad">Complejidad Big-O</a></li>
@@ -1701,12 +1703,54 @@
 
 <!-- ═══════════════════════════════════════════════════════
      PARTE II — OPERACIONES Y COMPLEJIDAD
+     SLIDE 9: ELIMINACIÓN INTERACTIVA — EXTRAE UNO A UNO
+     ═══════════════════════════════════════════════════════ -->
+<section id="eliminar" class="animate-on-scroll">
+    <div class="section-header">
+        <div class="part-label">Parte II — Operaciones</div>
+        <div class="section-number">07 — Eliminación interactiva</div>
+        <h2>Pruébalo tú: <span class="gradient-text">elimina la raíz</span> uno a uno</h2>
+        <p>Cada <code style="color: var(--accent-cyan-light);">poll()</code> extrae el mínimo: el último elemento del vector
+           sube a la raíz y desciende con Sift-Down usando <code style="color: var(--accent-cyan-light);">hijos = 2i + 1 y 2i + 2</code>.
+           Observa cada comparación y cómo quedan el árbol y el vector.</p>
+    </div>
+
+    <div class="ih-controls">
+        <button id="eh-poll-btn" class="ih-btn" onclick="ehPoll()">⬇️ Eliminar raíz (poll)</button>
+        <button id="eh-reset-btn" class="ih-btn secondary" onclick="ehReset()">↺ Reiniciar</button>
+    </div>
+
+    <div class="split">
+        <div>
+            <h3 style="margin-bottom: 1rem;">🌳 Árbol (Min-Heap)</h3>
+            <div class="anim-container">
+                <svg id="eh-svg" width="480" height="310" viewBox="0 0 480 310"></svg>
+            </div>
+        </div>
+        <div>
+            <h3 style="margin-bottom: 1rem;">📦 Vector y cálculos</h3>
+            <div id="eh-array" class="array-visual" style="justify-content: flex-start; margin-top: 1.5rem; margin-bottom: 2rem;"></div>
+            <div id="eh-log" class="ih-log">
+                <span class="calc">Esperando… presiona «Eliminar raíz» para extraer el mínimo.</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="highlight-box" style="margin-top: 1.5rem;">
+        <strong>💡 Sugerencia:</strong> elimina los 9 nodos <strong>uno a uno</strong> y fíjate en la lista de extraídos:
+        siempre sale el mínimo, así que el resultado queda <strong>ordenado ascendentemente</strong>.
+        Esa es exactamente la idea detrás de <strong>HeapSort</strong>.
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     PARTE II — OPERACIONES Y COMPLEJIDAD
      SLIDE 9: EL VECTOR RESULTANTE — ¿POR QUÉ NO QUEDA ORDENADO?
      ═══════════════════════════════════════════════════════ -->
 <section id="vector" class="animate-on-scroll">
     <div class="section-header">
         <div class="part-label">Parte II — Operaciones</div>
-        <div class="section-number">07 — El vector resultante</div>
+        <div class="section-number">08 — El vector resultante</div>
         <h2>El vector generado: ¿por qué <span class="gradient-text">no queda en orden</span>?</h2>
         <p>Después de las 5 inserciones, el heap guarda internamente este arreglo. Es un heap válido… pero no está ordenado.</p>
     </div>
@@ -1783,7 +1827,7 @@
 <section id="animacion" class="animate-on-scroll">
     <div class="section-header">
         <div class="part-label">Parte II — Operaciones</div>
-        <div class="section-number">08 — Animación</div>
+        <div class="section-number">09 — Animación</div>
         <h2>Inserción: <span class="gradient-text">Heaps vs BST</span></h2>
         <p>Observa cómo se inserta un nuevo valor en cada estructura (Sift-Up en Heaps vs Descenso en BST).</p>
     </div>
@@ -1884,7 +1928,7 @@
 <section id="complejidad" class="animate-on-scroll">
     <div class="section-header">
         <div class="part-label">Parte II — Operaciones</div>
-        <div class="section-number">09 — Complejidad</div>
+        <div class="section-number">10 — Complejidad</div>
         <h2>Complejidad <span class="gradient-text">Big-O</span></h2>
         <p>Resumen del costo de cada operación sobre un heap de n elementos.</p>
     </div>
@@ -1930,7 +1974,7 @@
 <section id="vs-bst" class="animate-on-scroll">
     <div class="section-header">
         <div class="part-label">Parte III — Comparación</div>
-        <div class="section-number">10 — Comparación</div>
+        <div class="section-number">11 — Comparación</div>
         <h2>Heap vs <span class="gradient-text">BST</span></h2>
         <p>¿Cuándo usar cada uno? Son estructuras complementarias con propósitos diferentes.</p>
     </div>
@@ -2004,7 +2048,7 @@
 <section id="generico" class="animate-on-scroll">
     <div class="section-header">
         <div class="part-label">Parte IV — Heaps en Java</div>
-        <div class="section-number">11 — Implementación</div>
+        <div class="section-number">12 — Implementación</div>
         <h2>MinHeap <span class="gradient-text">Genérico</span></h2>
         <p>Implementación desde cero usando generics y <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.1rem 0.4rem; border-radius: 4px;">Comparable&lt;T&gt;</code>.</p>
     </div>
@@ -2084,7 +2128,7 @@
 <section id="priority-queue" class="animate-on-scroll">
     <div class="section-header">
         <div class="part-label">Parte IV — Heaps en Java</div>
-        <div class="section-number">12 — PriorityQueue</div>
+        <div class="section-number">13 — PriorityQueue</div>
         <h2><span class="gradient-text">PriorityQueue</span> en Java</h2>
         <p>Java provee <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.1rem 0.4rem; border-radius: 4px;">java.util.PriorityQueue</code> — un Min-Heap listo para usar.</p>
     </div>
@@ -2148,7 +2192,7 @@ System.out.<span class="fn">println</span>(minHeap.<span class="fn">peek</span>(
 <section id="max-heap" class="animate-on-scroll">
     <div class="section-header">
         <div class="part-label">Parte IV — Heaps en Java</div>
-        <div class="section-number">13 — Max-Heap</div>
+        <div class="section-number">14 — Max-Heap</div>
         <h2>Implementar <span class="gradient-text">Max-Heap</span></h2>
         <p>3 formas de crear un Max-Heap con PriorityQueue.</p>
     </div>
@@ -2244,7 +2288,7 @@ System.out.<span class="fn">println</span>(maxHeap.<span class="fn">poll</span>(
 <section id="objetos" class="animate-on-scroll">
     <div class="section-header">
         <div class="part-label">Parte IV — Heaps en Java</div>
-        <div class="section-number">14 — Objetos</div>
+        <div class="section-number">15 — Objetos</div>
         <h2>Heaps con <span class="gradient-text">Objetos</span></h2>
         <p>El heap no solo ordena números: cualquier clase puede priorizarse con <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.1rem 0.4rem; border-radius: 4px;">Comparable</code> o un <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.1rem 0.4rem; border-radius: 4px;">Comparator</code>.</p>
     </div>
@@ -2316,7 +2360,7 @@ cola.<span class="fn">poll</span>(); <span class="cm">// → "Bug crítico" (pri
 <section id="heapsort" class="animate-on-scroll">
     <div class="section-header">
         <div class="part-label">Parte V — Algoritmos</div>
-        <div class="section-number">15 — HeapSort</div>
+        <div class="section-number">16 — HeapSort</div>
         <h2><span class="gradient-text">HeapSort</span> paso a paso</h2>
         <p>Ordenamiento <strong>in-place</strong> en O(n log n): construye un Max-Heap y extrae el máximo repetidamente.</p>
     </div>
@@ -2388,7 +2432,7 @@ cola.<span class="fn">poll</span>(); <span class="cm">// → "Bug crítico" (pri
 <section id="aplicaciones" class="animate-on-scroll">
     <div class="section-header">
         <div class="part-label">Parte V — Aplicaciones</div>
-        <div class="section-number">16 — Aplicaciones</div>
+        <div class="section-number">17 — Aplicaciones</div>
         <h2>Aplicaciones <span class="gradient-text">Reales</span></h2>
         <p>¿Dónde se usan los Heaps en la práctica?</p>
     </div>
@@ -2441,7 +2485,7 @@ cola.<span class="fn">poll</span>(); <span class="cm">// → "Bug crítico" (pri
 <section id="hospital" class="animate-on-scroll">
     <div class="section-header">
         <div class="part-label">Parte V — Caso Práctico</div>
-        <div class="section-number">17 — Caso Práctico</div>
+        <div class="section-number">18 — Caso Práctico</div>
         <h2>🏥 Cola de <span class="gradient-text">Urgencias</span></h2>
         <p>Sistema de triaje hospitalario: los pacientes se atienden por <strong>gravedad</strong>, no por orden de llegada. Un Max-Heap resuelve el problema de forma natural.</p>
     </div>
@@ -2515,7 +2559,7 @@ cola.<span class="fn">poll</span>(); <span class="cm">// → "Bug crítico" (pri
 <section id="refs" class="animate-on-scroll">
     <div class="section-header">
         <div class="part-label">Parte VI — Cierre</div>
-        <div class="section-number">18 — Referencias</div>
+        <div class="section-number">19 — Referencias</div>
         <h2>Recursos y <span class="gradient-text">Referencias</span></h2>
     </div>
 
@@ -2771,6 +2815,125 @@ cola.<span class="fn">poll</span>(); <span class="cm">// → "Bug crítico" (pri
     });
 
     ihRender();   // primer dibujo al cargar la página
+
+    /* ── Eliminación interactiva: cada poll() extrae la raíz (el mínimo) y el
+       Sift-Down se anima paso a paso mostrando la fórmula hijos = 2i+1, 2i+2. */
+    const EH_INICIAL = [5, 10, 12, 15, 20, 30, 40, 25, 18];
+    let eh = [...EH_INICIAL];
+    let ehSacados = [];                       // acumula los mínimos extraídos
+    let ehBusy = false;
+
+    // Redibuja árbol y vector. hl.cur = el que baja (naranja), hl.cmp = hijo comparado (cian)
+    function ehRender(hl = {}) {
+        let edges = '', nodes = '';
+        eh.forEach((v, i) => {
+            const { x, y } = ihPos(i);
+            if (i > 0) {
+                const p = ihPos(Math.floor((i - 1) / 2));
+                edges += `<line x1="${p.x}" y1="${p.y}" x2="${x}" y2="${y}" stroke="#10b981" stroke-width="2" opacity="0.6"/>`;
+            }
+            const fill = i === hl.cur ? '#f59e0b' : (i === hl.cmp ? '#06b6d4' : '#10b981');
+            nodes += `<g transform="translate(${x},${y})">` +
+                `<circle r="19" fill="${fill}"/>` +
+                `<text y="5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="13" font-weight="bold">${v}</text>` +
+                `<text y="34" text-anchor="middle" fill="#64748b" font-family="JetBrains Mono" font-size="9">i=${i}</text></g>`;
+        });
+        document.getElementById('eh-svg').innerHTML = edges + nodes;
+
+        document.getElementById('eh-array').innerHTML = eh.map((v, i) => {
+            let cls = i === 0 ? ' root' : '';
+            if (i === hl.cur) cls = ' new';
+            else if (i === hl.cmp) cls = ' moved';
+            return `<div class="array-cell${cls}">${v}<span class="idx">${i}</span></div>`;
+        }).join('');
+    }
+
+    function ehLogAdd(texto, tipo = '') {
+        const log = document.getElementById('eh-log');
+        const el = document.createElement('span');
+        el.className = 'calc' + (tipo ? ' ' + tipo : '');
+        el.textContent = texto;
+        log.appendChild(el);
+        log.scrollTop = log.scrollHeight;
+    }
+
+    async function ehPoll() {
+        if (ehBusy) return;
+        document.getElementById('eh-log').innerHTML = '';
+
+        if (eh.length === 0) {
+            ehLogAdd('⚠️ Heap vacío: presiona «Reiniciar» para volver a empezar.', 'err');
+            return;
+        }
+
+        ehBusy = true;
+        document.getElementById('eh-poll-btn').disabled = true;
+
+        const min = eh[0];
+        ehLogAdd(`poll() → se extrae la raíz ${min} (el mínimo) ⬇️`);
+        ehRender({ cur: 0 });
+        await ihSleep(1000);
+
+        const ultimo = eh.pop();
+        if (eh.length > 0) {
+            eh[0] = ultimo;
+            ehLogAdd(`El último elemento (${ultimo}) pasa a la raíz → i = 0`);
+            ehRender({ cur: 0 });
+            await ihSleep(1000);
+
+            let i = 0;
+            while (true) {
+                const l = 2 * i + 1, r = 2 * i + 2;
+                if (l >= eh.length) {
+                    ehLogAdd(`hijos = 2·${i}+1 = ${l} y 2·${i}+2 = ${r} → no existen (es hoja), se detiene ✓`, 'ok');
+                    break;
+                }
+                let m = l;
+                if (r < eh.length) {
+                    if (eh[r] < eh[l]) m = r;
+                    ehLogAdd(`hijos = ${l} y ${r} → menor hijo: min(${eh[l]}, ${eh[r]}) = ${eh[m]} (i = ${m})`);
+                } else {
+                    ehLogAdd(`hijos = ${l} y ${r} → solo existe el izquierdo: arr[${l}] = ${eh[l]}`);
+                }
+                ehRender({ cur: i, cmp: m });
+                await ihSleep(1100);
+
+                if (eh[m] < eh[i]) {
+                    ehLogAdd(`${eh[m]} < ${eh[i]} → intercambio (Sift-Down) ⬇️`, 'swap');
+                    [eh[i], eh[m]] = [eh[m], eh[i]];
+                    i = m;
+                    ehRender({ cur: i });
+                    await ihSleep(1000);
+                } else {
+                    ehLogAdd(`${eh[i]} ≤ ${eh[m]} → cumple la propiedad Min-Heap, se detiene ✓`, 'ok');
+                    break;
+                }
+            }
+        }
+
+        ehSacados.push(min);
+        ehRender();
+        ehLogAdd(`Extraídos en orden: [${ehSacados.join(', ')}]`, 'ok');
+        if (eh.length === 0) {
+            ehLogAdd('🎉 Heap vacío: los extraídos salieron ordenados. ¡Eso es HeapSort!', 'ok');
+        } else {
+            ehLogAdd(`Vector actual: [${eh.join(', ')}] → nueva raíz (mínimo): ${eh[0]}`);
+        }
+
+        document.getElementById('eh-poll-btn').disabled = false;
+        ehBusy = false;
+    }
+
+    function ehReset() {
+        if (ehBusy) return;
+        eh = [...EH_INICIAL];
+        ehSacados = [];
+        document.getElementById('eh-log').innerHTML = '';
+        ehLogAdd(`Heap reiniciado al ejemplo: [${EH_INICIAL.join(', ')}]`);
+        ehRender();
+    }
+
+    ehRender();   // primer dibujo al cargar la página
 </script>
 
 </body>

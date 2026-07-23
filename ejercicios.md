@@ -1,5 +1,7 @@
 # 📝 Ejercicios Prácticos — Heaps en Java
 
+{% raw %}
+
 ## 🟢 Nivel Básico
 
 ### Ejercicio 1: Construir un Min-Heap manualmente
@@ -384,3 +386,5 @@ public class Ejercicio13 {
 | 11 | K Puntos más cercanos | 🔴 | Max-Heap estructurado |
 | 12 | Conectar cuerdas | 🔴 | Min-Heap iterativo |
 | 13 | K sumas más pequeñas | 🔴 | Heap sobre grafos bidimensionales |
+
+{% endraw %}
