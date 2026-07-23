@@ -1200,7 +1200,8 @@
         <a href="#operaciones">Ops</a>
         <a href="#insercion">Inserción</a>
         <a href="#interactivo">Interactivo</a>
-        <a href="#eliminar">Eliminar</a>
+        <a href="#eliminacion">Eliminación</a>
+        <a href="#eliminar">Poll</a>
         <a href="#vector">Vector</a>
         <a href="#animacion">Animación</a>
         <a href="#complejidad">Big-O</a>
@@ -1313,6 +1314,7 @@
                 <li><a href="#operaciones">Insert / Extract (Sift Up & Down)</a></li>
                 <li><a href="#insercion">Construcción nodo a nodo (fórmulas)</a></li>
                 <li><a href="#interactivo">Inserción interactiva (pruébalo tú)</a></li>
+                <li><a href="#eliminacion">Eliminación nodo a nodo (fórmulas)</a></li>
                 <li><a href="#eliminar">Eliminación interactiva (uno a uno)</a></li>
                 <li><a href="#vector">El vector resultante y su orden</a></li>
                 <li><a href="#animacion">Animación de inserción</a></li>
@@ -1703,12 +1705,111 @@
 
 <!-- ═══════════════════════════════════════════════════════
      PARTE II — OPERACIONES Y COMPLEJIDAD
+     SLIDE 8B: ELIMINACIÓN NODO A NODO (USO DE LAS FÓRMULAS)
+     ═══════════════════════════════════════════════════════ -->
+<section id="eliminacion" class="animate-on-scroll">
+    <div class="section-header">
+        <div class="part-label">Parte II — Operaciones</div>
+        <div class="section-number">07 — Eliminación nodo a nodo</div>
+        <h2>Eliminación <span class="gradient-text">nodo a nodo</span> con las fórmulas</h2>
+        <p>Partimos del heap del ejemplo de inserción: <strong>[5, 10, 30, 15, 20]</strong>.
+           En cada <code style="color: var(--accent-cyan-light);">poll()</code> se extrae la raíz (el mínimo), el <strong>último</strong> elemento
+           del vector pasa a la raíz y baja aplicando la fórmula <code style="color: var(--accent-cyan-light);">hijos = 2i + 1 y 2i + 2</code> (Sift-Down).</p>
+    </div>
+
+    <!-- Leyenda de colores de las celdas -->
+    <div class="cell-legend">
+        <span><span class="swatch" style="background: rgba(245,158,11,0.5); border: 2px solid var(--accent-orange);"></span>Elemento que baja (vino del final)</span>
+        <span><span class="swatch" style="background: rgba(6,182,212,0.4); border: 2px solid var(--accent-cyan);"></span>Hijo desplazado por el intercambio</span>
+        <span><span class="swatch" style="background: var(--bg-card); border: 2px solid var(--accent-purple);"></span>Sin cambios</span>
+    </div>
+
+    <!-- Paso 1 (dos intercambios) -->
+    <div class="insert-step">
+        <span class="step-pill">Paso 1</span><h3>Eliminar 5 — ¡el reemplazo baja dos niveles!</h3>
+        <br><span class="calc">poll() extrae la raíz 5 → el último elemento (20) pasa a i = 0</span>
+        <div class="array-visual">
+            <div class="array-cell new">20<span class="idx">0</span></div>
+            <div class="array-cell">10<span class="idx">1</span></div>
+            <div class="array-cell">30<span class="idx">2</span></div>
+            <div class="array-cell">15<span class="idx">3</span></div>
+        </div>
+        <span class="calc">i = 0 → hijos = 2·0+1 = 1 y 2·0+2 = 2 → min(arr[1] = 10, arr[2] = 30) = 10</span>
+        <p class="step-note">10 &lt; 20 viola la propiedad Min-Heap → <strong>intercambio</strong> (Sift-Down). 20 baja al índice 1:</p>
+        <div class="array-visual">
+            <div class="array-cell moved">10<span class="idx">0</span></div>
+            <div class="array-cell new">20<span class="idx">1</span></div>
+            <div class="array-cell">30<span class="idx">2</span></div>
+            <div class="array-cell">15<span class="idx">3</span></div>
+        </div>
+        <span class="calc">i = 1 → hijos = 2·1+1 = 3 y 2·1+2 = 4 → solo existe arr[3] = 15</span>
+        <p class="step-note">15 &lt; 20 → segundo intercambio. 20 llega al índice 3 (hoja) y el Sift-Down termina. <strong>Extraídos: [5]</strong></p>
+        <div class="array-visual">
+            <div class="array-cell root">10<span class="idx">0</span></div>
+            <div class="array-cell moved">15<span class="idx">1</span></div>
+            <div class="array-cell">30<span class="idx">2</span></div>
+            <div class="array-cell new">20<span class="idx">3</span></div>
+        </div>
+    </div>
+
+    <!-- Paso 2 -->
+    <div class="insert-step">
+        <span class="step-pill">Paso 2</span><h3>Eliminar 10</h3>
+        <br><span class="calc">poll() extrae la raíz 10 → el último elemento (20) pasa a i = 0</span>
+        <span class="calc">i = 0 → hijos = 1 y 2 → min(arr[1] = 15, arr[2] = 30) = 15</span>
+        <p class="step-note">15 &lt; 20 → intercambio. 20 baja al índice 1; sus hijos serían 3 y 4, que <strong>no existen</strong> → se detiene. <strong>Extraídos: [5, 10]</strong></p>
+        <div class="array-visual">
+            <div class="array-cell root">15<span class="idx">0</span></div>
+            <div class="array-cell new">20<span class="idx">1</span></div>
+            <div class="array-cell">30<span class="idx">2</span></div>
+        </div>
+    </div>
+
+    <!-- Paso 3 -->
+    <div class="insert-step">
+        <span class="step-pill">Paso 3</span><h3>Eliminar 15</h3>
+        <br><span class="calc">poll() extrae la raíz 15 → el último elemento (30) pasa a i = 0</span>
+        <span class="calc">i = 0 → hijos = 1 y 2 → solo existe arr[1] = 20</span>
+        <p class="step-note">20 &lt; 30 → intercambio. 30 baja al índice 1 (hoja). <strong>Extraídos: [5, 10, 15]</strong></p>
+        <div class="array-visual">
+            <div class="array-cell root">20<span class="idx">0</span></div>
+            <div class="array-cell new">30<span class="idx">1</span></div>
+        </div>
+    </div>
+
+    <!-- Paso 4 -->
+    <div class="insert-step">
+        <span class="step-pill">Paso 4</span><h3>Eliminar 20</h3>
+        <br><span class="calc">poll() extrae la raíz 20 → el último elemento (30) pasa a i = 0</span>
+        <p class="step-note">Sus hijos serían 1 y 2, que no existen: 30 queda solo en la raíz, <strong>sin comparaciones</strong>. <strong>Extraídos: [5, 10, 15, 20]</strong></p>
+        <div class="array-visual">
+            <div class="array-cell new">30<span class="idx">0</span></div>
+        </div>
+    </div>
+
+    <!-- Paso 5 -->
+    <div class="insert-step">
+        <span class="step-pill">Paso 5</span><h3>Eliminar 30 — el heap queda vacío</h3>
+        <br><span class="calc">poll() extrae la raíz 30 → no queda ningún elemento</span>
+        <p class="step-note">Los cinco elementos salieron en orden ascendente: <strong>Extraídos: [5, 10, 15, 20, 30]</strong> ✓</p>
+    </div>
+
+    <div class="highlight-box green" style="margin-top: 1.5rem;">
+        <strong>💡 Observa:</strong> el reemplazo solo se compara con el <em>menor de sus hijos</em>, calculados con
+        <code style="color: var(--accent-green-light);">2i + 1</code> y <code style="color: var(--accent-green-light);">2i + 2</code>.
+        Por eso una eliminación hace a lo sumo <strong>log n</strong> comparaciones. Y como cada poll() entrega el mínimo,
+        eliminar <strong>uno a uno</strong> produce la secuencia ordenada: esa es la idea de <strong>HeapSort</strong>.
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     PARTE II — OPERACIONES Y COMPLEJIDAD
      SLIDE 9: ELIMINACIÓN INTERACTIVA — EXTRAE UNO A UNO
      ═══════════════════════════════════════════════════════ -->
 <section id="eliminar" class="animate-on-scroll">
     <div class="section-header">
         <div class="part-label">Parte II — Operaciones</div>
-        <div class="section-number">07 — Eliminación interactiva</div>
+        <div class="section-number">08 — Eliminación interactiva</div>
         <h2>Pruébalo tú: <span class="gradient-text">elimina la raíz</span> uno a uno</h2>
         <p>Cada <code style="color: var(--accent-cyan-light);">poll()</code> extrae el mínimo: el último elemento del vector
            sube a la raíz y desciende con Sift-Down usando <code style="color: var(--accent-cyan-light);">hijos = 2i + 1 y 2i + 2</code>.
@@ -1750,7 +1851,7 @@
 <section id="vector" class="animate-on-scroll">
     <div class="section-header">
         <div class="part-label">Parte II — Operaciones</div>
-        <div class="section-number">08 — El vector resultante</div>
+        <div class="section-number">09 — El vector resultante</div>
         <h2>El vector generado: ¿por qué <span class="gradient-text">no queda en orden</span>?</h2>
         <p>Después de las 5 inserciones, el heap guarda internamente este arreglo. Es un heap válido… pero no está ordenado.</p>
     </div>
@@ -1827,7 +1928,7 @@
 <section id="animacion" class="animate-on-scroll">
     <div class="section-header">
         <div class="part-label">Parte II — Operaciones</div>
-        <div class="section-number">09 — Animación</div>
+        <div class="section-number">10 — Animación</div>
         <h2>Inserción: <span class="gradient-text">Heaps vs BST</span></h2>
         <p>Observa cómo se inserta un nuevo valor en cada estructura (Sift-Up en Heaps vs Descenso en BST).</p>
     </div>
@@ -1928,7 +2029,7 @@
 <section id="complejidad" class="animate-on-scroll">
     <div class="section-header">
         <div class="part-label">Parte II — Operaciones</div>
-        <div class="section-number">10 — Complejidad</div>
+        <div class="section-number">11 — Complejidad</div>
         <h2>Complejidad <span class="gradient-text">Big-O</span></h2>
         <p>Resumen del costo de cada operación sobre un heap de n elementos.</p>
     </div>
@@ -1974,7 +2075,7 @@
 <section id="vs-bst" class="animate-on-scroll">
     <div class="section-header">
         <div class="part-label">Parte III — Comparación</div>
-        <div class="section-number">11 — Comparación</div>
+        <div class="section-number">12 — Comparación</div>
         <h2>Heap vs <span class="gradient-text">BST</span></h2>
         <p>¿Cuándo usar cada uno? Son estructuras complementarias con propósitos diferentes.</p>
     </div>
@@ -2048,7 +2149,7 @@
 <section id="generico" class="animate-on-scroll">
     <div class="section-header">
         <div class="part-label">Parte IV — Heaps en Java</div>
-        <div class="section-number">12 — Implementación</div>
+        <div class="section-number">13 — Implementación</div>
         <h2>MinHeap <span class="gradient-text">Genérico</span></h2>
         <p>Implementación desde cero usando generics y <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.1rem 0.4rem; border-radius: 4px;">Comparable&lt;T&gt;</code>.</p>
     </div>
@@ -2128,7 +2229,7 @@
 <section id="priority-queue" class="animate-on-scroll">
     <div class="section-header">
         <div class="part-label">Parte IV — Heaps en Java</div>
-        <div class="section-number">13 — PriorityQueue</div>
+        <div class="section-number">14 — PriorityQueue</div>
         <h2><span class="gradient-text">PriorityQueue</span> en Java</h2>
         <p>Java provee <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.1rem 0.4rem; border-radius: 4px;">java.util.PriorityQueue</code> — un Min-Heap listo para usar.</p>
     </div>
@@ -2192,7 +2293,7 @@ System.out.<span class="fn">println</span>(minHeap.<span class="fn">peek</span>(
 <section id="max-heap" class="animate-on-scroll">
     <div class="section-header">
         <div class="part-label">Parte IV — Heaps en Java</div>
-        <div class="section-number">14 — Max-Heap</div>
+        <div class="section-number">15 — Max-Heap</div>
         <h2>Implementar <span class="gradient-text">Max-Heap</span></h2>
         <p>3 formas de crear un Max-Heap con PriorityQueue.</p>
     </div>
@@ -2288,7 +2389,7 @@ System.out.<span class="fn">println</span>(maxHeap.<span class="fn">poll</span>(
 <section id="objetos" class="animate-on-scroll">
     <div class="section-header">
         <div class="part-label">Parte IV — Heaps en Java</div>
-        <div class="section-number">15 — Objetos</div>
+        <div class="section-number">16 — Objetos</div>
         <h2>Heaps con <span class="gradient-text">Objetos</span></h2>
         <p>El heap no solo ordena números: cualquier clase puede priorizarse con <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.1rem 0.4rem; border-radius: 4px;">Comparable</code> o un <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.1rem 0.4rem; border-radius: 4px;">Comparator</code>.</p>
     </div>
@@ -2360,7 +2461,7 @@ cola.<span class="fn">poll</span>(); <span class="cm">// → "Bug crítico" (pri
 <section id="heapsort" class="animate-on-scroll">
     <div class="section-header">
         <div class="part-label">Parte V — Algoritmos</div>
-        <div class="section-number">16 — HeapSort</div>
+        <div class="section-number">17 — HeapSort</div>
         <h2><span class="gradient-text">HeapSort</span> paso a paso</h2>
         <p>Ordenamiento <strong>in-place</strong> en O(n log n): construye un Max-Heap y extrae el máximo repetidamente.</p>
     </div>
@@ -2432,7 +2533,7 @@ cola.<span class="fn">poll</span>(); <span class="cm">// → "Bug crítico" (pri
 <section id="aplicaciones" class="animate-on-scroll">
     <div class="section-header">
         <div class="part-label">Parte V — Aplicaciones</div>
-        <div class="section-number">17 — Aplicaciones</div>
+        <div class="section-number">18 — Aplicaciones</div>
         <h2>Aplicaciones <span class="gradient-text">Reales</span></h2>
         <p>¿Dónde se usan los Heaps en la práctica?</p>
     </div>
@@ -2485,7 +2586,7 @@ cola.<span class="fn">poll</span>(); <span class="cm">// → "Bug crítico" (pri
 <section id="hospital" class="animate-on-scroll">
     <div class="section-header">
         <div class="part-label">Parte V — Caso Práctico</div>
-        <div class="section-number">18 — Caso Práctico</div>
+        <div class="section-number">19 — Caso Práctico</div>
         <h2>🏥 Cola de <span class="gradient-text">Urgencias</span></h2>
         <p>Sistema de triaje hospitalario: los pacientes se atienden por <strong>gravedad</strong>, no por orden de llegada. Un Max-Heap resuelve el problema de forma natural.</p>
     </div>
@@ -2559,7 +2660,7 @@ cola.<span class="fn">poll</span>(); <span class="cm">// → "Bug crítico" (pri
 <section id="refs" class="animate-on-scroll">
     <div class="section-header">
         <div class="part-label">Parte VI — Cierre</div>
-        <div class="section-number">19 — Referencias</div>
+        <div class="section-number">20 — Referencias</div>
         <h2>Recursos y <span class="gradient-text">Referencias</span></h2>
     </div>
 
