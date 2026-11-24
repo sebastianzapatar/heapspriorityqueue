@@ -3,8 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Heaps en Java — Estructura de Datos</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Marca que hay JS: sin él (o al imprimir) las secciones no quedan ocultas -->
+    <script>document.documentElement.classList.add('js');</script>
+    <title>Heaps en Java — Estructuras de Datos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-primary: #0a0a0f;
@@ -18,11 +22,13 @@
             --accent-green: #10b981;
             --accent-green-light: #6ee7b7;
             --accent-orange: #f59e0b;
-            --accent-red: #ef4444;
+            --accent-red: #f87171;   /* rojo legible como texto (≥ 5:1) */
             --accent-pink: #ec4899;
+            --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
             --text-primary: #f1f5f9;
             --text-secondary: #94a3b8;
-            --text-muted: #64748b;
+            --text-muted: #8590a6;   /* ≥ 5:1 sobre fondo y tarjetas */
             --border-color: rgba(124, 58, 237, 0.2);
             --code-bg: #1e1e2e;
             --gradient-1: linear-gradient(135deg, #7c3aed 0%, #06b6d4 100%);
@@ -38,10 +44,31 @@
 
         html {
             scroll-behavior: smooth;
+            scrollbar-color: #3b3b5c var(--bg-primary);
+        }
+
+        /* Los atributos font-family de los SVG no admiten alternativas: sin Google
+           Fonts el navegador caería a una serif. El CSS manda sobre el atributo. */
+        svg text[font-family="JetBrains Mono"] { font-family: var(--font-mono); }
+        svg text[font-family="Inter"] { font-family: var(--font-sans); }
+
+        ::selection {
+            background: rgba(124, 58, 237, 0.45);
+            color: #fff;
+        }
+
+        input,
+        textarea {
+            caret-color: var(--accent-purple-light);
+        }
+
+        ::placeholder {
+            color: var(--text-muted);
+            opacity: 1;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: var(--font-sans);
             background-color: var(--bg-primary);
             color: var(--text-primary);
             line-height: 1.7;
@@ -69,6 +96,8 @@
             display: flex;
             align-items: center;
             gap: 0.75rem;
+            flex-shrink: 0;
+            white-space: nowrap;
         }
 
         .nav-brand .icon {
@@ -87,15 +116,16 @@
         .nav-links {
             display: flex;
             gap: 0.25rem;
+            margin-left: auto;
             align-items: center;
             flex-wrap: wrap;
             justify-content: center;
         }
 
         .nav-links a {
-            color: var(--text-muted);
+            color: var(--text-secondary);
             text-decoration: none;
-            font-size: 0.75rem;
+            font-size: 0.85rem;
             padding: 0.35rem 0.65rem;
             border-radius: 6px;
             transition: all 0.2s ease;
@@ -106,6 +136,90 @@
         .nav-links a.active {
             color: var(--text-primary);
             background: rgba(124, 58, 237, 0.15);
+        }
+
+        /* Menú de secciones para pantallas angostas (≤1024px).
+           Agrupa los 21 enlaces por Parte, con los nombres completos de la agenda. */
+        .nav-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            min-height: 40px;
+            min-width: 0;
+            margin-left: 1rem;
+            padding: 0.45rem 0.85rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: transparent;
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: border-color 0.2s ease, background-color 0.2s ease;
+        }
+
+        .nav-toggle:hover,
+        .nav-toggle[aria-expanded="true"] {
+            border-color: var(--accent-purple);
+            background: rgba(124, 58, 237, 0.15);
+        }
+
+        .nav-toggle:focus-visible,
+        .nav-sheet a:focus-visible {
+            outline: 2px solid var(--accent-purple-light);
+            outline-offset: 2px;
+        }
+
+        .nav-toggle .nav-current {
+            color: var(--text-secondary);
+            font-weight: 500;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            min-width: 0;
+        }
+
+        .nav-toggle svg {
+            flex-shrink: 0;
+            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .nav-toggle[aria-expanded="true"] svg {
+            transform: rotate(180deg);
+        }
+
+        .nav-sheet .nav-group {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            padding: 0 0.75rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .nav-sheet ul {
+            list-style: none;
+        }
+
+        .nav-sheet a {
+            display: flex;
+            align-items: center;
+            min-height: 44px;
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-size: 0.95rem;
+        }
+
+        .nav-sheet a:hover {
+            background: rgba(124, 58, 237, 0.1);
+        }
+
+        .nav-sheet a.active {
+            background: rgba(124, 58, 237, 0.18);
+            color: var(--accent-purple-light);
+            font-weight: 600;
         }
 
         .nav-progress {
@@ -205,6 +319,18 @@
             margin: 0 auto;
         }
 
+        /* Los árboles SVG se escalan con su viewBox en lugar de desbordarse */
+        .tree-container {
+            max-width: 100%;
+            min-width: 0;
+        }
+
+        .tree-svg,
+        .anim-container svg {
+            max-width: 100%;
+            height: auto;
+        }
+
         .tree-node {
             transition: all 0.3s ease;
         }
@@ -236,7 +362,7 @@
         .section-number {
             font-size: 0.85rem;
             font-weight: 600;
-            color: var(--accent-purple);
+            color: var(--accent-purple-light);
             text-transform: uppercase;
             letter-spacing: 3px;
             margin-bottom: 0.75rem;
@@ -245,7 +371,7 @@
         /* ===== AGENDA (TABLA DE CONTENIDO) ===== */
         .agenda-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
             gap: 1.25rem;
             margin-top: 1.5rem;
         }
@@ -317,7 +443,7 @@
         /* ===== CARDS ===== */
         .card-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr));
             gap: 1.5rem;
             margin-top: 1.5rem;
         }
@@ -421,7 +547,7 @@
         .badge-bst {
             display: inline-block;
             background: rgba(236, 72, 153, 0.15);
-            color: var(--accent-pink);
+            color: #f9a8d4;   /* rosa claro: el #ec4899 no llegaba a 4.5:1 sobre su fondo */
             padding: 0.15rem 0.6rem;
             border-radius: 6px;
             font-size: 0.8rem;
@@ -462,7 +588,7 @@
         .code-header .dot.green { background: #10b981; }
 
         .code-header .filename {
-            font-family: 'JetBrains Mono', monospace;
+            font-family: var(--font-mono);
             font-size: 0.8rem;
             color: var(--text-muted);
         }
@@ -470,7 +596,7 @@
         .code-block pre {
             padding: 1.25rem;
             overflow-x: auto;
-            font-family: 'JetBrains Mono', monospace;
+            font-family: var(--font-mono);
             font-size: 0.85rem;
             line-height: 1.8;
             color: var(--text-primary);
@@ -486,14 +612,14 @@
         .fn { color: #61afef; }     /* function */
         .str { color: #98c379; }    /* string */
         .num { color: #d19a66; }    /* number */
-        .cm { color: #5c6370; font-style: italic; }  /* comment */
+        .cm { color: #8b93a3; font-style: italic; }  /* comment (5,3:1) */
         .op { color: #56b6c2; }     /* operator */
         .an { color: #e06c75; }     /* annotation */
 
         /* ===== FORMULA BOX ===== */
         .formula-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
             gap: 1.25rem;
             margin: 1.5rem 0;
         }
@@ -521,7 +647,7 @@
         }
 
         .formula-box .formula {
-            font-family: 'JetBrains Mono', monospace;
+            font-family: var(--font-mono);
             font-size: 1.3rem;
             font-weight: 600;
             color: var(--accent-cyan-light);
@@ -556,7 +682,7 @@
         }
 
         .complexity-item .complexity {
-            font-family: 'JetBrains Mono', monospace;
+            font-family: var(--font-mono);
             font-size: 1.5rem;
             font-weight: 700;
             color: var(--accent-green-light);
@@ -569,14 +695,15 @@
         /* ===== SPLIT LAYOUT ===== */
         .split {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            /* minmax(0, …): el código largo hace scroll dentro de su bloque en vez de ensanchar la columna */
+            grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
             gap: 3rem;
             align-items: start;
         }
 
         @media (max-width: 768px) {
             .split {
-                grid-template-columns: 1fr;
+                grid-template-columns: minmax(0, 1fr);
                 gap: 2rem;
             }
         }
@@ -687,6 +814,7 @@
 
         .tab-buttons {
             display: flex;
+            flex-wrap: wrap;
             gap: 0.5rem;
             margin-bottom: 1rem;
         }
@@ -698,7 +826,7 @@
             padding: 0.6rem 1.25rem;
             border-radius: 8px;
             cursor: pointer;
-            font-family: 'Inter', sans-serif;
+            font-family: var(--font-sans);
             font-size: 0.9rem;
             font-weight: 500;
             transition: all 0.2s ease;
@@ -775,45 +903,152 @@
             50% { transform: scale(1.05); }
         }
 
-        .animate-on-scroll {
+        .js .animate-on-scroll {
             opacity: 0;
             transform: translateY(30px);
             transition: all 0.6s ease;
         }
 
-        .animate-on-scroll.visible {
+        .js .animate-on-scroll.visible {
             opacity: 1;
             transform: translateY(0);
         }
 
         /* ===== RESPONSIVE ===== */
-        @media (max-width: 768px) {
-            section {
-                padding: 5rem 1.25rem 3rem;
-            }
 
+        /* Código en línea: los nombres largos de Java parten en lugar de salirse */
+        :not(pre) > code {
+            overflow-wrap: anywhere;
+        }
+
+        h2, h3 {
+            overflow-wrap: break-word;
+        }
+
+        /* Por debajo de ~1024px los 21 enlaces ya no caben en una fila:
+           se reemplazan por el menú de secciones agrupado. */
+        .nav-sheet {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
+            gap: 1.25rem 1.5rem;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            max-height: calc(100dvh - 64px);
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            padding: 1.25rem;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 16px 32px rgba(0, 0, 0, 0.5);
+            visibility: hidden;
+            opacity: 0;
+            transform: translateY(-8px);
+            transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+                        transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+                        visibility 0s linear 0.2s;
+        }
+
+        .nav-sheet.open {
+            visibility: visible;
+            opacity: 1;
+            transform: none;
+            transition-delay: 0s;
+        }
+
+        /* Por debajo de ~1024px las seis Partes ya no caben junto a la marca:
+           queda solo el menú de secciones. */
+        @media (max-width: 1024px) {
             .nav-links {
                 display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .slide-nav {
+                padding: 0.6rem 1.25rem;
+            }
+
+            /* En el teléfono cada sección mide lo que su contenido, no una pantalla entera */
+            section {
+                min-height: auto;
+                padding: 5.5rem 1.25rem 3rem;
+            }
+
+            .hero {
+                padding-top: 6rem;
             }
 
             .card-grid {
                 grid-template-columns: 1fr;
             }
 
-            .comparison-table {
-                font-size: 0.85rem;
+            .tree-container {
+                padding: 1.25rem;
             }
 
-            .comparison-table th,
+            /* Tabla comparativa → una ficha por característica */
+            .comparison-table thead {
+                position: absolute;
+                width: 1px;
+                height: 1px;
+                overflow: hidden;
+                clip: rect(0 0 0 0);
+                white-space: nowrap;
+            }
+
+            .comparison-table,
+            .comparison-table tbody,
+            .comparison-table tr,
             .comparison-table td {
-                padding: 0.75rem;
+                display: block;
+            }
+
+            .comparison-table tr {
+                padding: 1rem 1.25rem;
+                border-top: 1px solid rgba(124, 58, 237, 0.15);
+            }
+
+            .comparison-table tr:first-child {
+                border-top: 0;
+            }
+
+            .comparison-table td {
+                padding: 0.2rem 0;
+                border-top: 0;
+                font-size: 0.9rem;
+            }
+
+            .comparison-table tr:hover td {
+                background: none;
+            }
+
+            .comparison-table td.feature-name {
+                margin-bottom: 0.35rem;
+            }
+
+            .comparison-table td[data-label]::before {
+                content: attr(data-label);
+                display: inline-block;
+                min-width: 3.25rem;
+                font-size: 0.75rem;
+                font-weight: 700;
+            }
+
+            .comparison-table td[data-label="Heap"]::before {
+                color: var(--accent-cyan-light);
+            }
+
+            .comparison-table td[data-label="BST"]::before {
+                color: #f472b6;
             }
         }
 
         /* ===== ARRAY VISUAL ===== */
         .array-visual {
             display: flex;
-            gap: 4px;
+            gap: 1.75rem 4px;   /* fila: deja espacio al índice que cuelga bajo cada celda */
             justify-content: center;
             margin: 1.5rem 0;
             flex-wrap: wrap;
@@ -828,7 +1063,7 @@
             background: var(--bg-card);
             border: 2px solid var(--accent-purple);
             border-radius: 8px;
-            font-family: 'JetBrains Mono', monospace;
+            font-family: var(--font-mono);
             font-weight: 600;
             font-size: 1rem;
             transition: all 0.3s ease;
@@ -843,8 +1078,8 @@
         .array-cell .idx {
             position: absolute;
             bottom: -20px;
-            font-size: 0.65rem;
-            color: var(--text-muted);
+            font-size: 0.7rem;
+            color: var(--text-secondary);   /* también legible sobre celdas teñidas */
         }
 
         .array-cell.root {
@@ -903,7 +1138,7 @@
             margin: 0.75rem 0.5rem 0.25rem 0;
             padding: 0.35rem 0.75rem;
             border-radius: 8px;
-            font-family: 'JetBrains Mono', monospace;
+            font-family: var(--font-mono);
             font-size: 0.85rem;
             color: var(--accent-cyan-light);
             background: rgba(6, 182, 212, 0.08);
@@ -952,7 +1187,7 @@
             border: 2px solid var(--accent-purple);
             background: var(--bg-card);
             color: var(--text-primary);
-            font-family: 'JetBrains Mono', monospace;
+            font-family: var(--font-mono);
             font-size: 1rem;
             text-align: center;
             outline: none;
@@ -963,13 +1198,35 @@
             box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.25);
         }
 
+        /* Ayuda bajo el campo; se vuelve mensaje de error si el valor no sirve */
+        .ih-msg {
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin: -1.25rem 0 2rem;
+            min-height: 1.5em;
+        }
+
+        .ih-msg.err {
+            color: #f87171;
+            font-weight: 500;
+        }
+
+        .ih-input[aria-invalid="true"] {
+            border-color: #f87171;
+        }
+
+        .ih-input[aria-invalid="true"]:focus {
+            box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.25);
+        }
+
         .ih-btn {
             padding: 0.6rem 1.4rem;
             border-radius: 10px;
             border: 2px solid var(--accent-purple);
             background: rgba(124, 58, 237, 0.2);
             color: var(--accent-purple-light);
-            font-family: 'Inter', sans-serif;
+            font-family: var(--font-sans);
             font-size: 0.95rem;
             font-weight: 600;
             cursor: pointer;
@@ -1072,7 +1329,7 @@
         /* Reference cards */
         .ref-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
             gap: 1.25rem;
             margin-top: 1.5rem;
         }
@@ -1089,7 +1346,24 @@
             border-color: var(--accent-cyan);
         }
 
-        .ref-card h4 {
+        /* Fragmentos de código dentro del texto */
+        .code-chip {
+            color: var(--accent-cyan-light);
+            background: rgba(6, 182, 212, 0.1);
+            padding: 0.1rem 0.4rem;
+            border-radius: 4px;
+        }
+
+        .code-chip.lg {
+            padding: 0.2rem 0.6rem;
+            border-radius: 6px;
+        }
+
+        .code-cyan { color: var(--accent-cyan-light); }
+        .code-green { color: var(--accent-green-light); }
+        .code-red { color: var(--accent-red); }
+
+        .ref-card h3 {
             font-size: 1rem;
             margin-bottom: 0.5rem;
             color: var(--accent-cyan-light);
@@ -1101,6 +1375,18 @@
             font-size: 0.85rem;
         }
 
+        .file-link {
+            text-decoration: none;
+            display: inline-block;
+            margin: 0.15rem 0;
+        }
+
+        .file-link:hover code,
+        .file-link:focus-visible code {
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
         .ref-card a:hover {
             text-decoration: underline;
         }
@@ -1110,7 +1396,8 @@
             background: var(--bg-card);
             border: 1px solid var(--border-color);
             border-radius: 12px;
-            height: 280px;
+            min-height: 280px;
+            padding: 1rem;
             position: relative;
             margin-top: 1.5rem;
             display: flex;
@@ -1125,7 +1412,7 @@
             padding: 0.6rem 1.25rem;
             border-radius: 8px;
             cursor: pointer;
-            font-family: 'Inter', sans-serif;
+            font-family: var(--font-sans);
             font-size: 0.9rem;
             font-weight: 500;
             transition: all 0.2s ease;
@@ -1181,49 +1468,941 @@
             0%, 80% { opacity: 0; }
             85%, 100% { opacity: 1; }
         }
+
+
+        /* ===== VISUALIZADORES: MOVIMIENTO Y CONTROLES ===== */
+        .vz-playback {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem 1.25rem;
+            justify-content: center;
+            align-items: center;
+            margin: -1rem 0 2rem;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .vz-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            min-height: 40px;
+            cursor: pointer;
+        }
+
+        .vz-toggle input {
+            width: 1.05rem;
+            height: 1.05rem;
+            accent-color: var(--accent-purple);
+        }
+
+        .vz-speed {
+            display: inline-flex;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .vz-speed label {
+            position: relative;
+        }
+
+        .vz-speed input {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .vz-speed span {
+            display: block;
+            padding: 0.5rem 0.85rem;
+            transition: background-color 0.15s ease, color 0.15s ease;
+        }
+
+        .vz-speed label + label span {
+            border-left: 1px solid var(--border-color);
+        }
+
+        .vz-speed input:checked + span {
+            background: rgba(124, 58, 237, 0.2);
+            color: var(--accent-purple-light);
+            font-weight: 600;
+        }
+
+        .vz-speed input:focus-visible + span {
+            outline: 2px solid var(--accent-purple-light);
+            outline-offset: -2px;
+        }
+
+        .vz-legend {
+            margin: 1rem 0 0;
+            gap: 0.5rem 1.25rem;
+            font-size: 0.8rem;
+        }
+
+        .vz-rel {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            min-height: 2.6em;
+            margin-bottom: 1rem;
+        }
+
+        .vz-rel.activo {
+            color: var(--text-primary);
+        }
+
+        .vz-log-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .vz-link-btn {
+            background: none;
+            border: 0;
+            padding: 0.4rem 0;
+            min-height: 32px;
+            color: var(--accent-purple-light);
+            font: inherit;
+            cursor: pointer;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+        .vz-link-btn:hover {
+            color: var(--text-primary);
+        }
+
+        .ih-log .log-op {
+            align-self: stretch;
+            margin-top: 0.5rem;
+            padding-top: 0.5rem;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .ih-log .log-op:first-child {
+            margin-top: 0;
+            padding-top: 0;
+            border-top: 0;
+        }
+
+        /* Nodos: el viaje entre posiciones lo anima el script (sigue las aristas).
+           Pasar a «se mueve» o «se compara» es instantáneo; solo el regreso a
+           «en su lugar» se funde, así no aparecen colores fuera de la leyenda. */
+        .vz-node circle {
+            fill: #10b981;
+            stroke: transparent;
+            stroke-width: 3;
+            transition: stroke 0.15s ease;
+        }
+
+        .vz-node:not(.cur):not(.cmp) circle {
+            transition: fill 0.2s ease, stroke 0.15s ease;
+        }
+
+        .vz-node text {
+            fill: #0a0a0f;   /* texto oscuro: ≥ 7:1 sobre verde, cian y naranja */
+            font-family: var(--font-mono);
+            font-size: 13px;
+            font-weight: 700;
+            pointer-events: none;
+        }
+
+        .vz-node.cur circle { fill: #f59e0b; }
+        .vz-node.cmp circle { fill: #06b6d4; }
+        .vz-node.link circle { stroke: #f1f5f9; }
+        .vz-node.rel circle { stroke: #f1f5f9; stroke-dasharray: 4 3; }
+
+        .vz-body {
+            transform-origin: 0 0;
+        }
+
+        .vz-node.vz-enter .vz-body {
+            animation: vzEntra 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .vz-node.vz-exit .vz-body {
+            animation: vzSale 0.3s ease-in forwards;
+        }
+
+        @keyframes vzEntra {
+            from { opacity: 0; transform: scale(0.4); }
+        }
+
+        @keyframes vzSale {
+            to { opacity: 0; transform: translateY(-26px) scale(0.8); }
+        }
+
+        .vz-edges line {
+            stroke: #10b981;
+            stroke-width: 2;
+            opacity: 0.6;
+            transition: opacity 0.15s ease, stroke 0.15s ease;
+        }
+
+        .vz-edges line.nueva {
+            animation: vzAparece 0.3s ease-out;
+        }
+
+        .vz-edges line.saliendo,
+        .vz-idx text.saliendo {
+            animation: vzDesaparece 0.15s ease-out forwards;
+        }
+
+        @keyframes vzDesaparece {
+            to { opacity: 0; }
+        }
+
+        .vz-edges line.link {
+            stroke: #f1f5f9;
+            opacity: 1;
+        }
+
+        @keyframes vzAparece {
+            from { opacity: 0; }
+        }
+
+        .vz-idx text {
+            fill: #94a3b8;
+            font-family: var(--font-mono);
+            font-size: 11px;
+            text-anchor: middle;
+        }
+
+        .vz-empty {
+            fill: #94a3b8;
+            font-family: var(--font-mono);
+            font-size: 14px;
+            transition: opacity 0.2s ease;
+            pointer-events: none;
+        }
+
+        .vz-val {
+            display: block;
+            position: relative;
+        }
+
+        .vz-val.viajando {
+            z-index: 2;
+            color: var(--text-primary);
+        }
+
+        #ih-array,
+        #eh-array {
+            position: relative;
+        }
+
+        #ih-array .array-cell,
+        #eh-array .array-cell {
+            transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.3s ease;
+        }
+
+        .vz-fantasma {
+            position: absolute;
+            z-index: 2;
+            text-align: center;
+            pointer-events: none;
+            font-family: var(--font-mono);
+            font-weight: 600;
+        }
+
+        .array-cell.link {
+            outline: 2px solid #f1f5f9;
+            outline-offset: 2px;
+        }
+
+        .array-cell.rel {
+            outline: 2px dashed #94a3b8;
+            outline-offset: 2px;
+        }
+
+        .array-cell:focus-visible {
+            outline: 2px solid var(--accent-purple-light);
+            outline-offset: 2px;
+        }
+
+        /* Las animaciones en bucle de #animacion se pausan fuera de pantalla */
+        #animacion.anim-off svg * {
+            animation-play-state: paused !important;
+        }
+
+
+        /* ===== MODO PRESENTACIÓN =====
+           Una sección por pantalla; encabezado siempre arriba a la izquierda,
+           contenido escalado para caber y una barra inferior discreta. */
+        .slide-body {
+            display: contents;
+        }
+
+        .pres-btn .pres-btn-txt {
+            white-space: nowrap;
+        }
+
+        .pres-btn[aria-pressed="true"] {
+            border-color: var(--accent-purple);
+            background: rgba(124, 58, 237, 0.15);
+        }
+
+        body.presentando {
+            overflow: hidden;
+        }
+
+        body.presentando .slide-nav,
+        body.presentando footer,
+        body.presentando section {
+            display: none;
+        }
+
+        body.presentando section.slide-actual {
+            display: block;
+            position: fixed;
+            inset: 0 0 64px 0;
+            max-width: none;
+            min-height: 0;
+            margin: 0;
+            padding: clamp(1.75rem, 5vh, 3.5rem) max(2rem, calc((100vw - 1200px) / 2)) 1.5rem;
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            opacity: 1;
+            transform: none;
+            animation: presEntra 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        body.presentando section.slide-actual.desde-izq {
+            animation-name: presEntraIzq;
+        }
+
+        @keyframes presEntra {
+            from { opacity: 0; transform: translateX(18px); }
+        }
+
+        @keyframes presEntraIzq {
+            from { opacity: 0; transform: translateX(-18px); }
+        }
+
+        body.presentando .slide-body {
+            display: flow-root;   /* contiene el margen del último bloque al medir */
+        }
+
+        /* Portada y agenda: centradas verticalmente; el resto, alineado arriba */
+        body.presentando section.hero.slide-actual,
+        body.presentando section#agenda.slide-actual {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        /* El número de sección ya lo dice la barra inferior */
+        body.presentando .section-number {
+            display: none;
+        }
+
+        body.presentando .section-header {
+            margin-bottom: 2rem;
+        }
+
+        body.presentando .section-header p {
+            max-width: 62ch;
+        }
+
+        /* Ejemplos nodo a nodo: un paso por pantalla */
+        body.presentando .insert-step:not(.paso-actual) {
+            display: none;
+        }
+
+        body.presentando .insert-step.paso-actual {
+            animation: presEntra 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .pres-hud {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1000;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0 max(1rem, calc((100vw - 1200px) / 2));
+            background: rgba(10, 10, 15, 0.92);
+            border-top: 1px solid var(--border-color);
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .pres-hud[hidden] {
+            display: none;
+        }
+
+        .pres-barra {
+            position: absolute;
+            top: -1px;
+            left: 0;
+            height: 2px;
+            background: var(--gradient-1);
+            transition: width 0.25s ease;
+        }
+
+        .pres-info {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            align-items: baseline;
+            gap: 0.75rem;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+        .pres-parte {
+            color: var(--accent-cyan-light);
+            font-weight: 600;
+            font-size: 0.75rem;
+            letter-spacing: 0.04em;
+        }
+
+        .pres-titulo {
+            color: var(--text-primary);
+            font-weight: 600;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-width: 0;
+        }
+
+        .pres-paso {
+            color: var(--accent-orange);
+            font-weight: 600;
+        }
+
+        .pres-num {
+            font-family: var(--font-mono);
+            font-variant-numeric: tabular-nums;
+            color: var(--text-primary);
+        }
+
+        .pres-nav,
+        .pres-salir {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            min-width: 44px;
+            min-height: 44px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: transparent;
+            color: var(--text-primary);
+            font: inherit;
+            cursor: pointer;
+            transition: border-color 0.15s ease, background-color 0.15s ease;
+        }
+
+        .pres-salir {
+            padding: 0 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .pres-nav:hover:not(:disabled),
+        .pres-salir:hover {
+            border-color: var(--accent-purple);
+            background: rgba(124, 58, 237, 0.15);
+        }
+
+        .pres-nav:disabled {
+            opacity: 0.35;
+            cursor: default;
+        }
+
+        .pres-nav:focus-visible,
+        .pres-salir:focus-visible {
+            outline: 2px solid var(--accent-purple-light);
+            outline-offset: 2px;
+        }
+
+        .pres-salir kbd {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            padding: 0.05rem 0.35rem;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+        }
+
+        @media (max-width: 640px) {
+            .pres-btn .pres-btn-txt,
+            .pres-parte,
+            .pres-info:has(.pres-paso:not(:empty)) .pres-titulo,
+            .pres-salir kbd {
+                display: none;
+            }
+
+            .pres-btn {
+                padding-inline: 0.7rem;
+            }
+
+            .pres-hud {
+                gap: 0.5rem;
+            }
+
+            body.presentando section.slide-actual {
+                padding-inline: 1.25rem;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            body.presentando section.slide-actual,
+            body.presentando .insert-step.paso-actual {
+                animation: none;
+            }
+        }
+
+
+        /* ===== ACCESIBILIDAD Y LECTURA ===== */
+        .skip-link {
+            position: absolute;
+            left: 1rem;
+            top: -3rem;
+            z-index: 2000;
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            background: var(--accent-purple);
+            color: #fff;
+            font-weight: 600;
+            text-decoration: none;
+            transition: top 0.15s ease;
+        }
+
+        .skip-link:focus {
+            top: 0.75rem;
+        }
+
+        .anim-pausa {
+            margin-bottom: 1rem;
+        }
+
+        #animacion.anim-pausada svg * {
+            animation-play-state: paused !important;
+        }
+
+        /* Recuadros a todo el ancho: el texto no pasa de ~75 caracteres por línea
+           (62ch ≈ 75 caracteres reales, porque «ch» mide el ancho del «0») */
+        main > section > .highlight-box,
+        .slide-body > .highlight-box {
+            max-width: 62ch;
+        }
+
+        .tab-btn:focus-visible,
+        .tab-btn-anim:focus-visible,
+        .ih-btn:focus-visible {
+            outline: 2px solid var(--accent-purple-light);
+            outline-offset: 2px;
+        }
+
+        /* ===== AJUSTES POR DISPOSITIVO =====
+           Van al final para ganarle a las reglas base de .ih-*, .array-cell, etc. */
+        @media (max-width: 768px) {
+            .ih-controls {
+                gap: 0.5rem;
+            }
+
+            .ih-input {
+                width: 84px;
+                padding: 0.6rem 0.5rem;
+            }
+
+            .ih-btn {
+                padding: 0.6rem 1rem;
+            }
+        }
+
+        /* Pantallas táctiles: sin efectos que dependan del hover y con
+           objetivos de toque de al menos 44px */
+        @media (hover: none) {
+            .card:hover,
+            .agenda-card:hover,
+            .formula-box:hover,
+            .complexity-item:hover,
+            .array-cell:hover,
+            .tree-node:hover,
+            .ih-btn:hover:not(:disabled) {
+                transform: none;
+            }
+
+            .card:hover::before {
+                opacity: 0;
+            }
+        }
+
+        @media (pointer: coarse) {
+            .ih-btn,
+            .ih-input,
+            .tab-btn,
+            .tab-btn-anim,
+            .nav-toggle {
+                min-height: 44px;
+            }
+
+            .agenda-card ul li {
+                padding: 0;
+            }
+
+            .agenda-card ul li a {
+                display: block;
+                padding: 0.6rem 0;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .nav-sheet,
+            .nav-toggle svg {
+                transition: none;
+            }
+        }
+
+        /* Movimiento reducido: sin desplazamientos; se conservan los cambios de
+           color que indican el estado (nodo que se mueve, comparado, en su lugar) */
+        @media (prefers-reduced-motion: reduce) {
+            html {
+                scroll-behavior: auto;
+            }
+
+            .js .animate-on-scroll,
+            .js .animate-on-scroll.visible {
+                opacity: 1;
+                transform: none;
+                transition: none;
+            }
+
+            .hero-badge,
+            .hero h1,
+            .hero p,
+            .hero-visual,
+            .tab-content.active,
+            .vz-node .vz-body,
+            .vz-edges line.nueva {
+                animation: none !important;
+            }
+
+            .vz-edges line.saliendo,
+            .vz-idx text.saliendo {
+                animation: none;
+                opacity: 0;
+            }
+
+            .card:hover,
+            .agenda-card:hover,
+            .formula-box:hover,
+            .complexity-item:hover,
+            .array-cell:hover,
+            .tree-node:hover,
+            .ih-btn:hover:not(:disabled) {
+                transform: none;
+            }
+
+            /* Las animaciones de inserción de #animacion muestran su estado final */
+            .node-swap-min, .node-new-min, .edge-new-min,
+            .node-swap-max, .node-new-max,
+            .node-new-bst, .edge-new-bst {
+                animation: none !important;
+                opacity: 1;
+            }
+
+            .node-swap-min, .node-swap-max { transform: translate(250px, 200px); }
+            .node-new-min, .node-new-max { transform: translate(300px, 120px); }
+            .node-new-bst { transform: translate(280px, 220px); }
+        }
+
+
+
+        /* ===== IMPRESIÓN / PDF =====
+           Fondo claro, sin navegación ni controles, todas las pestañas visibles */
+        @media print {
+            :root {
+                --bg-primary: #fff;
+                --bg-secondary: #fff;
+                --bg-card: #fff;
+                --bg-card-hover: #fff;
+                --code-bg: #f6f6f8;
+                --text-primary: #111;
+                --text-secondary: #333;
+                --text-muted: #555;
+                --border-color: #ccc;
+                --accent-purple-light: #5b21b6;
+                --accent-cyan-light: #155e75;
+                --accent-green-light: #047857;
+                /* Acentos oscurecidos: sobre papel blanco los originales no llegan a 4.5:1 */
+                --accent-orange: #92400e;
+                --accent-red: #b91c1c;
+                --accent-pink: #9d174d;
+            }
+
+            body {
+                background: #fff;
+                color: #111;
+            }
+
+            .slide-nav,
+            .skip-link,
+            .anim-pausa,
+            .pres-hud,
+            .ih-controls,
+            .ih-msg,
+            .vz-playback,
+            .vz-link-btn,
+            .vz-rel,
+            .tab-buttons,
+            footer {
+                display: none !important;
+            }
+
+            section {
+                min-height: 0;
+                padding: 1.5rem 0;
+            }
+
+            h2, h3, .section-header {
+                break-after: avoid;
+            }
+
+            .section-header {
+                break-inside: avoid;
+            }
+
+            /* Animaciones de entrada: al imprimir pueden estar en su fotograma
+               inicial (opacidad 0). Las animaciones SVG de #animacion se conservan
+               porque de ellas depende la posición de los nodos. */
+            .hero-badge,
+            .hero h1,
+            .hero p,
+            .hero-visual,
+            .tab-content.active {
+                animation: none !important;
+            }
+
+            .js .animate-on-scroll {
+                transition: none;
+            }
+
+            /* Las animaciones de inserción se imprimen en su estado final
+               (posiciones = último fotograma de cada @keyframes) */
+            .node-swap-min, .node-new-min, .edge-new-min,
+            .node-swap-max, .node-new-max,
+            .node-new-bst, .edge-new-bst {
+                animation: none !important;
+                opacity: 1;
+            }
+
+            .node-swap-min, .node-swap-max { transform: translate(250px, 200px); }
+            .node-new-min, .node-new-max { transform: translate(300px, 120px); }
+            .node-new-bst { transform: translate(280px, 220px); }
+
+            .js .animate-on-scroll {
+                opacity: 1;
+                transform: none;
+            }
+
+            /* Imprimir desde el modo presentación imprime la página completa */
+            body.presentando {
+                overflow: visible;
+            }
+
+            body.presentando section,
+            body.presentando section.slide-actual {
+                display: block;
+                position: static;
+                inset: auto;
+                overflow: visible;
+                animation: none;
+                padding: 1.5rem 0;
+            }
+
+            body.presentando .slide-body {
+                zoom: 1 !important;
+            }
+
+            body.presentando .insert-step:not(.paso-actual),
+            body.presentando .section-number {
+                display: block;
+            }
+
+            /* Sin esto, el texto con degradado sale invisible si el navegador no imprime fondos */
+            .gradient-text,
+            .hero h1 .gradient-text,
+            .nav-brand span {
+                background: none !important;
+                -webkit-text-fill-color: currentColor !important;
+                color: inherit;
+            }
+
+            .tab-content,
+            .tab-content-anim {
+                display: block !important;
+                margin-bottom: 1rem;
+            }
+
+            .code-block,
+            .highlight-box,
+            .card,
+            .insert-step,
+            .anim-container,
+            .comparison-table tr,
+            .formula-box,
+            .complexity-item {
+                break-inside: avoid;
+            }
+
+            .code-block pre {
+                white-space: pre-wrap;
+                overflow: visible;
+                color: #111;
+            }
+
+            .code-block pre span {
+                color: #111;
+            }
+
+            .code-block pre .kw { color: #6d28d9; }
+            .code-block pre .cm { color: #555; }
+            .code-block pre .str { color: #166534; }
+
+            .ih-log {
+                max-height: none;
+                overflow: visible;
+            }
+
+            a[href^="http"]::after {
+                content: " (" attr(href) ")";
+                font-size: 0.8em;
+                word-break: break-all;
+            }
+        }
+
     </style>
 </head>
 <body>
+<a class="skip-link" href="#contenido">Saltar al contenido</a>
 
 <!-- ===== NAVIGATION ===== -->
 <nav class="slide-nav">
     <div class="nav-brand">
-        <span class="icon">🏔️</span>
+        <span class="icon" aria-hidden="true">🏔️</span>
         <span>Heaps en Java</span>
     </div>
-    <!-- Enlaces ordenados según las 6 partes temáticas de la presentación -->
+    <!-- Una entrada por Parte; el detalle de las 21 secciones está en «Secciones» -->
     <div class="nav-links">
-        <a href="#hero" class="active">Inicio</a>
-        <a href="#que-es">¿Qué es?</a>
-        <a href="#tipos">Tipos</a>
-        <a href="#array">Array</a>
-        <a href="#operaciones">Ops</a>
-        <a href="#insercion">Inserción</a>
-        <a href="#interactivo">Interactivo</a>
-        <a href="#eliminacion">Eliminación</a>
-        <a href="#eliminar">Poll</a>
-        <a href="#vector">Vector</a>
-        <a href="#animacion">Animación</a>
-        <a href="#complejidad">Big-O</a>
-        <a href="#vs-bst">vs BST</a>
-        <a href="#generico">Genérico</a>
-        <a href="#priority-queue">PriorityQueue</a>
-        <a href="#max-heap">Max-Heap</a>
-        <a href="#objetos">Objetos</a>
-        <a href="#heapsort">HeapSort</a>
-        <a href="#aplicaciones">Apps</a>
-        <a href="#hospital">Hospital</a>
-        <a href="#refs">Refs</a>
+        <a href="#que-es" data-parte="1">Fundamentos</a>
+        <a href="#operaciones" data-parte="2">Operaciones</a>
+        <a href="#vs-bst" data-parte="3">Heap vs BST</a>
+        <a href="#generico" data-parte="4">Heaps en Java</a>
+        <a href="#heapsort" data-parte="5">Algoritmos</a>
+        <a href="#resumen" data-parte="6">Cierre</a>
+    </div>
+    <button type="button" class="nav-toggle pres-btn" id="pres-btn" aria-pressed="false" title="Modo presentación (P)">
+        <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M3 1.8v8.4L10 6z" fill="currentColor"/></svg>
+        <span class="pres-btn-txt">Presentar</span>
+    </button>
+    <!-- Menú de secciones: todas las secciones, agrupadas por Parte -->
+    <button type="button" class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="nav-sheet">
+        <span>Secciones</span>
+        <span class="nav-current" id="nav-current">Inicio</span>
+        <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M2 4.5 6 8.5 10 4.5" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="nav-sheet" id="nav-sheet">
+        <div data-parte="0">
+            <p class="nav-group">Introducción</p>
+            <ul>
+                <li><a href="#hero">Inicio</a></li>
+                <li><a href="#agenda">Agenda</a></li>
+            </ul>
+        </div>
+        <div data-parte="1">
+            <p class="nav-group">Parte I · Fundamentos</p>
+            <ul>
+                <li><a href="#que-es">¿Qué es un Heap?</a></li>
+                <li><a href="#tipos">Min-Heap vs Max-Heap</a></li>
+                <li><a href="#array">Representación en Array</a></li>
+            </ul>
+        </div>
+        <div data-parte="2">
+            <p class="nav-group">Parte II · Operaciones y Complejidad</p>
+            <ul>
+                <li><a href="#operaciones">Insertar y extraer</a></li>
+                <li><a href="#insercion">Construcción nodo a nodo</a></li>
+                <li><a href="#interactivo">Demo: insertar</a></li>
+                <li><a href="#vector">El vector no queda ordenado</a></li>
+                <li><a href="#eliminacion">Eliminación nodo a nodo</a></li>
+                <li><a href="#eliminar">Demo: eliminar</a></li>
+                <li><a href="#complejidad">Complejidad Big-O</a></li>
+            </ul>
+        </div>
+        <div data-parte="3">
+            <p class="nav-group">Parte III · Heap vs BST</p>
+            <ul>
+                <li><a href="#vs-bst">Tabla comparativa</a></li>
+                <li><a href="#animacion">Animación: inserción en Heap y BST</a></li>
+            </ul>
+        </div>
+        <div data-parte="4">
+            <p class="nav-group">Parte IV · Heaps en Java</p>
+            <ul>
+                <li><a href="#generico">MinHeap&lt;T&gt; genérico</a></li>
+                <li><a href="#priority-queue">java.util.PriorityQueue</a></li>
+                <li><a href="#max-heap">Max-Heap: 3 formas</a></li>
+                <li><a href="#objetos">Objetos y Comparator</a></li>
+            </ul>
+        </div>
+        <div data-parte="5">
+            <p class="nav-group">Parte V · Algoritmos y Aplicaciones</p>
+            <ul>
+                <li><a href="#heapsort">HeapSort paso a paso</a></li>
+                <li><a href="#aplicaciones">Aplicaciones reales</a></li>
+                <li><a href="#hospital">Caso práctico: Cola de urgencias</a></li>
+            </ul>
+        </div>
+        <div data-parte="6">
+            <p class="nav-group">Parte VI · Cierre</p>
+            <ul>
+                <li><a href="#resumen">Resumen para repasar</a></li>
+                <li><a href="#refs">Referencias y archivos</a></li>
+            </ul>
+        </div>
     </div>
     <div class="nav-progress" id="progress-bar"></div>
 </nav>
+
+<!-- Barra del modo presentación (oculta fuera de él) -->
+<div class="pres-hud" id="pres-hud" hidden role="toolbar" aria-label="Controles de la presentación">
+    <div class="pres-barra" id="pres-barra"></div>
+    <button type="button" class="pres-nav" id="pres-prev" aria-label="Diapositiva anterior (←)">
+        <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="pres-info" aria-live="polite">
+        <span class="pres-parte" id="pres-parte"></span>
+        <span class="pres-titulo" id="pres-titulo"></span>
+        <span class="pres-paso" id="pres-paso"></span>
+    </div>
+    <span class="pres-num" id="pres-num"></span>
+    <button type="button" class="pres-nav" id="pres-next" aria-label="Diapositiva siguiente (→)">
+        <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="m6 3 5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <button type="button" class="pres-salir" id="pres-salir">Salir <kbd>Esc</kbd></button>
+</div>
+
+<main id="contenido">
 
 <!-- ═══════════════════════════════════════════════════════
      SLIDE 1: HERO
      ═══════════════════════════════════════════════════════ -->
 <section id="hero" class="hero">
     <div class="hero-badge">
-        📚 Estructuras de Datos — Compiladores 2026-2
+        📚 Estructuras de Datos — Compiladores 2027
     </div>
     <h1>
         <span class="gradient-text">Heaps</span><br>
@@ -1236,7 +2415,7 @@
 
     <div class="hero-visual">
         <div class="tree-container">
-            <svg class="tree-svg" width="480" height="260" viewBox="0 0 480 260">
+            <svg class="tree-svg" width="480" height="260" viewBox="0 0 480 260" role="img" aria-label="Min-Heap de ejemplo: raíz 5; hijos 10 y 15; debajo 20, 25, 30 y 35; y 40 bajo el 20. Vector: [5, 10, 15, 20, 25, 30, 35, 40].">
                 <!-- Edges -->
                 <line x1="240" y1="45" x2="140" y2="105" stroke="#7c3aed" stroke-width="2" opacity="0.5"/>
                 <line x1="240" y1="45" x2="340" y2="105" stroke="#7c3aed" stroke-width="2" opacity="0.5"/>
@@ -1249,39 +2428,39 @@
                 <!-- Nodes -->
                 <g class="tree-node">
                     <circle cx="240" cy="40" r="28" fill="#10b981" opacity="0.9"/>
-                    <text x="240" y="46" text-anchor="middle" fill="white" font-weight="700" font-size="16" font-family="JetBrains Mono">5</text>
+                    <text x="240" y="46" text-anchor="middle" fill="#0a0a0f" font-weight="700" font-size="16" font-family="JetBrains Mono">5</text>
                 </g>
                 <g class="tree-node">
                     <circle cx="140" cy="100" r="26" fill="#7c3aed" opacity="0.9"/>
-                    <text x="140" y="106" text-anchor="middle" fill="white" font-weight="600" font-size="15" font-family="JetBrains Mono">10</text>
+                    <text x="140" y="106" text-anchor="middle" fill="#fff" font-weight="600" font-size="15" font-family="JetBrains Mono">10</text>
                 </g>
                 <g class="tree-node">
                     <circle cx="340" cy="100" r="26" fill="#7c3aed" opacity="0.9"/>
-                    <text x="340" y="106" text-anchor="middle" fill="white" font-weight="600" font-size="15" font-family="JetBrains Mono">15</text>
+                    <text x="340" y="106" text-anchor="middle" fill="#fff" font-weight="600" font-size="15" font-family="JetBrains Mono">15</text>
                 </g>
                 <g class="tree-node">
                     <circle cx="80" cy="170" r="24" fill="#06b6d4" opacity="0.9"/>
-                    <text x="80" y="176" text-anchor="middle" fill="white" font-weight="600" font-size="14" font-family="JetBrains Mono">20</text>
+                    <text x="80" y="176" text-anchor="middle" fill="#0a0a0f" font-weight="600" font-size="14" font-family="JetBrains Mono">20</text>
                 </g>
                 <g class="tree-node">
                     <circle cx="200" cy="170" r="24" fill="#06b6d4" opacity="0.9"/>
-                    <text x="200" y="176" text-anchor="middle" fill="white" font-weight="600" font-size="14" font-family="JetBrains Mono">25</text>
+                    <text x="200" y="176" text-anchor="middle" fill="#0a0a0f" font-weight="600" font-size="14" font-family="JetBrains Mono">25</text>
                 </g>
                 <g class="tree-node">
                     <circle cx="280" cy="170" r="24" fill="#06b6d4" opacity="0.9"/>
-                    <text x="280" y="176" text-anchor="middle" fill="white" font-weight="600" font-size="14" font-family="JetBrains Mono">30</text>
+                    <text x="280" y="176" text-anchor="middle" fill="#0a0a0f" font-weight="600" font-size="14" font-family="JetBrains Mono">30</text>
                 </g>
                 <g class="tree-node">
                     <circle cx="400" cy="170" r="24" fill="#06b6d4" opacity="0.9"/>
-                    <text x="400" y="176" text-anchor="middle" fill="white" font-weight="600" font-size="14" font-family="JetBrains Mono">35</text>
+                    <text x="400" y="176" text-anchor="middle" fill="#0a0a0f" font-weight="600" font-size="14" font-family="JetBrains Mono">35</text>
                 </g>
                 <g class="tree-node">
                     <circle cx="50" cy="230" r="22" fill="#ec4899" opacity="0.9"/>
-                    <text x="50" y="236" text-anchor="middle" fill="white" font-weight="600" font-size="13" font-family="JetBrains Mono">40</text>
+                    <text x="50" y="236" text-anchor="middle" fill="#0a0a0f" font-weight="600" font-size="13" font-family="JetBrains Mono">40</text>
                 </g>
 
                 <!-- Label -->
-                <text x="440" y="42" fill="#10b981" font-size="11" font-family="Inter" font-weight="600">← Raíz (Min)</text>
+                <text x="274" y="36" fill="#10b981" font-size="14" font-family="Inter" font-weight="600">← Raíz (Min)</text>
             </svg>
         </div>
     </div>
@@ -1300,7 +2479,7 @@
     <div class="agenda-grid">
         <div class="agenda-card">
             <div class="part-tag">Parte I</div>
-            <h3>🧱 Fundamentos</h3>
+            <h3><span aria-hidden="true">🧱</span> Fundamentos</h3>
             <ul>
                 <li><a href="#que-es">¿Qué es un Heap?</a></li>
                 <li><a href="#tipos">Min-Heap vs Max-Heap</a></li>
@@ -1309,29 +2488,29 @@
         </div>
         <div class="agenda-card">
             <div class="part-tag">Parte II</div>
-            <h3>⚙️ Operaciones y Complejidad</h3>
+            <h3><span aria-hidden="true">⚙️</span> Operaciones y Complejidad</h3>
             <ul>
-                <li><a href="#operaciones">Insert / Extract (Sift Up & Down)</a></li>
+                <li><a href="#operaciones">Insertar y extraer (Sift-Up y Sift-Down)</a></li>
                 <li><a href="#insercion">Construcción nodo a nodo (fórmulas)</a></li>
                 <li><a href="#interactivo">Inserción interactiva (pruébalo tú)</a></li>
+                <li><a href="#vector">El vector no queda ordenado</a></li>
                 <li><a href="#eliminacion">Eliminación nodo a nodo (fórmulas)</a></li>
                 <li><a href="#eliminar">Eliminación interactiva (uno a uno)</a></li>
-                <li><a href="#vector">El vector resultante y su orden</a></li>
-                <li><a href="#animacion">Animación de inserción</a></li>
                 <li><a href="#complejidad">Complejidad Big-O</a></li>
             </ul>
         </div>
         <div class="agenda-card">
             <div class="part-tag">Parte III</div>
-            <h3>🌲 Heap vs BST</h3>
+            <h3><span aria-hidden="true">🌲</span> Heap vs BST</h3>
             <ul>
                 <li><a href="#vs-bst">Tabla comparativa</a></li>
-                <li><a href="#vs-bst">¿Cuándo usar cada uno?</a></li>
+                <li><a href="#vs-bst-cuando">¿Cuándo usar cada uno?</a></li>
+                <li><a href="#animacion">Animación: inserción en Heap y BST</a></li>
             </ul>
         </div>
         <div class="agenda-card">
             <div class="part-tag">Parte IV</div>
-            <h3>☕ Heaps en Java</h3>
+            <h3><span aria-hidden="true">☕</span> Heaps en Java</h3>
             <ul>
                 <li><a href="#generico">MinHeap&lt;T&gt; genérico</a></li>
                 <li><a href="#priority-queue">java.util.PriorityQueue</a></li>
@@ -1341,7 +2520,7 @@
         </div>
         <div class="agenda-card">
             <div class="part-tag">Parte V</div>
-            <h3>🚀 Algoritmos y Aplicaciones</h3>
+            <h3><span aria-hidden="true">🚀</span> Algoritmos y Aplicaciones</h3>
             <ul>
                 <li><a href="#heapsort">HeapSort paso a paso</a></li>
                 <li><a href="#aplicaciones">Aplicaciones reales</a></li>
@@ -1350,10 +2529,11 @@
         </div>
         <div class="agenda-card">
             <div class="part-tag">Parte VI</div>
-            <h3>📚 Cierre</h3>
+            <h3><span aria-hidden="true">📚</span> Cierre</h3>
             <ul>
+                <li><a href="#resumen">Resumen para repasar</a></li>
                 <li><a href="#refs">Referencias y recursos</a></li>
-                <li><a href="#refs">Archivos del proyecto</a></li>
+                <li><a href="#archivos">Archivos del proyecto</a></li>
             </ul>
         </div>
     </div>
@@ -1373,17 +2553,17 @@
 
     <div class="card-grid">
         <div class="card">
-            <div class="card-icon">🌳</div>
+            <div class="card-icon"><span aria-hidden="true">🌳</span></div>
             <h3>Árbol Binario Completo</h3>
             <p>Todos los niveles están llenos excepto posiblemente el último, que se llena de <strong>izquierda a derecha</strong>. Esto garantiza una representación eficiente por arreglo.</p>
         </div>
         <div class="card">
-            <div class="card-icon">📏</div>
+            <div class="card-icon"><span aria-hidden="true">📏</span></div>
             <h3>Propiedad del Heap</h3>
             <p>Cada nodo padre tiene una relación de orden con sus hijos. En un <strong>Min-Heap</strong>, el padre ≤ hijos. En un <strong>Max-Heap</strong>, el padre ≥ hijos.</p>
         </div>
         <div class="card">
-            <div class="card-icon">⚡</div>
+            <div class="card-icon"><span aria-hidden="true">⚡</span></div>
             <h3>Acceso O(1) al extremo</h3>
             <p>La raíz siempre contiene el <strong>mínimo</strong> (Min-Heap) o el <strong>máximo</strong> (Max-Heap). Acceder a este valor es instantáneo.</p>
         </div>
@@ -1407,9 +2587,9 @@
 
     <div class="split">
         <div>
-            <h3 style="color: var(--accent-green-light); margin-bottom: 1rem;">🔽 Min-Heap</h3>
+            <h3 style="color: var(--accent-green-light); margin-bottom: 1rem;"><span aria-hidden="true">🔽</span> Min-Heap</h3>
             <div class="tree-container" style="width: 100%;">
-                <svg class="tree-svg" width="300" height="180" viewBox="0 0 300 180">
+                <svg class="tree-svg" width="300" height="180" viewBox="0 0 300 180" role="img" aria-label="Min-Heap: raíz 1; hijos 3 y 5; 7 y 9 bajo el 3; 8 bajo el 5.">
                     <line x1="150" y1="38" x2="80" y2="88" stroke="#10b981" stroke-width="2" opacity="0.5"/>
                     <line x1="150" y1="38" x2="220" y2="88" stroke="#10b981" stroke-width="2" opacity="0.5"/>
                     <line x1="80" y1="88" x2="45" y2="148" stroke="#10b981" stroke-width="2" opacity="0.5"/>
@@ -1417,22 +2597,22 @@
                     <line x1="220" y1="88" x2="185" y2="148" stroke="#10b981" stroke-width="2" opacity="0.5"/>
 
                     <circle cx="150" cy="35" r="24" fill="#10b981"/>
-                    <text x="150" y="41" text-anchor="middle" fill="white" font-weight="700" font-size="15" font-family="JetBrains Mono">1</text>
+                    <text x="150" y="41" text-anchor="middle" fill="#0a0a0f" font-weight="700" font-size="15" font-family="JetBrains Mono">1</text>
 
                     <circle cx="80" cy="85" r="22" fill="#10b981" opacity="0.7"/>
-                    <text x="80" y="91" text-anchor="middle" fill="white" font-weight="600" font-size="14" font-family="JetBrains Mono">3</text>
+                    <text x="80" y="91" text-anchor="middle" fill="#0a0a0f" font-weight="600" font-size="14" font-family="JetBrains Mono">3</text>
 
                     <circle cx="220" cy="85" r="22" fill="#10b981" opacity="0.7"/>
-                    <text x="220" y="91" text-anchor="middle" fill="white" font-weight="600" font-size="14" font-family="JetBrains Mono">5</text>
+                    <text x="220" y="91" text-anchor="middle" fill="#0a0a0f" font-weight="600" font-size="14" font-family="JetBrains Mono">5</text>
 
                     <circle cx="45" cy="145" r="20" fill="#10b981" opacity="0.5"/>
-                    <text x="45" y="151" text-anchor="middle" fill="white" font-weight="600" font-size="13" font-family="JetBrains Mono">7</text>
+                    <text x="45" y="151" text-anchor="middle" fill="#fff" font-weight="600" font-size="13" font-family="JetBrains Mono">7</text>
 
                     <circle cx="115" cy="145" r="20" fill="#10b981" opacity="0.5"/>
-                    <text x="115" y="151" text-anchor="middle" fill="white" font-weight="600" font-size="13" font-family="JetBrains Mono">9</text>
+                    <text x="115" y="151" text-anchor="middle" fill="#fff" font-weight="600" font-size="13" font-family="JetBrains Mono">9</text>
 
                     <circle cx="185" cy="145" r="20" fill="#10b981" opacity="0.5"/>
-                    <text x="185" y="151" text-anchor="middle" fill="white" font-weight="600" font-size="13" font-family="JetBrains Mono">8</text>
+                    <text x="185" y="151" text-anchor="middle" fill="#fff" font-weight="600" font-size="13" font-family="JetBrains Mono">8</text>
                 </svg>
             </div>
             <p style="color: var(--text-secondary); margin-top: 1rem; font-size: 0.95rem;">
@@ -1442,9 +2622,9 @@
         </div>
 
         <div>
-            <h3 style="color: var(--accent-red); margin-bottom: 1rem;">🔼 Max-Heap</h3>
+            <h3 style="color: var(--accent-red); margin-bottom: 1rem;"><span aria-hidden="true">🔼</span> Max-Heap</h3>
             <div class="tree-container" style="width: 100%;">
-                <svg class="tree-svg" width="300" height="180" viewBox="0 0 300 180">
+                <svg class="tree-svg" width="300" height="180" viewBox="0 0 300 180" role="img" aria-label="Max-Heap: raíz 9; hijos 7 y 8; 3 y 5 bajo el 7; 1 bajo el 8.">
                     <line x1="150" y1="38" x2="80" y2="88" stroke="#ef4444" stroke-width="2" opacity="0.5"/>
                     <line x1="150" y1="38" x2="220" y2="88" stroke="#ef4444" stroke-width="2" opacity="0.5"/>
                     <line x1="80" y1="88" x2="45" y2="148" stroke="#ef4444" stroke-width="2" opacity="0.5"/>
@@ -1452,22 +2632,22 @@
                     <line x1="220" y1="88" x2="185" y2="148" stroke="#ef4444" stroke-width="2" opacity="0.5"/>
 
                     <circle cx="150" cy="35" r="24" fill="#ef4444"/>
-                    <text x="150" y="41" text-anchor="middle" fill="white" font-weight="700" font-size="15" font-family="JetBrains Mono">9</text>
+                    <text x="150" y="41" text-anchor="middle" fill="#0a0a0f" font-weight="700" font-size="15" font-family="JetBrains Mono">9</text>
 
                     <circle cx="80" cy="85" r="22" fill="#ef4444" opacity="0.7"/>
-                    <text x="80" y="91" text-anchor="middle" fill="white" font-weight="600" font-size="14" font-family="JetBrains Mono">7</text>
+                    <text x="80" y="91" text-anchor="middle" fill="#fff" font-weight="600" font-size="14" font-family="JetBrains Mono">7</text>
 
                     <circle cx="220" cy="85" r="22" fill="#ef4444" opacity="0.7"/>
-                    <text x="220" y="91" text-anchor="middle" fill="white" font-weight="600" font-size="14" font-family="JetBrains Mono">8</text>
+                    <text x="220" y="91" text-anchor="middle" fill="#fff" font-weight="600" font-size="14" font-family="JetBrains Mono">8</text>
 
                     <circle cx="45" cy="145" r="20" fill="#ef4444" opacity="0.5"/>
-                    <text x="45" y="151" text-anchor="middle" fill="white" font-weight="600" font-size="13" font-family="JetBrains Mono">3</text>
+                    <text x="45" y="151" text-anchor="middle" fill="#fff" font-weight="600" font-size="13" font-family="JetBrains Mono">3</text>
 
                     <circle cx="115" cy="145" r="20" fill="#ef4444" opacity="0.5"/>
-                    <text x="115" y="151" text-anchor="middle" fill="white" font-weight="600" font-size="13" font-family="JetBrains Mono">5</text>
+                    <text x="115" y="151" text-anchor="middle" fill="#fff" font-weight="600" font-size="13" font-family="JetBrains Mono">5</text>
 
                     <circle cx="185" cy="145" r="20" fill="#ef4444" opacity="0.5"/>
-                    <text x="185" y="151" text-anchor="middle" fill="white" font-weight="600" font-size="13" font-family="JetBrains Mono">1</text>
+                    <text x="185" y="151" text-anchor="middle" fill="#fff" font-weight="600" font-size="13" font-family="JetBrains Mono">1</text>
                 </svg>
             </div>
             <p style="color: var(--text-secondary); margin-top: 1rem; font-size: 0.95rem;">
@@ -1516,7 +2696,7 @@
     </div>
 
     <div class="highlight-box green" style="margin-top: 1.5rem;">
-        <strong>Ejemplo:</strong> Para el nodo en índice <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.1rem 0.4rem; border-radius: 4px;">2</code> (valor 15):
+        <strong>Ejemplo:</strong> Para el nodo en índice <code class="code-chip">2</code> (valor 15):
         <br>• Padre: (2-1)/2 = <strong>0</strong> (valor 5) ✓
         <br>• Hijo izq: 2×2+1 = <strong>5</strong> (valor 30) ✓
         <br>• Hijo der: 2×2+2 = <strong>6</strong> (valor 35) ✓
@@ -1536,7 +2716,8 @@
 
     <div class="split">
         <div>
-            <h3 style="margin-bottom: 1.5rem;">⬆️ Insert (Sift Up)</h3>
+            <h3 style="margin-bottom: 0.5rem;"><span aria-hidden="true">⬆️</span> Insertar (Sift-Up)</h3>
+            <p class="step-note" style="margin-bottom: 1.25rem;"><strong>Sift-Up</strong> («hacer flotar»): el elemento nuevo sube intercambiándose con su padre mientras sea más prioritario que él.</p>
             <ol class="step-list">
                 <li>Agregar el nuevo elemento al <strong>final</strong> del arreglo.</li>
                 <li>Comparar con su <strong>padre</strong>.</li>
@@ -1550,7 +2731,8 @@
         </div>
 
         <div>
-            <h3 style="margin-bottom: 1.5rem;">⬇️ Extract (Sift Down)</h3>
+            <h3 style="margin-bottom: 0.5rem;"><span aria-hidden="true">⬇️</span> Extraer la raíz (Sift-Down)</h3>
+            <p class="step-note" style="margin-bottom: 1.25rem;"><strong>Sift-Down</strong> («hundir»): el elemento que quedó en la raíz baja intercambiándose con su hijo más prioritario hasta que ningún hijo lo supere.</p>
             <ol class="step-list">
                 <li>Guardar el valor de la <strong>raíz</strong> (min o max).</li>
                 <li>Reemplazar la raíz con el <strong>último</strong> elemento.</li>
@@ -1576,7 +2758,7 @@
         <div class="section-number">05 — Inserción nodo a nodo</div>
         <h2>Construcción <span class="gradient-text">nodo a nodo</span> con las fórmulas</h2>
         <p>Insertamos la secuencia <strong>15, 10, 30, 5, 20</strong> en un Min-Heap.
-           En cada paso aplicamos la fórmula <code style="color: var(--accent-cyan-light);">padre = (i − 1) / 2</code> para decidir si el nuevo elemento sube (Sift-Up).</p>
+           En cada paso aplicamos la fórmula <code class="code-cyan">padre = (i − 1) / 2</code> para decidir si el nuevo elemento sube (Sift-Up).</p>
     </div>
 
     <!-- Leyenda de colores de las celdas -->
@@ -1656,7 +2838,7 @@
 
     <div class="highlight-box green" style="margin-top: 1.5rem;">
         <strong>💡 Observa:</strong> el elemento insertado solo se compara con sus <em>ancestros</em>, calculados con
-        <code style="color: var(--accent-green-light);">(i − 1) / 2</code>. Por eso una inserción hace a lo sumo
+        <code class="code-green">(i − 1) / 2</code>. Por eso una inserción hace a lo sumo
         <strong>log n</strong> comparaciones: la altura del árbol.
     </div>
 </section>
@@ -1670,28 +2852,50 @@
         <div class="part-label">Parte II — Operaciones</div>
         <div class="section-number">06 — Inserción interactiva</div>
         <h2>Pruébalo tú: <span class="gradient-text">elige el nodo</span> a insertar</h2>
-        <p>Escribe un valor y observa en vivo el Sift-Up: la fórmula <code style="color: var(--accent-cyan-light);">padre = (i − 1) / 2</code>,
+        <p>Escribe un valor y observa en vivo el Sift-Up: la fórmula <code class="code-cyan">padre = (i − 1) / 2</code>,
            cada comparación y cómo quedan el árbol y el vector. El heap inicia <strong>vacío</strong>: constrúyelo tú desde cero.</p>
     </div>
 
     <div class="ih-controls">
-        <input type="number" id="ih-input" class="ih-input" min="0" max="999" placeholder="Valor" aria-label="Valor a insertar">
+        <input type="text" id="ih-input" class="ih-input" inputmode="numeric" maxlength="3" autocomplete="off" placeholder="Valor" aria-label="Valor a insertar" aria-describedby="ih-msg">
         <button id="ih-insert-btn" class="ih-btn" onclick="ihInsert()">⬆️ Insertar</button>
         <button id="ih-reset-btn" class="ih-btn secondary" onclick="ihReset()">↺ Reiniciar</button>
+    </div>
+    <p id="ih-msg" class="ih-msg" aria-live="polite">Enteros de 0 a 999 · Enter también inserta</p>
+
+    <div class="vz-playback" role="group" aria-label="Reproducción de la inserción">
+        <label class="vz-toggle"><input type="checkbox" id="ih-paso"> Paso a paso</label>
+        <button type="button" id="ih-next" class="ih-btn vz-next" hidden disabled>Siguiente paso →</button>
+        <div class="vz-speed" role="radiogroup" aria-label="Velocidad">
+            <label><input type="radio" name="ih-vel" value="0.5"><span>Lenta</span></label>
+            <label><input type="radio" name="ih-vel" value="1" checked><span>Normal</span></label>
+            <label><input type="radio" name="ih-vel" value="2"><span>Rápida</span></label>
+        </div>
     </div>
 
     <div class="split">
         <div>
-            <h3 style="margin-bottom: 1rem;">🌳 Árbol (Min-Heap)</h3>
+            <h3 style="margin-bottom: 1rem;"><span aria-hidden="true">🌳</span> Árbol (Min-Heap)</h3>
+            <noscript><p class="ih-msg err" style="margin: 0 0 1rem;">Esta demo necesita JavaScript activado. Los ejemplos paso a paso de esta misma parte muestran el mismo proceso sin él.</p></noscript>
             <div class="anim-container">
-                <svg id="ih-svg" width="480" height="310" viewBox="0 0 480 310"></svg>
+                <svg id="ih-svg" width="480" height="310" viewBox="0 0 480 310" role="img" aria-label="Árbol del Min-Heap que estás construyendo"></svg>
+            </div>
+            <div class="cell-legend vz-legend">
+                <span><span class="swatch" style="background: #f59e0b;"></span>Nodo que se mueve</span>
+                <span><span class="swatch" style="background: #06b6d4;"></span>Nodo con el que se compara</span>
+                <span><span class="swatch" style="background: #10b981;"></span>Nodo en su lugar</span>
             </div>
         </div>
         <div>
-            <h3 style="margin-bottom: 1rem;">📦 Vector y cálculos</h3>
+            <h3 style="margin-bottom: 1rem;"><span aria-hidden="true">📦</span> Vector y cálculos</h3>
             <div id="ih-array" class="array-visual" style="justify-content: flex-start; margin-top: 1.5rem; margin-bottom: 2rem;"></div>
-            <div id="ih-log" class="ih-log">
-                <span class="calc">Esperando inserción… escribe un valor y presiona «Insertar».</span>
+            <p id="ih-rel" class="vz-rel"></p>
+            <div class="vz-log-head">
+                <span>Registro de pasos</span>
+                <button type="button" id="ih-clear" class="vz-link-btn">Limpiar registro</button>
+            </div>
+            <div id="ih-log" class="ih-log" role="log">
+                <span class="calc" data-placeholder>Esperando inserción… escribe un valor y presiona «Insertar».</span>
             </div>
         </div>
     </div>
@@ -1705,16 +2909,72 @@
 
 <!-- ═══════════════════════════════════════════════════════
      PARTE II — OPERACIONES Y COMPLEJIDAD
+     SLIDE 9: EL VECTOR RESULTANTE — ¿POR QUÉ NO QUEDA ORDENADO?
+     ═══════════════════════════════════════════════════════ -->
+<section id="vector" class="animate-on-scroll">
+    <div class="section-header">
+        <div class="part-label">Parte II — Operaciones</div>
+        <div class="section-number">07 — El vector resultante</div>
+        <h2>El vector generado: ¿por qué <span class="gradient-text">no queda en orden</span>?</h2>
+        <p>Después de las 5 inserciones, el heap guarda internamente este arreglo. Es un heap válido… pero no está ordenado.</p>
+    </div>
+
+    <div class="split">
+        <div>
+            <h3 style="margin-bottom: 1rem;"><span aria-hidden="true">🌳</span> El árbol que construimos</h3>
+            <div class="anim-container">
+                <svg width="360" height="240" viewBox="0 0 360 240" role="img" aria-label="Árbol construido: raíz 5; hijos 10 y 30; 15 y 20 bajo el 10. Vector: [5, 10, 30, 15, 20].">
+                    <line x1="180" y1="40" x2="100" y2="120" stroke="#10b981" stroke-width="2"/>
+                    <line x1="180" y1="40" x2="260" y2="120" stroke="#10b981" stroke-width="2"/>
+                    <line x1="100" y1="120" x2="55" y2="200" stroke="#10b981" stroke-width="2"/>
+                    <line x1="100" y1="120" x2="145" y2="200" stroke="#10b981" stroke-width="2"/>
+
+                    <g transform="translate(180,40)"><circle r="20" fill="#10b981"/><text y="5" text-anchor="middle" fill="#0a0a0f" font-family="JetBrains Mono" font-size="14" font-weight="bold">5</text><text y="-28" text-anchor="middle" fill="#64748b" font-family="JetBrains Mono" font-size="10">i=0</text></g>
+                    <g transform="translate(100,120)"><circle r="20" fill="#10b981"/><text y="5" text-anchor="middle" fill="#0a0a0f" font-family="JetBrains Mono" font-size="14" font-weight="bold">10</text><text y="-28" text-anchor="middle" fill="#64748b" font-family="JetBrains Mono" font-size="10">i=1</text></g>
+                    <g transform="translate(260,120)"><circle r="20" fill="#f59e0b"/><text y="5" text-anchor="middle" fill="#0a0a0f" font-family="JetBrains Mono" font-size="14" font-weight="bold">30</text><text y="-28" text-anchor="middle" fill="#64748b" font-family="JetBrains Mono" font-size="10">i=2</text></g>
+                    <g transform="translate(55,200)"><circle r="20" fill="#f59e0b"/><text y="5" text-anchor="middle" fill="#0a0a0f" font-family="JetBrains Mono" font-size="14" font-weight="bold">15</text><text y="32" text-anchor="middle" fill="#64748b" font-family="JetBrains Mono" font-size="10">i=3</text></g>
+                    <g transform="translate(145,200)"><circle r="20" fill="#10b981"/><text y="5" text-anchor="middle" fill="#0a0a0f" font-family="JetBrains Mono" font-size="14" font-weight="bold">20</text><text y="32" text-anchor="middle" fill="#64748b" font-family="JetBrains Mono" font-size="10">i=4</text></g>
+                </svg>
+            </div>
+        </div>
+        <div>
+            <h3 style="margin-bottom: 1rem;"><span aria-hidden="true">📦</span> El vector que genera (recorrido por niveles)</h3>
+            <div class="array-visual" style="margin-top: 2rem;">
+                <div class="array-cell root">5<span class="idx">0</span></div>
+                <div class="array-cell">10<span class="idx">1</span></div>
+                <div class="array-cell warn">30<span class="idx">2</span></div>
+                <div class="array-cell warn">15<span class="idx">3</span></div>
+                <div class="array-cell">20<span class="idx">4</span></div>
+            </div>
+            <div class="highlight-box red" style="margin-top: 2.5rem;">
+                <strong>⚠️ ¡30 aparece antes que 15!</strong> El arreglo <strong>no</strong> está ordenado y eso <strong>no es un error</strong>:
+                la propiedad del heap solo compara <em>padre ↔ hijo</em> (5 ≤ 30 ✓ y 10 ≤ 15 ✓).
+                Nunca compara posiciones consecutivas del arreglo ni hermanos entre sí — 30 (i=2) y 15 (i=3) están en <em>ramas distintas</em>.
+                Lo único garantizado es que <code class="code-red">arr[0]</code> es el mínimo.
+            </div>
+        </div>
+    </div>
+
+    <div class="highlight-box green" style="margin-top: 2.5rem;">
+        <strong>🔄 Entonces, ¿cómo se obtiene el orden?</strong> Extrayendo la raíz una y otra vez: cada <code>poll()</code> entrega el mínimo actual
+        y el heap se reorganiza en O(log n). El heap <em>no ordena al construirse — ordena al extraer</em>; esa es la idea de
+        <a href="#heapsort" style="color: var(--accent-green-light);">HeapSort</a>, con costo total n × O(log n) = <strong>O(n log n)</strong>.
+        La siguiente sección lo hace paso a paso con este mismo vector.
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     PARTE II — OPERACIONES Y COMPLEJIDAD
      SLIDE 8B: ELIMINACIÓN NODO A NODO (USO DE LAS FÓRMULAS)
      ═══════════════════════════════════════════════════════ -->
 <section id="eliminacion" class="animate-on-scroll">
     <div class="section-header">
         <div class="part-label">Parte II — Operaciones</div>
-        <div class="section-number">07 — Eliminación nodo a nodo</div>
+        <div class="section-number">08 — Eliminación nodo a nodo</div>
         <h2>Eliminación <span class="gradient-text">nodo a nodo</span> con las fórmulas</h2>
         <p>Partimos del heap del ejemplo de inserción: <strong>[5, 10, 30, 15, 20]</strong>.
-           En cada <code style="color: var(--accent-cyan-light);">poll()</code> se extrae la raíz (el mínimo), el <strong>último</strong> elemento
-           del vector pasa a la raíz y baja aplicando la fórmula <code style="color: var(--accent-cyan-light);">hijos = 2i + 1 y 2i + 2</code> (Sift-Down).</p>
+           En cada <code class="code-cyan">poll()</code> se extrae la raíz (el mínimo), el <strong>último</strong> elemento
+           del vector pasa a la raíz y baja aplicando la fórmula <code class="code-cyan">hijos = 2i + 1 y 2i + 2</code> (Sift-Down).</p>
     </div>
 
     <!-- Leyenda de colores de las celdas -->
@@ -1796,7 +3056,7 @@
 
     <div class="highlight-box green" style="margin-top: 1.5rem;">
         <strong>💡 Observa:</strong> el reemplazo solo se compara con el <em>menor de sus hijos</em>, calculados con
-        <code style="color: var(--accent-green-light);">2i + 1</code> y <code style="color: var(--accent-green-light);">2i + 2</code>.
+        <code class="code-green">2i + 1</code> y <code class="code-green">2i + 2</code>.
         Por eso una eliminación hace a lo sumo <strong>log n</strong> comparaciones. Y como cada poll() entrega el mínimo,
         eliminar <strong>uno a uno</strong> produce la secuencia ordenada: esa es la idea de <strong>HeapSort</strong>.
     </div>
@@ -1809,30 +3069,52 @@
 <section id="eliminar" class="animate-on-scroll">
     <div class="section-header">
         <div class="part-label">Parte II — Operaciones</div>
-        <div class="section-number">08 — Eliminación interactiva</div>
+        <div class="section-number">09 — Eliminación interactiva</div>
         <h2>Pruébalo tú: <span class="gradient-text">elimina la raíz</span> uno a uno</h2>
-        <p>Cada <code style="color: var(--accent-cyan-light);">poll()</code> extrae el mínimo: el último elemento del vector
-           sube a la raíz y desciende con Sift-Down usando <code style="color: var(--accent-cyan-light);">hijos = 2i + 1 y 2i + 2</code>.
+        <p>Cada <code class="code-cyan">poll()</code> (el método de <code class="code-cyan">PriorityQueue</code> que saca la raíz) extrae el mínimo: el último elemento del vector
+           sube a la raíz y desciende con Sift-Down usando <code class="code-cyan">hijos = 2i + 1 y 2i + 2</code>.
            Observa cada comparación y cómo quedan el árbol y el vector.</p>
     </div>
 
     <div class="ih-controls">
         <button id="eh-poll-btn" class="ih-btn" onclick="ehPoll()">⬇️ Eliminar raíz (poll)</button>
         <button id="eh-reset-btn" class="ih-btn secondary" onclick="ehReset()">↺ Reiniciar</button>
+        <button id="eh-usar" class="ih-btn secondary" onclick="ehUsarConstruido()" disabled>Usar el heap que construí</button>
+    </div>
+
+    <div class="vz-playback" role="group" aria-label="Reproducción de la eliminación">
+        <label class="vz-toggle"><input type="checkbox" id="eh-paso"> Paso a paso</label>
+        <button type="button" id="eh-next" class="ih-btn vz-next" hidden disabled>Siguiente paso →</button>
+        <div class="vz-speed" role="radiogroup" aria-label="Velocidad">
+            <label><input type="radio" name="eh-vel" value="0.5"><span>Lenta</span></label>
+            <label><input type="radio" name="eh-vel" value="1" checked><span>Normal</span></label>
+            <label><input type="radio" name="eh-vel" value="2"><span>Rápida</span></label>
+        </div>
     </div>
 
     <div class="split">
         <div>
-            <h3 style="margin-bottom: 1rem;">🌳 Árbol (Min-Heap)</h3>
+            <h3 style="margin-bottom: 1rem;"><span aria-hidden="true">🌳</span> Árbol (Min-Heap)</h3>
+            <noscript><p class="ih-msg err" style="margin: 0 0 1rem;">Esta demo necesita JavaScript activado. Los ejemplos paso a paso de esta misma parte muestran el mismo proceso sin él.</p></noscript>
             <div class="anim-container">
-                <svg id="eh-svg" width="480" height="310" viewBox="0 0 480 310"></svg>
+                <svg id="eh-svg" width="480" height="310" viewBox="0 0 480 310" role="img" aria-label="Árbol del Min-Heap del que se extrae la raíz"></svg>
+            </div>
+            <div class="cell-legend vz-legend">
+                <span><span class="swatch" style="background: #f59e0b;"></span>Nodo que se mueve</span>
+                <span><span class="swatch" style="background: #06b6d4;"></span>Nodo con el que se compara</span>
+                <span><span class="swatch" style="background: #10b981;"></span>Nodo en su lugar</span>
             </div>
         </div>
         <div>
-            <h3 style="margin-bottom: 1rem;">📦 Vector y cálculos</h3>
+            <h3 style="margin-bottom: 1rem;"><span aria-hidden="true">📦</span> Vector y cálculos</h3>
             <div id="eh-array" class="array-visual" style="justify-content: flex-start; margin-top: 1.5rem; margin-bottom: 2rem;"></div>
-            <div id="eh-log" class="ih-log">
-                <span class="calc">Esperando… presiona «Eliminar raíz» para extraer el mínimo.</span>
+            <p id="eh-rel" class="vz-rel"></p>
+            <div class="vz-log-head">
+                <span>Registro de pasos</span>
+                <button type="button" id="eh-clear" class="vz-link-btn">Limpiar registro</button>
+            </div>
+            <div id="eh-log" class="ih-log" role="log">
+                <span class="calc" data-placeholder>Esperando… presiona «Eliminar raíz» para extraer el mínimo.</span>
             </div>
         </div>
     </div>
@@ -1840,185 +3122,7 @@
     <div class="highlight-box" style="margin-top: 1.5rem;">
         <strong>💡 Sugerencia:</strong> elimina los 9 nodos <strong>uno a uno</strong> y fíjate en la lista de extraídos:
         siempre sale el mínimo, así que el resultado queda <strong>ordenado ascendentemente</strong>.
-        Esa es exactamente la idea detrás de <strong>HeapSort</strong>.
-    </div>
-</section>
-
-<!-- ═══════════════════════════════════════════════════════
-     PARTE II — OPERACIONES Y COMPLEJIDAD
-     SLIDE 9: EL VECTOR RESULTANTE — ¿POR QUÉ NO QUEDA ORDENADO?
-     ═══════════════════════════════════════════════════════ -->
-<section id="vector" class="animate-on-scroll">
-    <div class="section-header">
-        <div class="part-label">Parte II — Operaciones</div>
-        <div class="section-number">09 — El vector resultante</div>
-        <h2>El vector generado: ¿por qué <span class="gradient-text">no queda en orden</span>?</h2>
-        <p>Después de las 5 inserciones, el heap guarda internamente este arreglo. Es un heap válido… pero no está ordenado.</p>
-    </div>
-
-    <div class="split">
-        <div>
-            <h3 style="margin-bottom: 1rem;">🌳 El árbol que construimos</h3>
-            <div class="anim-container">
-                <svg width="360" height="240" viewBox="0 0 360 240">
-                    <line x1="180" y1="40" x2="100" y2="120" stroke="#10b981" stroke-width="2"/>
-                    <line x1="180" y1="40" x2="260" y2="120" stroke="#10b981" stroke-width="2"/>
-                    <line x1="100" y1="120" x2="55" y2="200" stroke="#10b981" stroke-width="2"/>
-                    <line x1="100" y1="120" x2="145" y2="200" stroke="#10b981" stroke-width="2"/>
-
-                    <g transform="translate(180,40)"><circle r="20" fill="#10b981"/><text y="5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="14" font-weight="bold">5</text><text y="-28" text-anchor="middle" fill="#64748b" font-family="JetBrains Mono" font-size="10">i=0</text></g>
-                    <g transform="translate(100,120)"><circle r="20" fill="#10b981"/><text y="5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="14" font-weight="bold">10</text><text y="-28" text-anchor="middle" fill="#64748b" font-family="JetBrains Mono" font-size="10">i=1</text></g>
-                    <g transform="translate(260,120)"><circle r="20" fill="#f59e0b"/><text y="5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="14" font-weight="bold">30</text><text y="-28" text-anchor="middle" fill="#64748b" font-family="JetBrains Mono" font-size="10">i=2</text></g>
-                    <g transform="translate(55,200)"><circle r="20" fill="#f59e0b"/><text y="5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="14" font-weight="bold">15</text><text y="32" text-anchor="middle" fill="#64748b" font-family="JetBrains Mono" font-size="10">i=3</text></g>
-                    <g transform="translate(145,200)"><circle r="20" fill="#10b981"/><text y="5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="14" font-weight="bold">20</text><text y="32" text-anchor="middle" fill="#64748b" font-family="JetBrains Mono" font-size="10">i=4</text></g>
-                </svg>
-            </div>
-        </div>
-        <div>
-            <h3 style="margin-bottom: 1rem;">📦 El vector que genera (recorrido por niveles)</h3>
-            <div class="array-visual" style="margin-top: 2rem;">
-                <div class="array-cell root">5<span class="idx">0</span></div>
-                <div class="array-cell">10<span class="idx">1</span></div>
-                <div class="array-cell warn">30<span class="idx">2</span></div>
-                <div class="array-cell warn">15<span class="idx">3</span></div>
-                <div class="array-cell">20<span class="idx">4</span></div>
-            </div>
-            <div class="highlight-box red" style="margin-top: 2.5rem;">
-                <strong>⚠️ ¡30 aparece antes que 15!</strong> El arreglo <strong>no</strong> está ordenado y eso <strong>no es un error</strong>:
-                la propiedad del heap solo compara <em>padre ↔ hijo</em> (5 ≤ 30 ✓ y 10 ≤ 15 ✓).
-                Nunca compara posiciones consecutivas del arreglo ni hermanos entre sí — 30 (i=2) y 15 (i=3) están en <em>ramas distintas</em>.
-                Lo único garantizado es que <code style="color: var(--accent-red);">arr[0]</code> es el mínimo.
-            </div>
-        </div>
-    </div>
-
-    <h3 style="margin-top: 2.5rem; margin-bottom: 1rem;">🔄 Entonces, ¿cómo obtenemos el orden? Extrayendo la raíz repetidamente</h3>
-    <div class="split">
-        <div>
-            <ol class="step-list">
-                <li><code>extractMin()</code> → <strong>5</strong> · el último (20) sube a la raíz y se hunde (Sift-Down) → heap: [10, 15, 30, 20]</li>
-                <li><code>extractMin()</code> → <strong>10</strong> → heap: [15, 20, 30]</li>
-                <li><code>extractMin()</code> → <strong>15</strong> → heap: [20, 30]</li>
-                <li><code>extractMin()</code> → <strong>20</strong> → heap: [30]</li>
-                <li><code>extractMin()</code> → <strong>30</strong> → heap vacío ✓</li>
-            </ol>
-        </div>
-        <div>
-            <p style="text-align: center; color: var(--text-secondary); margin-bottom: 0.5rem;">Salida de las extracciones sucesivas:</p>
-            <div class="array-visual" style="margin-top: 1.5rem;">
-                <div class="array-cell sorted">5<span class="idx">1º</span></div>
-                <div class="array-cell sorted">10<span class="idx">2º</span></div>
-                <div class="array-cell sorted">15<span class="idx">3º</span></div>
-                <div class="array-cell sorted">20<span class="idx">4º</span></div>
-                <div class="array-cell sorted">30<span class="idx">5º</span></div>
-            </div>
-            <div class="highlight-box green" style="margin-top: 2.5rem;">
-                <strong>✅ Ahora sí está ordenado.</strong> Cada extracción entrega el mínimo actual y el heap se reorganiza en O(log n).
-                Esto es exactamente la idea de <a href="#heapsort" style="color: var(--accent-green-light);">HeapSort</a>:
-                el heap <em>no ordena al construirse — ordena al extraer</em>. Costo total: n × O(log n) = <strong>O(n log n)</strong>.
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- ═══════════════════════════════════════════════════════
-     PARTE II — OPERACIONES Y COMPLEJIDAD
-     SLIDE 10: ANIMACIÓN DE INSERCIÓN (HEAPS vs BST)
-     ═══════════════════════════════════════════════════════ -->
-<section id="animacion" class="animate-on-scroll">
-    <div class="section-header">
-        <div class="part-label">Parte II — Operaciones</div>
-        <div class="section-number">10 — Animación</div>
-        <h2>Inserción: <span class="gradient-text">Heaps vs BST</span></h2>
-        <p>Observa cómo se inserta un nuevo valor en cada estructura (Sift-Up en Heaps vs Descenso en BST).</p>
-    </div>
-
-    <div class="tabs">
-        <div class="tab-buttons">
-            <button class="tab-btn-anim active" onclick="switchAnimTab(event, 'anim-min')">Min-Heap (Inserta 20)</button>
-            <button class="tab-btn-anim" onclick="switchAnimTab(event, 'anim-max')">Max-Heap (Inserta 80)</button>
-            <button class="tab-btn-anim" onclick="switchAnimTab(event, 'anim-bst')">BST (Inserta 55)</button>
-        </div>
-
-        <!-- Min Heap -->
-        <div id="anim-min" class="tab-content-anim active">
-            <div class="highlight-box green">
-                <strong>Min-Heap:</strong> 20 se inserta al final. Como 20 < 40, sube (<strong>Sift-Up</strong>) y se intercambia. Luego 20 > 10, por lo que se detiene.
-            </div>
-            <div class="anim-container">
-                <svg width="400" height="260" viewBox="0 0 400 260">
-                    <line x1="200" y1="40" x2="100" y2="120" stroke="#10b981" stroke-width="2"/>
-                    <line x1="200" y1="40" x2="300" y2="120" stroke="#10b981" stroke-width="2"/>
-                    <line x1="100" y1="120" x2="50" y2="200" stroke="#10b981" stroke-width="2"/>
-                    <line x1="100" y1="120" x2="150" y2="200" stroke="#10b981" stroke-width="2"/>
-                    <line x1="300" y1="120" x2="250" y2="200" stroke="#10b981" stroke-width="2" class="edge-new-min" stroke-dasharray="4"/>
-                    
-                    <g transform="translate(200,40)"><circle r="20" fill="#10b981"/><text y="5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="14" font-weight="bold">10</text></g>
-                    <g transform="translate(100,120)"><circle r="20" fill="#10b981"/><text y="5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="14" font-weight="bold">30</text></g>
-                    <g transform="translate(50,200)"><circle r="20" fill="#10b981"/><text y="5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="14" font-weight="bold">50</text></g>
-                    <g transform="translate(150,200)"><circle r="20" fill="#10b981"/><text y="5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="14" font-weight="bold">60</text></g>
-                    
-                    <g class="node-swap-min">
-                        <circle r="20" fill="#10b981"/><text y="5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="14" font-weight="bold">40</text>
-                    </g>
-                    <g class="node-new-min">
-                        <circle r="20" fill="#f59e0b"/><text y="5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="14" font-weight="bold">20</text>
-                    </g>
-                </svg>
-            </div>
-        </div>
-
-        <!-- Max Heap -->
-        <div id="anim-max" class="tab-content-anim" style="display: none;">
-            <div class="highlight-box red">
-                <strong>Max-Heap:</strong> 80 se inserta al final. Como 80 > 50, sube (<strong>Sift-Up</strong>) y se intercambia. Luego 80 < 90, por lo que se detiene.
-            </div>
-            <div class="anim-container">
-                <svg width="400" height="260" viewBox="0 0 400 260">
-                    <line x1="200" y1="40" x2="100" y2="120" stroke="#ef4444" stroke-width="2"/>
-                    <line x1="200" y1="40" x2="300" y2="120" stroke="#ef4444" stroke-width="2"/>
-                    <line x1="100" y1="120" x2="50" y2="200" stroke="#ef4444" stroke-width="2"/>
-                    <line x1="100" y1="120" x2="150" y2="200" stroke="#ef4444" stroke-width="2"/>
-                    <line x1="300" y1="120" x2="250" y2="200" stroke="#ef4444" stroke-width="2" class="edge-new-min" stroke-dasharray="4"/>
-                    
-                    <g transform="translate(200,40)"><circle r="20" fill="#ef4444"/><text y="5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="14" font-weight="bold">90</text></g>
-                    <g transform="translate(100,120)"><circle r="20" fill="#ef4444"/><text y="5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="14" font-weight="bold">70</text></g>
-                    <g transform="translate(50,200)"><circle r="20" fill="#ef4444"/><text y="5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="14" font-weight="bold">40</text></g>
-                    <g transform="translate(150,200)"><circle r="20" fill="#ef4444"/><text y="5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="14" font-weight="bold">20</text></g>
-                    
-                    <g class="node-swap-max">
-                        <circle r="20" fill="#ef4444"/><text y="5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="14" font-weight="bold">50</text>
-                    </g>
-                    <g class="node-new-max">
-                        <circle r="20" fill="#f59e0b"/><text y="5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="14" font-weight="bold">80</text>
-                    </g>
-                </svg>
-            </div>
-        </div>
-
-        <!-- BST -->
-        <div id="anim-bst" class="tab-content-anim" style="display: none;">
-            <div class="highlight-box purple">
-                <strong>BST:</strong> 55 baja comparando desde la raíz. >40 (Der), <60 (Izq), >50 (Der). Se inserta ahí (no sube).
-            </div>
-            <div class="anim-container">
-                <svg width="400" height="260" viewBox="0 0 400 260">
-                    <line x1="200" y1="40" x2="100" y2="100" stroke="#a78bfa" stroke-width="2"/>
-                    <line x1="200" y1="40" x2="300" y2="100" stroke="#a78bfa" stroke-width="2"/>
-                    <line x1="300" y1="100" x2="240" y2="160" stroke="#a78bfa" stroke-width="2"/>
-                    <line x1="240" y1="160" x2="280" y2="220" stroke="#a78bfa" stroke-width="2" class="edge-new-bst" stroke-dasharray="4"/>
-                    
-                    <g transform="translate(200,40)"><circle r="20" fill="#a78bfa"/><text y="5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="14" font-weight="bold">40</text></g>
-                    <g transform="translate(100,100)"><circle r="20" fill="#a78bfa"/><text y="5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="14" font-weight="bold">20</text></g>
-                    <g transform="translate(300,100)"><circle r="20" fill="#a78bfa"/><text y="5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="14" font-weight="bold">60</text></g>
-                    <g transform="translate(240,160)"><circle r="20" fill="#a78bfa"/><text y="5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="14" font-weight="bold">50</text></g>
-                    
-                    <g class="node-new-bst">
-                        <circle r="20" fill="#f59e0b"/><text y="5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="14" font-weight="bold">55</text>
-                    </g>
-                </svg>
-            </div>
-        </div>
+        Esa es exactamente la idea detrás de <strong>HeapSort</strong>. Con «Usar el heap que construí» cargas aquí el heap de la demo de inserción.
     </div>
 </section>
 
@@ -2029,20 +3133,21 @@
 <section id="complejidad" class="animate-on-scroll">
     <div class="section-header">
         <div class="part-label">Parte II — Operaciones</div>
-        <div class="section-number">11 — Complejidad</div>
+        <div class="section-number">10 — Complejidad</div>
         <h2>Complejidad <span class="gradient-text">Big-O</span></h2>
         <p>Resumen del costo de cada operación sobre un heap de n elementos.</p>
     </div>
 
-    <!-- Tarjetas de complejidad: verde = rápido, naranja = logarítmico, rojo = lento -->
+    <!-- Misma escala que la tabla Heap vs BST: verde = eficiente para esa operación,
+         naranja = depende (p. ej. del balance del árbol), rojo = ineficiente -->
     <div class="complexity-grid">
         <div class="complexity-item">
             <div class="op-name">INSERTAR</div>
-            <div class="complexity medium">O(log n)</div>
+            <div class="complexity fast">O(log n)</div>
         </div>
         <div class="complexity-item">
             <div class="op-name">EXTRAER RAÍZ</div>
-            <div class="complexity medium">O(log n)</div>
+            <div class="complexity fast">O(log n)</div>
         </div>
         <div class="complexity-item">
             <div class="op-name">CONSULTAR RAÍZ</div>
@@ -2058,13 +3163,14 @@
         </div>
         <div class="complexity-item">
             <div class="op-name">HEAP SORT</div>
-            <div class="complexity medium">O(n log n)</div>
+            <div class="complexity fast">O(n log n)</div>
         </div>
     </div>
+    <p class="step-note" style="text-align: center;">Verde: eficiente para esa operación · Rojo: ineficiente (un heap no sirve para buscar valores arbitrarios).</p>
 
     <div class="highlight-box green" style="margin-top: 2rem;">
         <strong>¿Por qué buildHeap es O(n) y no O(n log n)?</strong>
-        <br>Aunque insertar un elemento es O(log n), el algoritmo <em>heapify bottom-up</em> procesa los nodos desde las hojas hacia la raíz. La mayoría de los nodos están en los niveles inferiores y requieren poco trabajo. La suma total es una serie geométrica que converge a O(n).
+        <br>Aunque insertar un elemento es O(log n), el algoritmo <em>heapify bottom-up</em> (aplicar Sift-Down a cada nodo, empezando por el último que tiene hijos y subiendo hasta la raíz) procesa los nodos desde las hojas hacia la raíz. La mayoría de los nodos están en los niveles inferiores y requieren poco trabajo. La suma total es una serie geométrica que converge a O(n).
     </div>
 </section>
 
@@ -2075,7 +3181,7 @@
 <section id="vs-bst" class="animate-on-scroll">
     <div class="section-header">
         <div class="part-label">Parte III — Comparación</div>
-        <div class="section-number">12 — Comparación</div>
+        <div class="section-number">11 — Comparación</div>
         <h2>Heap vs <span class="gradient-text">BST</span></h2>
         <p>¿Cuándo usar cada uno? Son estructuras complementarias con propósitos diferentes.</p>
     </div>
@@ -2091,54 +3197,157 @@
         <tbody>
             <tr>
                 <td class="feature-name">Propiedad de orden</td>
-                <td>Padre ≤ / ≥ hijos</td>
-                <td>Izquierdo &lt; Padre &lt; Derecho</td>
+                <td data-label="Heap">Padre ≤ / ≥ hijos</td>
+                <td data-label="BST">Izquierdo &lt; Padre &lt; Derecho</td>
             </tr>
             <tr>
                 <td class="feature-name">Estructura</td>
-                <td>Árbol binario <strong>completo</strong></td>
-                <td>No necesariamente completo</td>
+                <td data-label="Heap">Árbol binario <strong>completo</strong></td>
+                <td data-label="BST">No necesariamente completo</td>
             </tr>
             <tr>
                 <td class="feature-name">Representación</td>
-                <td>Array (sin punteros)</td>
-                <td>Nodos con punteros izq/der</td>
+                <td data-label="Heap">Array (sin punteros)</td>
+                <td data-label="BST">Nodos con punteros izq/der</td>
             </tr>
             <tr>
                 <td class="feature-name">Acceso rápido a</td>
-                <td><span class="pill green">Min / Max → O(1)</span></td>
-                <td><span class="pill purple">Cualquier → O(log n)</span></td>
+                <td data-label="Heap"><span class="pill green">Min / Max → O(1)</span></td>
+                <td data-label="BST"><span class="pill orange">Cualquier → O(log n) promedio</span></td>
             </tr>
             <tr>
                 <td class="feature-name">Búsqueda arbitraria</td>
-                <td><span class="pill red">O(n)</span></td>
-                <td><span class="pill green">O(log n)</span></td>
+                <td data-label="Heap"><span class="pill red">O(n)</span></td>
+                <td data-label="BST"><span class="pill orange">O(log n) promedio, O(n) peor</span></td>
             </tr>
             <tr>
                 <td class="feature-name">Inserción</td>
-                <td><span class="pill green">O(log n)</span></td>
-                <td><span class="pill orange">O(log n) promedio, O(n) peor</span></td>
+                <td data-label="Heap"><span class="pill green">O(log n)</span></td>
+                <td data-label="BST"><span class="pill orange">O(log n) promedio, O(n) peor</span></td>
             </tr>
             <tr>
                 <td class="feature-name">Eliminación del extremo</td>
-                <td><span class="pill green">O(log n)</span></td>
-                <td><span class="pill orange">O(log n)</span></td>
+                <td data-label="Heap"><span class="pill green">O(log n)</span></td>
+                <td data-label="BST"><span class="pill orange">O(log n) promedio, O(n) peor</span></td>
             </tr>
             <tr>
                 <td class="feature-name">Orden total</td>
-                <td>❌ No mantiene</td>
-                <td>✅ In-order traversal</td>
+                <td data-label="Heap">❌ No mantiene</td>
+                <td data-label="BST">✅ In-order traversal</td>
             </tr>
             <tr>
                 <td class="feature-name">Uso principal</td>
-                <td>Colas de prioridad, HeapSort</td>
-                <td>Búsquedas, recorridos ordenados</td>
+                <td data-label="Heap">Colas de prioridad, HeapSort</td>
+                <td data-label="BST">Búsquedas, recorridos ordenados</td>
             </tr>
         </tbody>
     </table>
+    <p class="step-note" style="text-align: center; margin-top: 0.75rem;">Verde: garantizado · Naranja: depende del balance del árbol (un BST desbalanceado degenera en una lista) · Rojo: ineficiente.</p>
 
-    <div class="highlight-box orange" style="margin-top: 1.5rem;">
+    <div id="vs-bst-cuando" class="highlight-box orange" style="margin-top: 1.5rem;">
         <strong>⚡ La diferencia clave:</strong> Un <strong>Heap</strong> optimiza el acceso al mínimo/máximo. Un <strong>BST</strong> optimiza búsquedas de cualquier valor. Si solo necesitas "¿cuál es el más prioritario?", usa un Heap.
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     PARTE III — COMPARACIÓN
+     SLIDE 10: ANIMACIÓN DE INSERCIÓN (HEAPS vs BST)
+     ═══════════════════════════════════════════════════════ -->
+<section id="animacion" class="animate-on-scroll">
+    <div class="section-header">
+        <div class="part-label">Parte III — Comparación</div>
+        <div class="section-number">12 — Animación</div>
+        <h2>Inserción: <span class="gradient-text">Heaps vs BST</span></h2>
+        <p>Observa cómo se inserta un nuevo valor en cada estructura (Sift-Up en Heaps vs Descenso en BST).</p>
+    </div>
+
+    <div class="tabs">
+        <div class="tab-buttons" role="tablist" aria-label="Estructura animada">
+            <button class="tab-btn-anim active" role="tab" id="t-anim-min" aria-selected="true" aria-controls="anim-min" onclick="switchAnimTab(event, 'anim-min')">Min-Heap (Inserta 20)</button>
+            <button class="tab-btn-anim" role="tab" id="t-anim-max" aria-selected="false" aria-controls="anim-max" tabindex="-1" onclick="switchAnimTab(event, 'anim-max')">Max-Heap (Inserta 80)</button>
+            <button class="tab-btn-anim" role="tab" id="t-anim-bst" aria-selected="false" aria-controls="anim-bst" tabindex="-1" onclick="switchAnimTab(event, 'anim-bst')">BST (Inserta 55)</button>
+        </div>
+        <button type="button" class="vz-link-btn anim-pausa" id="anim-pausa" aria-pressed="false">Pausar animación</button>
+
+        <!-- Min Heap -->
+        <div id="anim-min" role="tabpanel" aria-labelledby="t-anim-min" class="tab-content-anim active">
+            <div class="highlight-box green">
+                <strong>Min-Heap:</strong> 20 se inserta al final. Como 20 < 40, sube (<strong>Sift-Up</strong>) y se intercambia. Luego 20 > 10, por lo que se detiene.
+            </div>
+            <div class="anim-container">
+                <svg width="400" height="260" viewBox="0 0 400 260" role="img" aria-label="Min-Heap: el 20 se inserta bajo el 40; como 20 es menor que 40 sube, y se detiene bajo la raíz 10.">
+                    <line x1="200" y1="40" x2="100" y2="120" stroke="#10b981" stroke-width="2"/>
+                    <line x1="200" y1="40" x2="300" y2="120" stroke="#10b981" stroke-width="2"/>
+                    <line x1="100" y1="120" x2="50" y2="200" stroke="#10b981" stroke-width="2"/>
+                    <line x1="100" y1="120" x2="150" y2="200" stroke="#10b981" stroke-width="2"/>
+                    <line x1="300" y1="120" x2="250" y2="200" stroke="#10b981" stroke-width="2" class="edge-new-min" stroke-dasharray="4"/>
+                    
+                    <g transform="translate(200,40)"><circle r="20" fill="#10b981"/><text y="5" text-anchor="middle" fill="#0a0a0f" font-family="JetBrains Mono" font-size="14" font-weight="bold">10</text></g>
+                    <g transform="translate(100,120)"><circle r="20" fill="#10b981"/><text y="5" text-anchor="middle" fill="#0a0a0f" font-family="JetBrains Mono" font-size="14" font-weight="bold">30</text></g>
+                    <g transform="translate(50,200)"><circle r="20" fill="#10b981"/><text y="5" text-anchor="middle" fill="#0a0a0f" font-family="JetBrains Mono" font-size="14" font-weight="bold">50</text></g>
+                    <g transform="translate(150,200)"><circle r="20" fill="#10b981"/><text y="5" text-anchor="middle" fill="#0a0a0f" font-family="JetBrains Mono" font-size="14" font-weight="bold">60</text></g>
+                    
+                    <g class="node-swap-min">
+                        <circle r="20" fill="#10b981"/><text y="5" text-anchor="middle" fill="#0a0a0f" font-family="JetBrains Mono" font-size="14" font-weight="bold">40</text>
+                    </g>
+                    <g class="node-new-min">
+                        <circle r="20" fill="#f59e0b"/><text y="5" text-anchor="middle" fill="#0a0a0f" font-family="JetBrains Mono" font-size="14" font-weight="bold">20</text>
+                    </g>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Max Heap -->
+        <div id="anim-max" role="tabpanel" aria-labelledby="t-anim-max" class="tab-content-anim" style="display: none;">
+            <div class="highlight-box red">
+                <strong>Max-Heap:</strong> 80 se inserta al final. Como 80 > 50, sube (<strong>Sift-Up</strong>) y se intercambia. Luego 80 < 90, por lo que se detiene.
+            </div>
+            <div class="anim-container">
+                <svg width="400" height="260" viewBox="0 0 400 260" role="img" aria-label="Max-Heap: el 80 se inserta bajo el 50; como 80 es mayor que 50 sube, y se detiene bajo la raíz 90.">
+                    <line x1="200" y1="40" x2="100" y2="120" stroke="#ef4444" stroke-width="2"/>
+                    <line x1="200" y1="40" x2="300" y2="120" stroke="#ef4444" stroke-width="2"/>
+                    <line x1="100" y1="120" x2="50" y2="200" stroke="#ef4444" stroke-width="2"/>
+                    <line x1="100" y1="120" x2="150" y2="200" stroke="#ef4444" stroke-width="2"/>
+                    <line x1="300" y1="120" x2="250" y2="200" stroke="#ef4444" stroke-width="2" class="edge-new-min" stroke-dasharray="4"/>
+                    
+                    <g transform="translate(200,40)"><circle r="20" fill="#ef4444"/><text y="5" text-anchor="middle" fill="#0a0a0f" font-family="JetBrains Mono" font-size="14" font-weight="bold">90</text></g>
+                    <g transform="translate(100,120)"><circle r="20" fill="#ef4444"/><text y="5" text-anchor="middle" fill="#0a0a0f" font-family="JetBrains Mono" font-size="14" font-weight="bold">70</text></g>
+                    <g transform="translate(50,200)"><circle r="20" fill="#ef4444"/><text y="5" text-anchor="middle" fill="#0a0a0f" font-family="JetBrains Mono" font-size="14" font-weight="bold">40</text></g>
+                    <g transform="translate(150,200)"><circle r="20" fill="#ef4444"/><text y="5" text-anchor="middle" fill="#0a0a0f" font-family="JetBrains Mono" font-size="14" font-weight="bold">20</text></g>
+                    
+                    <g class="node-swap-max">
+                        <circle r="20" fill="#ef4444"/><text y="5" text-anchor="middle" fill="#0a0a0f" font-family="JetBrains Mono" font-size="14" font-weight="bold">50</text>
+                    </g>
+                    <g class="node-new-max">
+                        <circle r="20" fill="#f59e0b"/><text y="5" text-anchor="middle" fill="#0a0a0f" font-family="JetBrains Mono" font-size="14" font-weight="bold">80</text>
+                    </g>
+                </svg>
+            </div>
+        </div>
+
+        <!-- BST -->
+        <div id="anim-bst" role="tabpanel" aria-labelledby="t-anim-bst" class="tab-content-anim" style="display: none;">
+            <div class="highlight-box purple">
+                <strong>BST:</strong> 55 baja comparando desde la raíz. >40 (Der), <60 (Izq), >50 (Der). Se inserta ahí (no sube).
+            </div>
+            <div class="anim-container">
+                <svg width="400" height="260" viewBox="0 0 400 260" role="img" aria-label="BST: el 55 baja desde la raíz 40, pasa por 60 y 50, y queda como hijo derecho del 50.">
+                    <line x1="200" y1="40" x2="100" y2="100" stroke="#a78bfa" stroke-width="2"/>
+                    <line x1="200" y1="40" x2="300" y2="100" stroke="#a78bfa" stroke-width="2"/>
+                    <line x1="300" y1="100" x2="240" y2="160" stroke="#a78bfa" stroke-width="2"/>
+                    <line x1="240" y1="160" x2="280" y2="220" stroke="#a78bfa" stroke-width="2" class="edge-new-bst" stroke-dasharray="4"/>
+                    
+                    <g transform="translate(200,40)"><circle r="20" fill="#a78bfa"/><text y="5" text-anchor="middle" fill="#0a0a0f" font-family="JetBrains Mono" font-size="14" font-weight="bold">40</text></g>
+                    <g transform="translate(100,100)"><circle r="20" fill="#a78bfa"/><text y="5" text-anchor="middle" fill="#0a0a0f" font-family="JetBrains Mono" font-size="14" font-weight="bold">20</text></g>
+                    <g transform="translate(300,100)"><circle r="20" fill="#a78bfa"/><text y="5" text-anchor="middle" fill="#0a0a0f" font-family="JetBrains Mono" font-size="14" font-weight="bold">60</text></g>
+                    <g transform="translate(240,160)"><circle r="20" fill="#a78bfa"/><text y="5" text-anchor="middle" fill="#0a0a0f" font-family="JetBrains Mono" font-size="14" font-weight="bold">50</text></g>
+                    
+                    <g class="node-new-bst">
+                        <circle r="20" fill="#f59e0b"/><text y="5" text-anchor="middle" fill="#0a0a0f" font-family="JetBrains Mono" font-size="14" font-weight="bold">55</text>
+                    </g>
+                </svg>
+            </div>
+        </div>
     </div>
 </section>
 
@@ -2151,7 +3360,7 @@
         <div class="part-label">Parte IV — Heaps en Java</div>
         <div class="section-number">13 — Implementación</div>
         <h2>MinHeap <span class="gradient-text">Genérico</span></h2>
-        <p>Implementación desde cero usando generics y <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.1rem 0.4rem; border-radius: 4px;">Comparable&lt;T&gt;</code>.</p>
+        <p>Implementación desde cero usando generics y <code class="code-chip">Comparable&lt;T&gt;</code>.</p>
     </div>
 
     <div class="code-block">
@@ -2163,9 +3372,17 @@
             </div>
             <span class="filename">MinHeap.java</span>
         </div>
-        <pre><code><span class="kw">public class</span> <span class="tp">MinHeap</span>&lt;<span class="tp">T</span> <span class="kw">extends</span> <span class="tp">Comparable</span>&lt;<span class="tp">T</span>&gt;&gt; {
+        <pre><code><span class="kw">import</span> java.util.<span class="tp">ArrayList</span>;
+<span class="kw">import</span> java.util.<span class="tp">List</span>;
+<span class="kw">import</span> java.util.<span class="tp">NoSuchElementException</span>;
+
+<span class="kw">public class</span> <span class="tp">MinHeap</span>&lt;<span class="tp">T</span> <span class="kw">extends</span> <span class="tp">Comparable</span>&lt;<span class="tp">T</span>&gt;&gt; {
 
     <span class="kw">private final</span> <span class="tp">List</span>&lt;<span class="tp">T</span>&gt; heap;
+
+    <span class="kw">public</span> <span class="fn">MinHeap</span>() {
+        heap = <span class="kw">new</span> <span class="tp">ArrayList</span>&lt;&gt;();
+    }
 
     <span class="cm">// Insertar: agregar al final + sift up — O(log n)</span>
     <span class="kw">public void</span> <span class="fn">insert</span>(<span class="tp">T</span> value) {
@@ -2175,6 +3392,8 @@
 
     <span class="cm">// Extraer el mínimo: raíz ← último elemento + sift down — O(log n)</span>
     <span class="kw">public</span> <span class="tp">T</span> <span class="fn">extractMin</span>() {
+        <span class="kw">if</span> (heap.<span class="fn">isEmpty</span>())
+            <span class="kw">throw new</span> <span class="tp">NoSuchElementException</span>(<span class="str">"El heap está vacío"</span>);
         <span class="tp">T</span> min = heap.<span class="fn">get</span>(<span class="num">0</span>);
         <span class="tp">T</span> last = heap.<span class="fn">remove</span>(heap.<span class="fn">size</span>() - <span class="num">1</span>);
         <span class="kw">if</span> (!heap.<span class="fn">isEmpty</span>()) {
@@ -2184,7 +3403,7 @@
         <span class="kw">return</span> min;
     }
 
-    <span class="cm">// Sift Up: subir mientras sea menor que el padre</span>
+    <span class="cm">// Sift-Up: subir mientras sea menor que el padre</span>
     <span class="kw">private void</span> <span class="fn">siftUp</span>(<span class="kw">int</span> index) {
         <span class="kw">while</span> (index &gt; <span class="num">0</span>) {
             <span class="kw">int</span> parent = (index - <span class="num">1</span>) / <span class="num">2</span>;   <span class="cm">// fórmula del padre</span>
@@ -2195,7 +3414,7 @@
         }
     }
 
-    <span class="cm">// Sift Down: bajar buscando el menor de los hijos</span>
+    <span class="cm">// Sift-Down: bajar buscando el menor de los hijos</span>
     <span class="kw">private void</span> <span class="fn">siftDown</span>(<span class="kw">int</span> index) {
         <span class="kw">int</span> size = heap.<span class="fn">size</span>();
         <span class="kw">while</span> (<span class="kw">true</span>) {
@@ -2213,12 +3432,19 @@
             } <span class="kw">else break</span>;
         }
     }
+
+    <span class="cm">// Intercambia dos posiciones del vector</span>
+    <span class="kw">private void</span> <span class="fn">swap</span>(<span class="kw">int</span> i, <span class="kw">int</span> j) {
+        <span class="tp">T</span> temp = heap.<span class="fn">get</span>(i);
+        heap.<span class="fn">set</span>(i, heap.<span class="fn">get</span>(j));
+        heap.<span class="fn">set</span>(j, temp);
+    }
 }</code></pre>
     </div>
 
     <div class="highlight-box green">
-        <strong>🔑 Para convertir en MaxHeap:</strong> solo cambia la dirección de <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.1rem 0.4rem; border-radius: 4px;">compareTo</code>.
-        <br>Donde dice <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.1rem 0.4rem; border-radius: 4px;">&lt; 0</code> cámbialo por <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.1rem 0.4rem; border-radius: 4px;">&gt; 0</code>.
+        <strong>🔑 Para convertir en MaxHeap:</strong> solo cambia la dirección de <code class="code-chip">compareTo</code>.
+        <br>Donde dice <code class="code-chip">&lt; 0</code> cámbialo por <code class="code-chip">&gt; 0</code>.
     </div>
 </section>
 
@@ -2231,7 +3457,7 @@
         <div class="part-label">Parte IV — Heaps en Java</div>
         <div class="section-number">14 — PriorityQueue</div>
         <h2><span class="gradient-text">PriorityQueue</span> en Java</h2>
-        <p>Java provee <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.1rem 0.4rem; border-radius: 4px;">java.util.PriorityQueue</code> — un Min-Heap listo para usar.</p>
+        <p>Java provee <code class="code-chip">java.util.PriorityQueue</code> — un Min-Heap listo para usar.</p>
     </div>
 
     <div class="code-block">
@@ -2260,25 +3486,25 @@ System.out.<span class="fn">println</span>(minHeap.<span class="fn">peek</span>(
 
     <div class="card-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-top: 1rem;">
         <div class="card" style="text-align: center;">
-            <div class="card-icon">➕</div>
+            <div class="card-icon"><span aria-hidden="true">➕</span></div>
             <h3><code>offer(e)</code></h3>
             <p>Insertar elemento</p>
             <span class="pill green">O(log n)</span>
         </div>
         <div class="card" style="text-align: center;">
-            <div class="card-icon">👀</div>
+            <div class="card-icon"><span aria-hidden="true">👀</span></div>
             <h3><code>peek()</code></h3>
             <p>Ver la raíz sin extraer</p>
             <span class="pill green">O(1)</span>
         </div>
         <div class="card" style="text-align: center;">
-            <div class="card-icon">⬆️</div>
+            <div class="card-icon"><span aria-hidden="true">⬇️</span></div>
             <h3><code>poll()</code></h3>
             <p>Extraer la raíz</p>
             <span class="pill green">O(log n)</span>
         </div>
         <div class="card" style="text-align: center;">
-            <div class="card-icon">📏</div>
+            <div class="card-icon"><span aria-hidden="true">📏</span></div>
             <h3><code>size()</code></h3>
             <p>Cantidad de elementos</p>
             <span class="pill green">O(1)</span>
@@ -2299,13 +3525,13 @@ System.out.<span class="fn">println</span>(minHeap.<span class="fn">peek</span>(
     </div>
 
     <div class="tabs">
-        <div class="tab-buttons">
-            <button class="tab-btn active" onclick="switchTab(event, 'tab1')">Collections.reverseOrder()</button>
-            <button class="tab-btn" onclick="switchTab(event, 'tab2')">Comparator.reverseOrder()</button>
-            <button class="tab-btn" onclick="switchTab(event, 'tab3')">Lambda</button>
+        <div class="tab-buttons" role="tablist" aria-label="Formas de crear un Max-Heap">
+            <button class="tab-btn active" role="tab" id="t-tab1" aria-selected="true" aria-controls="tab1" onclick="switchTab(event, 'tab1')">Collections.reverseOrder()</button>
+            <button class="tab-btn" role="tab" id="t-tab2" aria-selected="false" aria-controls="tab2" tabindex="-1" onclick="switchTab(event, 'tab2')">Comparator.reverseOrder()</button>
+            <button class="tab-btn" role="tab" id="t-tab3" aria-selected="false" aria-controls="tab3" tabindex="-1" onclick="switchTab(event, 'tab3')">Lambda</button>
         </div>
 
-        <div id="tab1" class="tab-content active">
+        <div id="tab1" role="tabpanel" aria-labelledby="t-tab1" class="tab-content active">
             <div class="code-block">
                 <div class="code-header">
                     <div class="dots"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span></div>
@@ -2326,7 +3552,7 @@ System.out.<span class="fn">println</span>(maxHeap.<span class="fn">poll</span>(
             </div>
         </div>
 
-        <div id="tab2" class="tab-content">
+        <div id="tab2" role="tabpanel" aria-labelledby="t-tab2" class="tab-content">
             <div class="code-block">
                 <div class="code-header">
                     <div class="dots"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span></div>
@@ -2347,7 +3573,7 @@ System.out.<span class="fn">println</span>(maxHeap.<span class="fn">poll</span>(
             </div>
         </div>
 
-        <div id="tab3" class="tab-content">
+        <div id="tab3" role="tabpanel" aria-labelledby="t-tab3" class="tab-content">
             <div class="code-block">
                 <div class="code-header">
                     <div class="dots"><span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span></div>
@@ -2376,8 +3602,8 @@ System.out.<span class="fn">println</span>(maxHeap.<span class="fn">poll</span>(
 
     <div class="highlight-box">
         <strong>💡 Resumen:</strong> Las tres formas producen el mismo resultado.
-        <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.1rem 0.4rem; border-radius: 4px;">Collections.reverseOrder()</code> es la más legible.
-        Para objetos personalizados, usa <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.1rem 0.4rem; border-radius: 4px;">Comparator.comparingInt(...).reversed()</code>.
+        <code class="code-chip">Collections.reverseOrder()</code> es la más legible.
+        Para objetos personalizados, usa <code class="code-chip">Comparator.comparingInt(...).reversed()</code>.
     </div>
 </section>
 
@@ -2391,7 +3617,7 @@ System.out.<span class="fn">println</span>(maxHeap.<span class="fn">poll</span>(
         <div class="part-label">Parte IV — Heaps en Java</div>
         <div class="section-number">16 — Objetos</div>
         <h2>Heaps con <span class="gradient-text">Objetos</span></h2>
-        <p>El heap no solo ordena números: cualquier clase puede priorizarse con <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.1rem 0.4rem; border-radius: 4px;">Comparable</code> o un <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.1rem 0.4rem; border-radius: 4px;">Comparator</code>.</p>
+        <p>El heap no solo ordena números: cualquier clase puede priorizarse con <code class="code-chip">Comparable</code> o un <code class="code-chip">Comparator</code>.</p>
     </div>
 
     <div class="split">
@@ -2468,7 +3694,7 @@ cola.<span class="fn">poll</span>(); <span class="cm">// → "Bug crítico" (pri
 
     <div class="split">
         <div>
-            <h3 style="margin-bottom: 1.5rem;">📜 Algoritmo</h3>
+            <h3 style="margin-bottom: 1.5rem;"><span aria-hidden="true">📜</span> Algoritmo</h3>
             <ol class="step-list">
                 <li><strong>Construir el Max-Heap:</strong> aplicar <em>heapify</em> desde el último nodo no-hoja (n/2 − 1) hasta la raíz. Costo: O(n).</li>
                 <li><strong>Intercambiar:</strong> mover la raíz (el máximo) al final del arreglo.</li>
@@ -2540,37 +3766,37 @@ cola.<span class="fn">poll</span>(); <span class="cm">// → "Bug crítico" (pri
 
     <div class="card-grid">
         <div class="card">
-            <div class="card-icon">📋</div>
+            <div class="card-icon"><span aria-hidden="true">📋</span></div>
             <h3>Colas de Prioridad</h3>
             <p>Sistemas operativos (scheduling de procesos), gestión de tareas, colas de eventos donde cada elemento tiene diferente prioridad.</p>
             <span class="pill purple" style="margin-top: 0.75rem;">PriorityQueue</span>
         </div>
         <div class="card">
-            <div class="card-icon">🔀</div>
+            <div class="card-icon"><span aria-hidden="true">🔀</span></div>
             <h3>HeapSort</h3>
             <p>Algoritmo de ordenamiento O(n log n) in-place. Construye un Max-Heap y extrae el máximo repetidamente para ordenar.</p>
             <span class="pill green" style="margin-top: 0.75rem;">O(n log n)</span>
         </div>
         <div class="card">
-            <div class="card-icon">🔝</div>
+            <div class="card-icon"><span aria-hidden="true">🔝</span></div>
             <h3>Top K Elementos</h3>
             <p>Encontrar los K elementos más grandes/pequeños en un dataset. Se usa un heap de tamaño K para resolver en O(n log k).</p>
             <span class="pill orange" style="margin-top: 0.75rem;">Entrevistas</span>
         </div>
         <div class="card">
-            <div class="card-icon">📊</div>
+            <div class="card-icon"><span aria-hidden="true">📊</span></div>
             <h3>Mediana en Streaming</h3>
             <p>Calcular la mediana en un flujo de datos usando dos heaps: un Max-Heap (mitad izquierda) y un Min-Heap (mitad derecha).</p>
             <span class="pill red" style="margin-top: 0.75rem;">Avanzado</span>
         </div>
         <div class="card">
-            <div class="card-icon">🗺️</div>
+            <div class="card-icon"><span aria-hidden="true">🗺️</span></div>
             <h3>Dijkstra / A*</h3>
             <p>Algoritmos de camino más corto en grafos usan un Min-Heap como cola de prioridad para seleccionar el siguiente nodo a explorar.</p>
             <span class="pill purple" style="margin-top: 0.75rem;">Grafos</span>
         </div>
         <div class="card">
-            <div class="card-icon">🔗</div>
+            <div class="card-icon"><span aria-hidden="true">🔗</span></div>
             <h3>Merge K Listas</h3>
             <p>Combinar K listas ordenadas en una sola lista ordenada usando un Min-Heap de tamaño K para extraer el mínimo global eficientemente.</p>
             <span class="pill orange" style="margin-top: 0.75rem;">LeetCode #23</span>
@@ -2587,27 +3813,27 @@ cola.<span class="fn">poll</span>(); <span class="cm">// → "Bug crítico" (pri
     <div class="section-header">
         <div class="part-label">Parte V — Caso Práctico</div>
         <div class="section-number">19 — Caso Práctico</div>
-        <h2>🏥 Cola de <span class="gradient-text">Urgencias</span></h2>
+        <h2><span aria-hidden="true">🏥</span> Cola de <span class="gradient-text">Urgencias</span></h2>
         <p>Sistema de triaje hospitalario: los pacientes se atienden por <strong>gravedad</strong>, no por orden de llegada. Un Max-Heap resuelve el problema de forma natural.</p>
     </div>
 
     <!-- Arquitectura del ejemplo: 3 clases colaborando -->
     <div class="card-grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
         <div class="card">
-            <div class="card-icon">🧑‍⚕️</div>
+            <div class="card-icon"><span aria-hidden="true">🧑‍⚕️</span></div>
             <h3>Paciente.java</h3>
-            <p>Modelo con nombre, edad, enfermedad y <strong>gravedad (1–10)</strong>. Implementa <code>Comparable</code> comparando por gravedad, y valida el rango en el constructor.</p>
+            <p>Modelo con nombre, edad, enfermedad, hora de llegada y <strong>gravedad (1–10)</strong>. Implementa <code>Comparable</code> comparando por gravedad, y valida el rango en el constructor.</p>
             <span class="pill purple" style="margin-top: 0.75rem;">Comparable</span>
         </div>
         <div class="card">
-            <div class="card-icon">📋</div>
+            <div class="card-icon"><span aria-hidden="true">📋</span></div>
             <h3>ColaUrgencias.java</h3>
-            <p>Envuelve un <code>PriorityQueue&lt;Paciente&gt;</code> con <code>Collections.reverseOrder()</code>: el paciente <strong>más grave</strong> queda siempre al frente.</p>
+            <p>Envuelve un <code>PriorityQueue&lt;Paciente&gt;</code> ordenado por gravedad de mayor a menor con <code>comparingInt(…).reversed()</code>: el paciente <strong>más grave</strong> queda siempre al frente. A igual gravedad se atiende primero al que llegó antes (<code>thenComparing</code>).</p>
             <span class="pill red" style="margin-top: 0.75rem;">Max-Heap</span>
         </div>
         <div class="card">
-            <div class="card-icon">🖥️</div>
-            <h3>HospitalEmergencyQueue.java</h3>
+            <div class="card-icon"><span aria-hidden="true">🖥️</span></div>
+            <h3>HospitalEmergencyQueue<wbr>.java</h3>
             <p>Simulación completa: registro de pacientes, atención por turnos y llegada de una <strong>emergencia</strong> que pasa al frente automáticamente.</p>
             <span class="pill green" style="margin-top: 0.75rem;">Demo main()</span>
         </div>
@@ -2655,71 +3881,135 @@ cola.<span class="fn">poll</span>(); <span class="cm">// → "Bug crítico" (pri
 
 <!-- ═══════════════════════════════════════════════════════
      PARTE VI — CIERRE
+     RESUMEN PARA REPASAR (todo lo esencial en una pantalla)
+     ═══════════════════════════════════════════════════════ -->
+<section id="resumen" class="animate-on-scroll">
+    <div class="section-header">
+        <div class="part-label">Parte VI — Cierre</div>
+        <div class="section-number">20 — Resumen</div>
+        <h2>Resumen para <span class="gradient-text">repasar</span></h2>
+        <p>Lo esencial de la presentación en una sola pantalla.</p>
+    </div>
+
+    <div class="formula-grid">
+        <div class="formula-box">
+            <div class="formula-label">Padre de i</div>
+            <div class="formula">(i - 1) / 2</div>
+        </div>
+        <div class="formula-box">
+            <div class="formula-label">Hijo Izquierdo de i</div>
+            <div class="formula">2 * i + 1</div>
+        </div>
+        <div class="formula-box">
+            <div class="formula-label">Hijo Derecho de i</div>
+            <div class="formula">2 * i + 2</div>
+        </div>
+    </div>
+
+    <div class="split">
+        <div>
+            <h3 style="margin-bottom: 1rem;">Ideas clave</h3>
+            <ol class="step-list">
+                <li>Un heap es un <strong>árbol binario completo</strong> guardado en un arreglo, sin punteros.</li>
+                <li>Min-Heap: cada padre ≤ sus hijos, así que la <strong>raíz es el mínimo</strong>. El arreglo, en cambio, <strong>no</strong> queda ordenado.</li>
+                <li><strong>Insertar</strong>: al final del arreglo y Sift-Up. <strong>Extraer</strong>: el último pasa a la raíz y Sift-Down.</li>
+                <li>Se ordena <strong>al extraer</strong>: sacar la raíz n veces es HeapSort.</li>
+                <li>En Java, <code>PriorityQueue</code> es un Min-Heap; para un Max-Heap se invierte el comparador.</li>
+            </ol>
+        </div>
+        <div>
+            <h3 style="margin-bottom: 1rem;">Costos</h3>
+            <table class="comparison-table" style="margin-top: 0;">
+                <thead>
+                    <tr><th>Operación</th><th>Costo</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td class="feature-name">Consultar la raíz (<code>peek</code>)</td><td><span class="pill green">O(1)</span></td></tr>
+                    <tr><td class="feature-name">Insertar (<code>offer</code>)</td><td><span class="pill green">O(log n)</span></td></tr>
+                    <tr><td class="feature-name">Extraer la raíz (<code>poll</code>)</td><td><span class="pill green">O(log n)</span></td></tr>
+                    <tr><td class="feature-name">Construir el heap (heapify)</td><td><span class="pill green">O(n)</span></td></tr>
+                    <tr><td class="feature-name">Buscar un valor cualquiera</td><td><span class="pill red">O(n)</span></td></tr>
+                    <tr><td class="feature-name">HeapSort</td><td><span class="pill green">O(n log n)</span></td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="highlight-box green" style="margin-top: 2rem;">
+        <strong>✏️ Para practicar:</strong> <a href="ejercicios.md" style="color: var(--accent-green-light);">ejercicios.md</a> tiene 13 ejercicios en tres niveles
+        (básico, intermedio y avanzado); las soluciones están en <a href="src/SolucionarioEstructurasDatos.java" style="color: var(--accent-green-light);">src/SolucionarioEstructurasDatos.java</a>.
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     PARTE VI — CIERRE
      SLIDE 20: REFERENCIAS Y ARCHIVOS DEL PROYECTO
      ═══════════════════════════════════════════════════════ -->
 <section id="refs" class="animate-on-scroll">
     <div class="section-header">
         <div class="part-label">Parte VI — Cierre</div>
-        <div class="section-number">20 — Referencias</div>
+        <div class="section-number">21 — Referencias</div>
         <h2>Recursos y <span class="gradient-text">Referencias</span></h2>
     </div>
 
     <div class="ref-grid">
         <div class="ref-card">
-            <h4>📗 GeeksForGeeks</h4>
+            <h3><span aria-hidden="true">📗</span> GeeksForGeeks</h3>
             <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.5rem;">Heap implementation in Java — Código completo con ejemplos de Min y Max Heap.</p>
-            <a href="https://www.geeksforgeeks.org/java/heap-implementation-in-java/" target="_blank">Ver artículo →</a>
+            <a href="https://www.geeksforgeeks.org/java/heap-implementation-in-java/" target="_blank" rel="noopener noreferrer">Leer el artículo en GeeksForGeeks →</a>
         </div>
         <div class="ref-card">
-            <h4>📘 Last9 Blog</h4>
+            <h3><span aria-hidden="true">📘</span> Last9 Blog</h3>
             <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.5rem;">A Comprehensive Guide to Heaps in Java — Memoria, conceptos y operaciones.</p>
-            <a href="https://last9.io/blog/heaps-in-java/" target="_blank">Ver artículo →</a>
+            <a href="https://last9.io/blog/heaps-in-java/" target="_blank" rel="noopener noreferrer">Leer la guía en Last9 →</a>
         </div>
         <div class="ref-card">
-            <h4>📙 Oracle Docs</h4>
+            <h3><span aria-hidden="true">📙</span> Oracle Docs</h3>
             <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 0.5rem;">Documentación oficial de java.util.PriorityQueue — API completa.</p>
-            <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/PriorityQueue.html" target="_blank">Ver documentación →</a>
+            <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/PriorityQueue.html" target="_blank" rel="noopener noreferrer">Abrir la documentación de PriorityQueue →</a>
         </div>
     </div>
 
     <!-- Listado de archivos del repositorio agrupados por tema -->
-    <div style="text-align: center; margin-top: 3rem;">
+    <div id="archivos" style="text-align: center; margin-top: 3rem;">
         <p style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.75rem;">
             Archivos del proyecto:
         </p>
         <p style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 0.35rem;">Estructuras</p>
         <p style="color: var(--text-secondary); margin-bottom: 1rem;">
-            <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.2rem 0.6rem; border-radius: 6px;">src/MinHeap.java</code>
-            <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.2rem 0.6rem; border-radius: 6px;">src/MaxHeap.java</code>
-            <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.2rem 0.6rem; border-radius: 6px;">src/HeapSort.java</code>
+            <a class="file-link" href="src/MinHeap.java"><code class="code-chip lg">src/MinHeap.java</code></a>
+            <a class="file-link" href="src/MaxHeap.java"><code class="code-chip lg">src/MaxHeap.java</code></a>
+            <a class="file-link" href="src/HeapSort.java"><code class="code-chip lg">src/HeapSort.java</code></a>
         </p>
         <p style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 0.35rem;">Ejemplos y demos</p>
         <p style="color: var(--text-secondary); margin-bottom: 1rem;">
-            <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.2rem 0.6rem; border-radius: 6px;">src/PriorityQueueExamples.java</code>
-            <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.2rem 0.6rem; border-radius: 6px;">src/HeapExamples.java</code>
+            <a class="file-link" href="src/PriorityQueueExamples.java"><code class="code-chip lg">src/PriorityQueueExamples.java</code></a>
+            <a class="file-link" href="src/HeapExamples.java"><code class="code-chip lg">src/HeapExamples.java</code></a>
         </p>
         <p style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 0.35rem;">Caso práctico: hospital</p>
         <p style="color: var(--text-secondary); margin-bottom: 1rem;">
-            <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.2rem 0.6rem; border-radius: 6px;">src/Paciente.java</code>
-            <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.2rem 0.6rem; border-radius: 6px;">src/ColaUrgencias.java</code>
-            <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.2rem 0.6rem; border-radius: 6px;">src/HospitalEmergencyQueue.java</code>
+            <a class="file-link" href="src/Paciente.java"><code class="code-chip lg">src/Paciente.java</code></a>
+            <a class="file-link" href="src/ColaUrgencias.java"><code class="code-chip lg">src/ColaUrgencias.java</code></a>
+            <a class="file-link" href="src/HospitalEmergencyQueue.java"><code class="code-chip lg">src/HospitalEmergencyQueue.java</code></a>
         </p>
         <p style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 0.35rem;">Ejercicios</p>
         <p style="color: var(--text-secondary);">
-            <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.2rem 0.6rem; border-radius: 6px;">src/SolucionarioEstructurasDatos.java</code>
-            <code style="color: var(--accent-cyan-light); background: rgba(6,182,212,0.1); padding: 0.2rem 0.6rem; border-radius: 6px;">ejercicios.md</code>
+            <a class="file-link" href="src/SolucionarioEstructurasDatos.java"><code class="code-chip lg">src/SolucionarioEstructurasDatos.java</code></a>
+            <a class="file-link" href="ejercicios.md"><code class="code-chip lg">ejercicios.md</code></a>
         </p>
     </div>
 </section>
 
+</main>
+
 <!-- ===== FOOTER ===== -->
 <footer>
     <p>
-        Heaps en Java — Estructuras de Datos — Compiladores 2026-2
+        Heaps en Java — Estructuras de Datos — Compiladores 2027
         <br>
         Referencias:
-        <a href="https://www.geeksforgeeks.org/java/heap-implementation-in-java/" target="_blank">GeeksForGeeks</a> ·
-        <a href="https://last9.io/blog/heaps-in-java/" target="_blank">Last9</a>
+        <a href="https://www.geeksforgeeks.org/java/heap-implementation-in-java/" target="_blank" rel="noopener noreferrer">GeeksForGeeks</a> ·
+        <a href="https://last9.io/blog/heaps-in-java/" target="_blank" rel="noopener noreferrer">Last9</a>
     </p>
 </footer>
 
@@ -2738,11 +4028,19 @@ cola.<span class="fn">poll</span>(); <span class="cm">// → "Bug crítico" (pri
      */
     function switchAnimTab(event, tabId) {
         document.querySelectorAll('.tab-content-anim').forEach(t => t.style.display = 'none');
-        document.querySelectorAll('.tab-btn-anim').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-btn-anim').forEach(marcarPestana(false));
         document.getElementById(tabId).style.display = 'block';
         // currentTarget: siempre el <button>, aunque el clic caiga en un hijo
-        event.currentTarget.classList.add('active');
+        marcarPestana(true)(event.currentTarget);
     }
+
+    // Estado de pestaña para lectores de pantalla y foco itinerante (una sola
+    // pestaña en el orden de tabulación; las flechas mueven entre ellas)
+    const marcarPestana = activa => b => {
+        b.classList.toggle('active', activa);
+        b.setAttribute('aria-selected', String(activa));
+        b.tabIndex = activa ? 0 : -1;
+    };
 
     /**
      * Cambia la pestaña visible en las secciones de código.
@@ -2750,10 +4048,36 @@ cola.<span class="fn">poll</span>(); <span class="cm">// → "Bug crítico" (pri
      */
     function switchTab(event, tabId) {
         document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(marcarPestana(false));
         document.getElementById(tabId).classList.add('active');
-        event.currentTarget.classList.add('active');
+        marcarPestana(true)(event.currentTarget);
     }
+
+    document.querySelectorAll('[role="tablist"]').forEach(lista => {
+        lista.addEventListener('keydown', e => {
+            const tabs = [...lista.querySelectorAll('[role="tab"]')];
+            const i = tabs.indexOf(document.activeElement);
+            if (i < 0) return;
+            let j = null;
+            if (e.key === 'ArrowRight') j = (i + 1) % tabs.length;
+            else if (e.key === 'ArrowLeft') j = (i - 1 + tabs.length) % tabs.length;
+            else if (e.key === 'Home') j = 0;
+            else if (e.key === 'End') j = tabs.length - 1;
+            if (j === null) return;
+            e.preventDefault();
+            e.stopPropagation();   // en el modo presentación, las flechas no cambian de diapositiva aquí
+            tabs[j].focus();
+            tabs[j].click();
+        });
+    });
+
+    // Pausa manual de las animaciones en bucle de #animacion (WCAG 2.2.2)
+    document.getElementById('anim-pausa').addEventListener('click', e => {
+        const sec = document.getElementById('animacion');
+        const pausada = sec.classList.toggle('anim-pausada');
+        e.currentTarget.setAttribute('aria-pressed', String(pausada));
+        e.currentTarget.textContent = pausada ? 'Reanudar animación' : 'Pausar animación';
+    });
 
     // Aparición suave de cada sección al entrar en pantalla.
     // threshold 0.1 → se dispara cuando el 10% de la sección es visible.
@@ -2770,9 +4094,39 @@ cola.<span class="fn">poll</span>(); <span class="cm">// → "Bug crítico" (pri
     // Navegación: resalta el enlace de la sección visible y
     // actualiza la barra de progreso de lectura.
     const sections = document.querySelectorAll('section');
-    const navLinks = document.querySelectorAll('.nav-links a');
+    const navLinks = document.querySelectorAll('.nav-sheet a');
+    const partLinks = document.querySelectorAll('.nav-links a');
 
+    // Menú de secciones (pantallas angostas): abrir/cerrar y mostrar la sección actual
+    const navToggle = document.getElementById('nav-toggle');
+    const navSheet = document.getElementById('nav-sheet');
+    const navCurrent = document.getElementById('nav-current');
+
+    function setNavSheet(open) {
+        navSheet.classList.toggle('open', open);
+        navToggle.setAttribute('aria-expanded', String(open));
+    }
+
+    navToggle.addEventListener('click', () => setNavSheet(!navSheet.classList.contains('open')));
+    navSheet.addEventListener('click', e => { if (e.target.closest('a')) setNavSheet(false); });
+    document.addEventListener('click', e => {
+        if (navSheet.classList.contains('open') && !e.target.closest('.slide-nav')) setNavSheet(false);
+    });
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && navSheet.classList.contains('open')) {
+            setNavSheet(false);
+            navToggle.focus();
+        }
+    });
+
+    let scrollPendiente = false;
     window.addEventListener('scroll', () => {
+        if (scrollPendiente) return;
+        scrollPendiente = true;
+        requestAnimationFrame(() => { scrollPendiente = false; actualizarNav(); });
+    }, { passive: true });
+
+    function actualizarNav() {
         // Determinar la última sección cuyo tope ya pasó (con margen de 120px por el nav fijo)
         let current = '';
         sections.forEach(section => {
@@ -2789,21 +4143,30 @@ cola.<span class="fn">poll</span>(); <span class="cm">// → "Bug crítico" (pri
             }
         });
 
+        const sheetActive = navSheet.querySelector('a.active');
+        if (sheetActive) navCurrent.textContent = sheetActive.textContent;
+        const parte = sheetActive ? sheetActive.closest('[data-parte]').dataset.parte : '0';
+        partLinks.forEach(a => a.classList.toggle('active', a.dataset.parte === parte));
+
         // Barra de progreso: porcentaje del documento ya desplazado
         const totalScroll = document.documentElement.scrollHeight - window.innerHeight;
         const progress = (window.scrollY / totalScroll) * 100;
         document.getElementById('progress-bar').style.width = progress + '%';
-    });
+    }
 
-    /* ═══════ INSERCIÓN INTERACTIVA (slide 8) ═══════
-       El usuario elige un valor, se agrega al final del vector y el
-       Sift-Up se anima paso a paso mostrando la fórmula padre = (i−1)/2. */
-    const IH_INICIAL = [];                    // inicia vacío: el heap se construye desde cero
-    const IH_MAX = 15;                        // 4 niveles completos: el SVG no da para más
-    let ih = [...IH_INICIAL];
-    let ihBusy = false;                       // bloquea clics mientras corre la animación
+    /* ═══════ VISUALIZADORES INTERACTIVOS (inserción y eliminación) ═══════
+       Los dos comparten el mismo motor:
+       - crearVista(): dibuja árbol + vector. Cada valor tiene un id estable, así
+         que en un intercambio los dos nodos viajan por la arista que los une y
+         las dos celdas del vector intercambian su valor (mismo movimiento).
+         Las etiquetas i=… son posiciones fijas: lo que se mueve es el valor.
+       - crearReproductor(): velocidad (lenta/normal/rápida) y modo paso a paso. */
 
-    const ihSleep = ms => new Promise(r => setTimeout(r, ms));
+    const $ = id => document.getElementById(id);
+    const SVG_NS = 'http://www.w3.org/2000/svg';
+    const movReducido = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const MOV_MS = 550;                       // duración base del viaje de un nodo
+    let sigId = 1;                            // ids estables para los valores
 
     // Coordenadas del nodo i en el SVG a partir de su nivel (índice → árbol)
     function ihPos(i) {
@@ -2816,39 +4179,363 @@ cola.<span class="fn">poll</span>(); <span class="cm">// → "Bug crítico" (pri
         };
     }
 
-    // Redibuja árbol y vector. hl.cur = el que sube (naranja), hl.cmp = padre comparado (cian)
-    function ihRender(hl = {}) {
-        if (ih.length === 0) {
-            document.getElementById('ih-svg').innerHTML =
-                '<text x="240" y="155" text-anchor="middle" fill="#64748b" font-family="JetBrains Mono" font-size="14">Heap vacío — inserta el primer valor 🌱</text>';
-            document.getElementById('ih-array').innerHTML = '';
-            return;
-        }
-        let edges = '', nodes = '';
-        ih.forEach((v, i) => {
-            const { x, y } = ihPos(i);
-            if (i > 0) {
-                const p = ihPos(Math.floor((i - 1) / 2));
-                edges += `<line x1="${p.x}" y1="${p.y}" x2="${x}" y2="${y}" stroke="#10b981" stroke-width="2" opacity="0.6"/>`;
-            }
-            const fill = i === hl.cur ? '#f59e0b' : (i === hl.cmp ? '#06b6d4' : '#10b981');
-            nodes += `<g transform="translate(${x},${y})">` +
-                `<circle r="19" fill="${fill}"/>` +
-                `<text y="5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="13" font-weight="bold">${v}</text>` +
-                `<text y="34" text-anchor="middle" fill="#64748b" font-family="JetBrains Mono" font-size="9">i=${i}</text></g>`;
-        });
-        document.getElementById('ih-svg').innerHTML = edges + nodes;
+    function crearVista({ svg, arr, rel, vacio, relAyuda }) {
+        const svgEl = $(svg), arrEl = $(arr), relEl = $(rel);
+        svgEl.innerHTML =
+            '<g class="vz-edges"></g><g class="vz-idx"></g><g class="vz-nodes"></g>' +
+            '<g class="vz-empty">' + vacio.map((t, k) =>
+                `<text x="240" y="${150 + k * 26}" text-anchor="middle">${t}</text>`).join('') + '</g>';
+        const capaAristas = svgEl.querySelector('.vz-edges');
+        const capaIdx = svgEl.querySelector('.vz-idx');
+        const capaNodos = svgEl.querySelector('.vz-nodes');
+        const capaVacio = svgEl.querySelector('.vz-empty');
+        const nodos = new Map();              // id → <g> del nodo
+        const posNodo = new Map();            // id → índice que ocupaba en el render anterior
+        const valores = new Map();            // id → <span> del valor en el vector
+        const EASE = 'cubic-bezier(0.45, 0, 0.2, 1)';
+        let ultimo = { vals: [], ids: [] };
+        let enfocado = null;
 
-        document.getElementById('ih-array').innerHTML = ih.map((v, i) => {
-            let cls = i === 0 ? ' root' : '';
-            if (i === hl.cur) cls = ' new';
-            else if (i === hl.cmp) cls = ' moved';
-            return `<div class="array-cell${cls}">${v}<span class="idx">${i}</span></div>`;
-        }).join('');
+        const padreDe = i => Math.floor((i - 1) / 2);
+        const esAncestro = (a, d) => { while (d > a) d = padreDe(d); return d === a; };
+
+        // Curva por la que viaja un nodo de la posición «de» a la posición «a».
+        // Un intercambio (un nivel) se curva 16 px hacia un lado: los dos nodos que
+        // se cruzan quedan a lados opuestos de la arista y no se tapan. Un salto
+        // largo (el último elemento que pasa a la raíz) prueba varias curvaturas y
+        // usa la que más se aleja de los demás nodos: es una asignación directa
+        // (arr[0] = arr[n−1]), no una cadena de intercambios.
+        function ruta(de, a, n) {
+            const p = ihPos(de), q = ihPos(a);
+            const vx = q.x - p.x, vy = q.y - p.y, len = Math.hypot(vx, vy) || 1;
+            const nx = -vy / len, ny = vx / len;
+            const curva = d => {
+                const c = { x: (p.x + q.x) / 2 + nx * d, y: (p.y + q.y) / 2 + ny * d };
+                const pts = [];
+                for (let k = 0; k <= 10; k++) {
+                    const t = k / 10, u = 1 - t;
+                    pts.push({ x: u * u * p.x + 2 * u * t * c.x + t * t * q.x, y: u * u * p.y + 2 * u * t * c.y + t * t * q.y });
+                }
+                return pts;
+            };
+            if (padreDe(de) === a || padreDe(a) === de) return curva(32);   // pico ≈ 16 px
+            const otros = [];
+            for (let k = 0; k < n; k++) if (k !== de && k !== a) otros.push(ihPos(k));
+            let mejor = null, holgura = -Infinity;
+            for (let d = -120; d <= 120; d += 10) {
+                const pts = curva(d);
+                const h = Math.min(...pts.slice(1, -1).flatMap(pt => otros.map(o => Math.hypot(pt.x - o.x, pt.y - o.y))));
+                if (h > holgura + 0.5 || (Math.abs(h - holgura) <= 0.5 && Math.abs(d) < Math.abs(mejor.d))) { holgura = h; mejor = { d, pts }; }
+            }
+            return mejor.pts;
+        }
+
+        function mover(g, de, a, dur, n) {
+            const pts = ruta(de, a, n);
+            const largos = pts.slice(1).map((p, k) => Math.hypot(p.x - pts[k].x, p.y - pts[k].y));
+            const total = largos.reduce((s, l) => s + l, 0) || 1;
+            let acum = 0;
+            const frames = pts.map((p, k) => {
+                if (k > 0) acum += largos[k - 1];
+                return { transform: `translate(${p.x}px, ${p.y}px)`, offset: acum / total };
+            });
+            g.animate(frames, { duration: dur, easing: EASE });
+        }
+
+        function render(vals, ids, hl = {}, dur = MOV_MS) {
+            const reducido = movReducido.matches;
+            const n = vals.length;
+            const nPrev = ultimo.vals.length;
+            capaVacio.style.opacity = n === 0 ? 1 : 0;
+
+            // Aristas e índices: dependen solo de la posición, no del valor.
+            // Las que sobran (el heap se achicó) se desvanecen en vez de desaparecer.
+            let aristas = '', idx = '';
+            for (let i = 1; i < Math.max(n, nPrev); i++) {
+                const { x, y } = ihPos(i), p = ihPos(padreDe(i));
+                const cls = i >= n ? 'saliendo' : (i >= nPrev ? 'nueva' : '');
+                aristas += `<line data-i="${i}" class="${cls}" x1="${p.x}" y1="${p.y}" x2="${x}" y2="${y}"/>`;
+            }
+            for (let i = 0; i < Math.max(n, nPrev); i++) {
+                const { x, y } = ihPos(i);
+                idx += `<text class="${i >= n ? 'saliendo' : ''}" x="${x}" y="${y + 36}">i=${i}</text>`;
+            }
+            capaAristas.innerHTML = aristas;
+            capaIdx.innerHTML = idx;
+
+            // Nodos: se reutilizan por id; si cambian de posición, viajan por la ruta
+            const vivos = new Set(ids);
+            ids.forEach((id, i) => {
+                let g = nodos.get(id);
+                const { x, y } = ihPos(i);
+                if (!g) {
+                    g = document.createElementNS(SVG_NS, 'g');
+                    g.setAttribute('class', 'vz-node vz-enter');
+                    g.innerHTML = `<g class="vz-body"><circle r="19"/><text y="5" text-anchor="middle">${vals[i]}</text></g>`;
+                    capaNodos.appendChild(g);
+                    nodos.set(id, g);
+                } else {
+                    g.classList.remove('vz-enter');
+                    const de = posNodo.get(id);
+                    if (!reducido && de !== undefined && de !== i) {
+                        const enVuelo = g.getAnimations();
+                        if (enVuelo.length) {
+                            // Clic antes de que terminara el viaje anterior: se sigue
+                            // desde donde el nodo está ahora, sin saltar a su posición previa
+                            const m = new DOMMatrix(getComputedStyle(g).transform);
+                            enVuelo.forEach(a => a.cancel());
+                            g.animate([{ transform: `translate(${m.e}px, ${m.f}px)` }, { transform: `translate(${x}px, ${y}px)` }],
+                                { duration: dur, easing: EASE });
+                        } else {
+                            mover(g, de, i, dur, Math.max(n, nPrev));
+                        }
+                    } else if (reducido) {
+                        g.getAnimations().forEach(a => a.cancel());
+                    }
+                }
+                g.style.transform = `translate(${x}px, ${y}px)`;
+                posNodo.set(id, i);
+                g.dataset.i = i;
+                g.classList.toggle('cur', i === hl.cur);
+                g.classList.toggle('cmp', i === hl.cmp);
+            });
+            for (const [id, g] of nodos) {
+                if (vivos.has(id)) continue;
+                nodos.delete(id);
+                posNodo.delete(id);
+                if (reducido) { g.remove(); continue; }
+                g.classList.add('vz-exit');
+                const body = g.querySelector('.vz-body');
+                body.addEventListener('animationend', () => g.remove(), { once: true });
+                setTimeout(() => g.remove(), 400);   // respaldo si la animación no corre
+            }
+
+            // Vector: las celdas son posiciones fijas; los valores viajan (FLIP en arco).
+            const antes = new Map();
+            for (const [id, span] of valores) {
+                if (span.isConnected) antes.set(id, span.getBoundingClientRect());
+            }
+            const cajaArr = arrEl.getBoundingClientRect();
+
+            // Valores que salen (la raíz extraída): fantasma que sube y se desvanece
+            for (const [id, span] of [...valores]) {
+                if (vivos.has(id)) continue;
+                valores.delete(id);
+                const r = antes.get(id);
+                if (reducido || !r) continue;
+                const fantasma = span.cloneNode(true);
+                fantasma.classList.add('vz-fantasma');
+                fantasma.style.left = (r.left - cajaArr.left) + 'px';
+                fantasma.style.top = (r.top - cajaArr.top) + 'px';
+                fantasma.style.width = r.width + 'px';
+                arrEl.appendChild(fantasma);
+                fantasma.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(-26px) scale(0.8)' }],
+                    { duration: 300, easing: 'ease-in', fill: 'forwards' }).finished.then(() => fantasma.remove(), () => fantasma.remove());
+            }
+
+            const estado = i => {
+                if (i === hl.cur) return ' new';
+                if (i === hl.cmp) return ' moved';
+                return i === 0 ? ' root' : '';
+            };
+            // Las celdas persisten (una por posición): así su cambio de color puede
+            // animarse con retraso en vez de redibujarse
+            let celdas = [...arrEl.querySelectorAll('.array-cell')];
+            while (celdas.length > n) celdas.pop().remove();
+            while (celdas.length < n) {
+                const i = celdas.length;
+                const c = document.createElement('div');
+                c.className = 'array-cell' + (i === 0 ? ' root' : '');
+                c.dataset.i = i;
+                c.tabIndex = 0;
+                c.innerHTML = `<span class="idx">${i}</span>`;
+                const ref = arrEl.querySelector('.vz-fantasma');
+                arrEl.insertBefore(c, ref);
+                celdas.push(c);
+            }
+            celdas.forEach((c, i) => {
+                c.querySelectorAll('.vz-val').forEach(v => { if (!vivos.has(+[...valores].find(([, sp]) => sp === v)?.[0])) v.remove(); });
+                c.setAttribute('aria-label', `Índice ${i}, valor ${vals[i]}`);
+            });
+
+            let hayViaje = false;
+            const nuevos = new Set();
+            ids.forEach((id, i) => {
+                let span = valores.get(id);
+                if (!span) {
+                    span = document.createElement('span');
+                    span.className = 'vz-val';
+                    span.textContent = vals[i];
+                    valores.set(id, span);
+                    nuevos.add(id);
+                }
+                span.getAnimations().forEach(a => a.cancel());
+                celdas[i].prepend(span);
+            });
+            // Se mide cuando cada valor ya está solo en su celda (si no, el destino
+            // sale corrido por el valor que aún no se había ido)
+            ids.forEach(id => {
+                const span = valores.get(id), nuevo = nuevos.has(id);
+                if (reducido) return;
+                if (nuevo) {
+                    span.animate([{ opacity: 0, transform: 'scale(0.5)' }, { opacity: 1, transform: 'none' }],
+                        { duration: 300, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' });
+                    return;
+                }
+                const a = antes.get(id);
+                if (!a) return;
+                const b = span.getBoundingClientRect();
+                const dx = a.left - b.left, dy = a.top - b.top;
+                if (!dx && !dy) return;
+                // Arco sinusoidal de la altura de una celda: el valor que va hacia la
+                // raíz (izquierda) pasa por encima de la fila, el otro por debajo.
+                const alto = dx > 0 ? -52 : 52;
+                const frames = [];
+                for (let k = 0; k <= 12; k++) {
+                    const p = k / 12;
+                    const ox = dx * (1 - p), oy = dy * (1 - p) + (dx ? alto * Math.sin(Math.PI * p) : 0);
+                    frames.push({ transform: `translate(${ox}px, ${oy}px)`, offset: p });
+                }
+                hayViaje = true;
+                span.classList.add('viajando');
+                span.animate(frames, { duration: dur, easing: EASE })
+                    .finished.then(() => span.classList.remove('viajando'), () => {});
+            });
+
+            // Color de las celdas, en el mismo lenguaje que los nodos:
+            // - si hay valores viajando, la celda cambia de golpe cuando el valor entra
+            //   en ella (≈65 % del viaje), sin tonos intermedios;
+            // - pasar a «se mueve» o «se compara» es instantáneo;
+            // - solo el regreso a «en su lugar» se funde (lo define el CSS).
+            const entra = Math.round(dur * 0.65);
+            celdas.forEach((c, i) => {
+                const est = estado(i);
+                if (hayViaje && !reducido) c.style.transition = `border-color 0s linear ${entra}ms, background-color 0s linear ${entra}ms, transform 0.3s ease`;
+                else if (est === ' new' || est === ' moved') c.style.transition = 'transform 0.3s ease';
+                else c.style.transition = '';
+                c.className = 'array-cell' + est;
+            });
+
+            ultimo = { vals: [...vals], ids: [...ids] };
+            if (enfocado !== null && enfocado < n) resaltar(enfocado); else limpiarResalte();
+        }
+
+        // Mientras dura una operación el vector conserva su alto: si pierde una
+        // fila, el texto de abajo no salta a mitad del movimiento
+        function fijarAltura(activo) {
+            if (activo) { arrEl.style.minHeight = arrEl.getBoundingClientRect().height + 'px'; return; }
+            const desde = arrEl.getBoundingClientRect().height;
+            arrEl.style.minHeight = '';
+            const hasta = arrEl.getBoundingClientRect().height;
+            if (!movReducido.matches && Math.abs(desde - hasta) > 1) {
+                arrEl.animate([{ minHeight: desde + 'px' }, { minHeight: hasta + 'px' }],
+                    { duration: 250, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' });
+            }
+        }
+
+        // Relación índice ↔ padre ↔ hijos al pasar el cursor o enfocar
+        function resaltar(i) {
+            const vals = ultimo.vals, n = vals.length;
+            if (i >= n) return limpiarResalte();
+            enfocado = i;
+            const p = padreDe(i), l = 2 * i + 1, r = 2 * i + 2;
+            const rel = new Set([l, r].filter(k => k < n));
+            if (i > 0) rel.add(p);
+            capaNodos.querySelectorAll('.vz-node').forEach(g => {
+                const k = +g.dataset.i;
+                g.classList.toggle('link', k === i);
+                g.classList.toggle('rel', rel.has(k));
+            });
+            arrEl.querySelectorAll('.array-cell').forEach(c => {
+                const k = +c.dataset.i;
+                c.classList.toggle('link', k === i);
+                c.classList.toggle('rel', rel.has(k));
+            });
+            capaAristas.querySelectorAll('line').forEach(e => {
+                const k = +e.dataset.i;
+                e.classList.toggle('link', k === i || k === l || k === r);
+            });
+            const padre = i === 0 ? 'es la raíz (no tiene padre)'
+                : `padre = (${i} − 1) / 2 = ${p} → ${vals[p]}`;
+            const hijos = [[l, '2·' + i + '+1'], [r, '2·' + i + '+2']]
+                .map(([k, f]) => k < n ? `${f} = ${k} → ${vals[k]}` : `${f} = ${k} (no existe)`);
+            relEl.textContent = `i = ${i} (valor ${vals[i]}) · ${padre} · hijos: ${hijos.join(', ')}`;
+            relEl.classList.add('activo');
+        }
+
+        function limpiarResalte() {
+            enfocado = null;
+            svgEl.querySelectorAll('.link, .rel').forEach(e => e.classList.remove('link', 'rel'));
+            arrEl.querySelectorAll('.link, .rel').forEach(e => e.classList.remove('link', 'rel'));
+            relEl.textContent = relAyuda;
+            relEl.classList.remove('activo');
+        }
+
+        const indiceDe = e => {
+            const t = e.target.closest('[data-i]');
+            return t && (t.classList.contains('array-cell') || t.classList.contains('vz-node')) ? +t.dataset.i : null;
+        };
+        for (const el of [arrEl, capaNodos]) {
+            el.addEventListener('mouseover', e => { const i = indiceDe(e); if (i !== null) resaltar(i); });
+            el.addEventListener('mouseleave', limpiarResalte);
+        }
+        arrEl.addEventListener('focusin', e => { const i = indiceDe(e); if (i !== null) resaltar(i); });
+        arrEl.addEventListener('focusout', limpiarResalte);
+
+        relEl.textContent = relAyuda;
+        return { render, fijarAltura };
     }
 
-    function ihLogAdd(texto, tipo = '') {
-        const log = document.getElementById('ih-log');
+    // Velocidad y modo paso a paso de un visualizador (prefijo «ih» o «eh»)
+    function crearReproductor(pre) {
+        const chk = $(pre + '-paso'), next = $(pre + '-next');
+        let vel = 1, pendiente = null, enfocar = false;
+
+        document.querySelectorAll(`input[name="${pre}-vel"]`).forEach(r =>
+            r.addEventListener('change', () => { vel = +r.value; }));
+        chk.addEventListener('change', () => {
+            next.hidden = !chk.checked;
+            if (!chk.checked) avanzar();      // pasar a automático suelta el paso pendiente
+        });
+        next.addEventListener('click', avanzar);
+
+        function avanzar() {
+            if (!pendiente) return;
+            const r = pendiente;
+            pendiente = null;
+            next.disabled = true;
+            r();
+        }
+
+        return {
+            dur: () => chk.checked ? MOV_MS : MOV_MS / vel,
+            empezar() { enfocar = true; },
+            async esperar(ms) {
+                if (chk.checked) {
+                    next.disabled = false;
+                    if (enfocar) { next.focus(); enfocar = false; }
+                    await new Promise(r => { pendiente = r; });
+                } else {
+                    await new Promise(r => setTimeout(r, ms / vel));
+                }
+            },
+            fin() { pendiente = null; next.disabled = true; }
+        };
+    }
+
+    // Registro: conserva el historial; cada operación abre con un encabezado
+    function logOp(logId, titulo) {
+        const log = $(logId);
+        log.querySelectorAll('[data-placeholder]').forEach(e => e.remove());
+        const el = document.createElement('span');
+        el.className = 'log-op';
+        el.textContent = titulo;
+        log.appendChild(el);
+        log.scrollTop = log.scrollHeight;
+    }
+
+    function logAdd(logId, texto, tipo = '') {
+        const log = $(logId);
         const el = document.createElement('span');
         el.className = 'calc' + (tipo ? ' ' + tipo : '');
         el.textContent = texto;
@@ -2856,42 +4543,85 @@ cola.<span class="fn">poll</span>(); <span class="cm">// → "Bug crítico" (pri
         log.scrollTop = log.scrollHeight;
     }
 
+    /* ── Inserción interactiva: el usuario elige un valor, se agrega al final del
+       vector y el Sift-Up se anima paso a paso con la fórmula padre = (i−1)/2. */
+    const IH_MAX = 15;                        // 4 niveles completos: el SVG no da para más
+    let ih = [], ihIds = [];
+    let ihBusy = false;                       // bloquea clics mientras corre la animación
+
+    const ihVista = crearVista({
+        svg: 'ih-svg', arr: 'ih-array', rel: 'ih-rel',
+        vacio: ['Heap vacío — inserta el primer valor 🌱'],
+        relAyuda: 'Pasa el cursor o toca una celda del vector (o un nodo) para ver su padre y sus hijos.'
+    });
+    const ihPlay = crearReproductor('ih');
+    const ihRender = (hl = {}) => { ihVista.render(ih, ihIds, hl, ihPlay.dur()); ehActualizarUsar(); };
+    const ihLogAdd = (t, tipo) => logAdd('ih-log', t, tipo);
+
+    // Validación estricta: solo enteros de 1 a 3 dígitos (0–999).
+    // parseInt aceptaba «1e2» como 1 y «3.7» como 3 sin avisar.
+    const IH_VALIDO = /^\d{1,3}$/;
+    const IH_AYUDA = 'Enteros de 0 a 999 · Enter también inserta';
+
+    function ihMsg(texto, esError = false) {
+        const msg = $('ih-msg');
+        msg.textContent = texto;
+        msg.classList.toggle('err', esError);
+        $('ih-input').setAttribute('aria-invalid', String(esError));
+    }
+
+    // Mientras corre la animación, Insertar y Reiniciar se ven deshabilitados
+    function ihSetBusy(busy) {
+        ihBusy = busy;
+        $('ih-insert-btn').disabled = busy;
+        $('ih-reset-btn').disabled = busy;
+        ehActualizarUsar();
+    }
+
     async function ihInsert() {
         if (ihBusy) return;
-        const input = document.getElementById('ih-input');
-        const v = parseInt(input.value, 10);
-        document.getElementById('ih-log').innerHTML = '';
+        const input = $('ih-input');
+        const raw = input.value.trim();
 
-        if (isNaN(v) || v < 0 || v > 999) {
-            ihLogAdd('⚠️ Escribe un número entre 0 y 999.', 'err');
+        if (!IH_VALIDO.test(raw)) {
+            ihMsg(raw === ''
+                ? 'Escribe un valor antes de insertar.'
+                : `«${raw}» no es válido: usa un entero entre 0 y 999, sin signos ni decimales.`, true);
+            input.focus();
             return;
         }
         if (ih.length >= IH_MAX) {
-            ihLogAdd('⚠️ Heap lleno (15 nodos): presiona «Reiniciar» para seguir probando.', 'err');
+            ihMsg('Heap lleno (15 nodos): presiona «Reiniciar» para seguir probando.', true);
             return;
         }
 
-        ihBusy = true;
-        document.getElementById('ih-insert-btn').disabled = true;
+        const v = Number(raw);
+        ihMsg(IH_AYUDA);
+        ihSetBusy(true);
+        ihVista.fijarAltura(true);
+        ihPlay.empezar();
+        logOp('ih-log', `Insertar ${v}`);
 
         ih.push(v);
+        ihIds.push(sigId++);
         let i = ih.length - 1;
         ihLogAdd(`Se agrega ${v} al final del vector → i = ${i}`);
         ihRender({ cur: i });
-        await ihSleep(1000);
+        await ihPlay.esperar(1000);
 
         while (i > 0) {
             const p = Math.floor((i - 1) / 2);
             ihLogAdd(`padre = (${i} − 1) / 2 = ${p} → comparar ${ih[i]} con arr[${p}] = ${ih[p]}`);
             ihRender({ cur: i, cmp: p });
-            await ihSleep(1100);
+            await ihPlay.esperar(1100);
 
             if (ih[i] < ih[p]) {
                 ihLogAdd(`${ih[i]} < ${ih[p]} → intercambio (Sift-Up) ⬆️`, 'swap');
                 [ih[i], ih[p]] = [ih[p], ih[i]];
+                [ihIds[i], ihIds[p]] = [ihIds[p], ihIds[i]];
                 i = p;
                 ihRender({ cur: i });
-                await ihSleep(1000);
+                await ihPlay.esperar(1000);
             } else {
                 ihLogAdd(`${ih[i]} ≥ ${ih[p]} → cumple la propiedad Min-Heap, se detiene ✓`, 'ok');
                 break;
@@ -2904,89 +4634,89 @@ cola.<span class="fn">poll</span>(); <span class="cm">// → "Bug crítico" (pri
 
         input.value = '';
         input.focus();
-        document.getElementById('ih-insert-btn').disabled = false;
-        ihBusy = false;
+        ihPlay.fin();
+        ihVista.fijarAltura(false);
+        ihSetBusy(false);
     }
 
     function ihReset() {
         if (ihBusy) return;
-        ih = [...IH_INICIAL];
-        document.getElementById('ih-log').innerHTML = '';
-        ihLogAdd('Heap reiniciado: vacío. Inserta valores para construirlo desde cero.');
+        ih = [];
+        ihIds = [];
+        ihMsg(IH_AYUDA);
+        logOp('ih-log', 'Reiniciar');
+        ihLogAdd('Heap vacío. Inserta valores para construirlo desde cero.');
         ihRender();
     }
 
     // Enter en el input equivale a presionar «Insertar»
-    document.getElementById('ih-input').addEventListener('keydown', e => {
+    $('ih-input').addEventListener('keydown', e => {
         if (e.key === 'Enter') ihInsert();
     });
 
-    ihRender();   // primer dibujo al cargar la página
+    // Al corregir el valor, el error desaparece
+    $('ih-input').addEventListener('input', e => {
+        if (e.target.getAttribute('aria-invalid') === 'true') ihMsg(IH_AYUDA);
+    });
+
+    $('ih-clear').addEventListener('click', () => { $('ih-log').innerHTML = ''; });
 
     /* ── Eliminación interactiva: cada poll() extrae la raíz (el mínimo) y el
-       Sift-Down se anima paso a paso mostrando la fórmula hijos = 2i+1, 2i+2. */
+       Sift-Down se anima paso a paso con la fórmula hijos = 2i+1, 2i+2. */
     const EH_INICIAL = [5, 10, 12, 15, 20, 30, 40, 25, 18];
-    let eh = [...EH_INICIAL];
+    let eh = [], ehIds = [];
     let ehSacados = [];                       // acumula los mínimos extraídos
     let ehBusy = false;
 
-    // Redibuja árbol y vector. hl.cur = el que baja (naranja), hl.cmp = hijo comparado (cian)
-    function ehRender(hl = {}) {
-        let edges = '', nodes = '';
-        eh.forEach((v, i) => {
-            const { x, y } = ihPos(i);
-            if (i > 0) {
-                const p = ihPos(Math.floor((i - 1) / 2));
-                edges += `<line x1="${p.x}" y1="${p.y}" x2="${x}" y2="${y}" stroke="#10b981" stroke-width="2" opacity="0.6"/>`;
-            }
-            const fill = i === hl.cur ? '#f59e0b' : (i === hl.cmp ? '#06b6d4' : '#10b981');
-            nodes += `<g transform="translate(${x},${y})">` +
-                `<circle r="19" fill="${fill}"/>` +
-                `<text y="5" text-anchor="middle" fill="#fff" font-family="JetBrains Mono" font-size="13" font-weight="bold">${v}</text>` +
-                `<text y="34" text-anchor="middle" fill="#64748b" font-family="JetBrains Mono" font-size="9">i=${i}</text></g>`;
-        });
-        document.getElementById('eh-svg').innerHTML = edges + nodes;
+    const ehVista = crearVista({
+        svg: 'eh-svg', arr: 'eh-array', rel: 'eh-rel',
+        vacio: ['Heap vacío: ya extrajiste todos los nodos', '«Reiniciar» vuelve al ejemplo'],
+        relAyuda: 'Pasa el cursor o toca una celda del vector (o un nodo) para ver su padre y sus hijos.'
+    });
+    const ehPlay = crearReproductor('eh');
+    const ehRender = (hl = {}) => ehVista.render(eh, ehIds, hl, ehPlay.dur());
+    const ehLogAdd = (t, tipo) => logAdd('eh-log', t, tipo);
 
-        document.getElementById('eh-array').innerHTML = eh.map((v, i) => {
-            let cls = i === 0 ? ' root' : '';
-            if (i === hl.cur) cls = ' new';
-            else if (i === hl.cmp) cls = ' moved';
-            return `<div class="array-cell${cls}">${v}<span class="idx">${i}</span></div>`;
-        }).join('');
+    function ehCargar(valores) {
+        eh = [...valores];
+        ehIds = eh.map(() => sigId++);
+        ehSacados = [];
     }
 
-    function ehLogAdd(texto, tipo = '') {
-        const log = document.getElementById('eh-log');
-        const el = document.createElement('span');
-        el.className = 'calc' + (tipo ? ' ' + tipo : '');
-        el.textContent = texto;
-        log.appendChild(el);
-        log.scrollTop = log.scrollHeight;
+    // «Usar el heap que construí» solo tiene sentido si hay algo construido
+    function ehActualizarUsar() {
+        const b = $('eh-usar');
+        if (b) b.disabled = ehBusy || ihBusy || ih.length === 0;
+    }
+
+    // Mientras corre la animación (o con el heap vacío) los botones se ven deshabilitados
+    function ehSetBusy(busy) {
+        ehBusy = busy;
+        $('eh-poll-btn').disabled = busy || eh.length === 0;
+        $('eh-reset-btn').disabled = busy;
+        ehActualizarUsar();
     }
 
     async function ehPoll() {
-        if (ehBusy) return;
-        document.getElementById('eh-log').innerHTML = '';
-
-        if (eh.length === 0) {
-            ehLogAdd('⚠️ Heap vacío: presiona «Reiniciar» para volver a empezar.', 'err');
-            return;
-        }
-
-        ehBusy = true;
-        document.getElementById('eh-poll-btn').disabled = true;
+        if (ehBusy || eh.length === 0) return;
+        ehSetBusy(true);
+        ehVista.fijarAltura(true);
+        ehPlay.empezar();
 
         const min = eh[0];
+        logOp('eh-log', `poll() → extraer ${min}`);
         ehLogAdd(`poll() → se extrae la raíz ${min} (el mínimo) ⬇️`);
         ehRender({ cur: 0 });
-        await ihSleep(1000);
+        await ehPlay.esperar(1000);
 
         const ultimo = eh.pop();
+        const ultimoId = ehIds.pop();
         if (eh.length > 0) {
             eh[0] = ultimo;
+            ehIds[0] = ultimoId;
             ehLogAdd(`El último elemento (${ultimo}) pasa a la raíz → i = 0`);
             ehRender({ cur: 0 });
-            await ihSleep(1000);
+            await ehPlay.esperar(1000);
 
             let i = 0;
             while (true) {
@@ -3003,14 +4733,15 @@ cola.<span class="fn">poll</span>(); <span class="cm">// → "Bug crítico" (pri
                     ehLogAdd(`hijos = ${l} y ${r} → solo existe el izquierdo: arr[${l}] = ${eh[l]}`);
                 }
                 ehRender({ cur: i, cmp: m });
-                await ihSleep(1100);
+                await ehPlay.esperar(1100);
 
                 if (eh[m] < eh[i]) {
                     ehLogAdd(`${eh[m]} < ${eh[i]} → intercambio (Sift-Down) ⬇️`, 'swap');
                     [eh[i], eh[m]] = [eh[m], eh[i]];
+                    [ehIds[i], ehIds[m]] = [ehIds[m], ehIds[i]];
                     i = m;
                     ehRender({ cur: i });
-                    await ihSleep(1000);
+                    await ehPlay.esperar(1000);
                 } else {
                     ehLogAdd(`${eh[i]} ≤ ${eh[m]} → cumple la propiedad Min-Heap, se detiene ✓`, 'ok');
                     break;
@@ -3027,20 +4758,212 @@ cola.<span class="fn">poll</span>(); <span class="cm">// → "Bug crítico" (pri
             ehLogAdd(`Vector actual: [${eh.join(', ')}] → nueva raíz (mínimo): ${eh[0]}`);
         }
 
-        document.getElementById('eh-poll-btn').disabled = false;
-        ehBusy = false;
+        ehPlay.fin();
+        ehVista.fijarAltura(false);
+        ehSetBusy(false);
     }
 
     function ehReset() {
         if (ehBusy) return;
-        eh = [...EH_INICIAL];
-        ehSacados = [];
-        document.getElementById('eh-log').innerHTML = '';
+        ehCargar(EH_INICIAL);
+        logOp('eh-log', 'Reiniciar');
         ehLogAdd(`Heap reiniciado al ejemplo: [${EH_INICIAL.join(', ')}]`);
         ehRender();
+        ehSetBusy(false);
     }
 
-    ehRender();   // primer dibujo al cargar la página
+    function ehUsarConstruido() {
+        if (ehBusy || ihBusy || ih.length === 0) return;
+        ehCargar(ih);
+        logOp('eh-log', 'Usar el heap construido');
+        ehLogAdd(`Heap cargado desde «Demo: insertar»: [${eh.join(', ')}]`);
+        ehRender();
+        ehSetBusy(false);
+    }
+
+    $('eh-clear').addEventListener('click', () => { $('eh-log').innerHTML = ''; });
+
+    // Primer dibujo al cargar la página
+    ehCargar(EH_INICIAL);
+    ihRender();
+    ehRender();
+    ehSetBusy(false);
+
+    // Las animaciones en bucle de #animacion se pausan fuera de pantalla
+    const animSeccion = $('animacion');
+    if (animSeccion) {
+        new IntersectionObserver(([e]) => animSeccion.classList.toggle('anim-off', !e.isIntersecting))
+            .observe(animSeccion);
+    }
+
+    /* ═══════ MODO PRESENTACIÓN ═══════
+       Una sección por pantalla, con el encabezado siempre en el mismo lugar.
+       ← → / espacio / Re Pág / Av Pág para avanzar, P para entrar o salir, Esc
+       para salir. En las secciones con ejemplo nodo a nodo, → recorre los pasos
+       de uno en uno antes de pasar a la siguiente diapositiva. */
+    const pres = (() => {
+        const diapos = [...document.querySelectorAll('main > section')];
+        const hud = $('pres-hud');
+        const btn = $('pres-btn');
+        let actual = 0, paso = 0, activo = false;
+
+        // Cada sección envuelve su contenido en .slide-body (display: contents fuera
+        // del modo presentación), que es lo que se escala para caber en pantalla
+        diapos.forEach(sec => {
+            const cuerpo = document.createElement('div');
+            cuerpo.className = 'slide-body';
+            while (sec.firstChild) cuerpo.appendChild(sec.firstChild);
+            sec.appendChild(cuerpo);
+        });
+
+        const pasosDe = sec => [...sec.querySelectorAll('.insert-step')];
+        const tituloDe = sec => {
+            const h = sec.querySelector('h2, h1');
+            return h ? h.textContent.replace(/\s+/g, ' ').trim() : '';
+        };
+        const parteDe = sec => {
+            const l = sec.querySelector('.part-label');
+            return l ? l.textContent.replace(/\s+/g, ' ').trim() : (sec.id === 'agenda' ? 'Agenda' : 'Inicio');
+        };
+
+        // Escala el contenido para que quepa. Por debajo del 75 % el texto (sobre
+        // todo el código) deja de leerse en un proyector: ahí la diapositiva
+        // permite scroll interno en lugar de achicarse más.
+        // En pantallas grandes (proyector, 1920 px) el contenido también crece,
+        // hasta ×1,35, para no quedar pequeño en medio de mucho vacío.
+        const ZOOM_MIN = 0.75;
+        function ajustar() {
+            const sec = diapos[actual], cuerpo = sec.querySelector('.slide-body');
+            let z = Math.min(1.35, Math.max(1, Math.min(innerWidth / 1440, innerHeight / 900)));
+            cuerpo.style.zoom = z;
+            for (let k = 0; k < 3 && sec.scrollHeight > sec.clientHeight + 1 && z > ZOOM_MIN; k++) {
+                z = Math.max(ZOOM_MIN, z * sec.clientHeight / sec.scrollHeight * 0.99);
+                cuerpo.style.zoom = z;
+            }
+            sec.scrollTop = 0;
+        }
+
+        function pintar(dir = 0) {
+            diapos.forEach((sec, i) => {
+                sec.classList.toggle('slide-actual', i === actual);
+                sec.classList.toggle('desde-izq', i === actual && dir < 0);
+            });
+            const sec = diapos[actual], pasos = pasosDe(sec);
+            pasos.forEach((p, k) => p.classList.toggle('paso-actual', k === paso));
+            $('pres-parte').textContent = parteDe(sec);
+            $('pres-titulo').textContent = tituloDe(sec);
+            $('pres-num').textContent = `${actual + 1} / ${diapos.length}`;
+            $('pres-paso').textContent = pasos.length ? `Paso ${paso + 1} de ${pasos.length}` : '';
+            $('pres-prev').disabled = actual === 0 && paso === 0;
+            $('pres-next').disabled = actual === diapos.length - 1 && paso >= Math.max(0, pasos.length - 1);
+            $('pres-barra').style.width = ((actual + 1) / diapos.length * 100) + '%';
+            history.replaceState(null, '', '#' + sec.id);
+            ajustar();
+        }
+
+        function siguiente() {
+            const pasos = pasosDe(diapos[actual]);
+            if (paso < pasos.length - 1) { paso++; return pintar(0); }
+            if (actual < diapos.length - 1) { actual++; paso = 0; pintar(1); }
+        }
+
+        function anterior() {
+            if (paso > 0) { paso--; return pintar(0); }
+            if (actual > 0) {
+                actual--;
+                paso = Math.max(0, pasosDe(diapos[actual]).length - 1);
+                pintar(-1);
+            }
+        }
+
+        function ir(i) { actual = Math.max(0, Math.min(diapos.length - 1, i)); paso = 0; pintar(0); }
+
+        function entrar() {
+            if (activo) return;
+            // Empieza en la sección del enlace (?presentar#id) o en la que se estaba leyendo
+            const medio = innerHeight / 3;
+            let i = 0;
+            diapos.forEach((sec, k) => { if (sec.getBoundingClientRect().top <= medio) i = k; });
+            const pedida = location.hash ? diapos.findIndex(sec => '#' + sec.id === location.hash) : -1;
+            if (pedida > 0 && window.scrollY === 0) i = pedida;
+            activo = true;
+            actual = i;
+            paso = 0;
+            document.body.classList.add('presentando');
+            hud.hidden = false;
+            btn.setAttribute('aria-pressed', 'true');
+            setNavSheet(false);
+            pintar(0);
+            $('pres-next').focus();
+            if (document.documentElement.requestFullscreen && !document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(() => {});
+            }
+        }
+
+        function salir() {
+            if (!activo) return;
+            activo = false;
+            const sec = diapos[actual];
+            document.body.classList.remove('presentando');
+            diapos.forEach(s => {
+                s.classList.remove('slide-actual', 'desde-izq');
+                s.querySelector('.slide-body').style.zoom = '';
+            });
+            document.querySelectorAll('.paso-actual').forEach(p => p.classList.remove('paso-actual'));
+            hud.hidden = true;
+            btn.setAttribute('aria-pressed', 'false');
+            if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+            sec.scrollIntoView({ block: 'start' });
+            btn.focus();
+        }
+
+        const escribiendo = t => t.closest('input, textarea, select, [contenteditable="true"]');
+
+        document.addEventListener('keydown', e => {
+            if (e.altKey || e.ctrlKey || e.metaKey) return;
+            if (!activo) {
+                if ((e.key === 'p' || e.key === 'P') && !escribiendo(e.target)) { e.preventDefault(); entrar(); }
+                return;
+            }
+            if (escribiendo(e.target)) { if (e.key === 'Escape') e.target.blur(); return; }
+            const avanza = ['ArrowRight', 'ArrowDown', 'PageDown', ' '];
+            const retrocede = ['ArrowLeft', 'ArrowUp', 'PageUp'];
+            // Espacio sobre un botón lo activa; no lo convertimos en «siguiente»
+            if (e.key === ' ' && e.target.closest('button, a, label')) return;
+            if (avanza.includes(e.key)) { e.preventDefault(); siguiente(); }
+            else if (retrocede.includes(e.key)) { e.preventDefault(); anterior(); }
+            else if (e.key === 'Home') { e.preventDefault(); ir(0); }
+            else if (e.key === 'End') { e.preventDefault(); ir(diapos.length - 1); }
+            else if (e.key === 'Escape' || e.key === 'p' || e.key === 'P') { e.preventDefault(); salir(); }
+        });
+
+        // Si el navegador sale de pantalla completa (p. ej. con Esc), también se sale del modo
+        document.addEventListener('fullscreenchange', () => { if (!document.fullscreenElement && activo) salir(); });
+
+        // Deslizar en pantallas táctiles (no sobre controles ni el árbol interactivo)
+        let x0 = null, y0 = null;
+        document.addEventListener('touchstart', e => {
+            // No sobre controles, el árbol interactivo ni bloques con scroll propio (código):
+            // ahí el gesto pertenece al contenido, no al cambio de diapositiva
+            if (!activo || e.target.closest('button, input, label, .array-cell, svg, .ih-log, pre, table')) { x0 = null; return; }
+            x0 = e.touches[0].clientX; y0 = e.touches[0].clientY;
+        }, { passive: true });
+        document.addEventListener('touchend', e => {
+            if (x0 === null) return;
+            const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
+            if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) (dx < 0 ? siguiente : anterior)();
+            x0 = null;
+        }, { passive: true });
+
+        addEventListener('resize', () => { if (activo) ajustar(); });
+        btn.addEventListener('click', () => (activo ? salir() : entrar()));
+        $('pres-prev').addEventListener('click', anterior);
+        $('pres-next').addEventListener('click', siguiente);
+        $('pres-salir').addEventListener('click', salir);
+
+        if (new URLSearchParams(location.search).has('presentar')) entrar();
+        return { entrar, salir, ir, siguiente, anterior };
+    })();
 </script>
 
 </body>
